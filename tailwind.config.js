@@ -9,9 +9,14 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    colors: {
+      "sidebar-dark": "#112D4E",
+      "sidebar-light": "#DBE2EF",
+      "sidebar-white": "#F9F7F7"
+    },
     extend: {
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
       },
     },
   },
