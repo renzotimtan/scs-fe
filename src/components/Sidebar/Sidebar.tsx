@@ -1,4 +1,7 @@
-import SidebarLink from "./SidebarLink";
+import Box from "@mui/joy/Box";
+import List from "@mui/joy/List";
+import ListSubheader from "@mui/joy/ListSubheader";
+import ListItem from "@mui/joy/ListItem";
 import WarehouseRoundedIcon from "@mui/icons-material/WarehouseRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import WidgetsRoundedIcon from "@mui/icons-material/WidgetsRounded";
@@ -11,58 +14,125 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
 import SwapHorizontalCircleRoundedIcon from "@mui/icons-material/SwapHorizontalCircleRounded";
 
-const Sidebar = (): JSX.Element => {
+import SidebarLink from "./SidebarLink";
+
+export default function Navigation(): JSX.Element {
   return (
-    <nav className="bg-sidebar-dark h-screen w-[310px]">
-      <div className="px-5">
-        <h3 className="mb-5 pt-8 text-sidebar-light">Company Name</h3>
-        <hr className="text-sidebar-light mb-8" />
-
-        <div className="mb-6">
-          <h4 className="text-sidebar-light mb-3">Configuration</h4>
-          <div>
-            <SidebarLink Icon={WidgetsRoundedIcon} label="Items" />
-            <SidebarLink Icon={GroupsRoundedIcon} label="Suppliers" />
-            <SidebarLink Icon={WarehouseRoundedIcon} label="Warehouses" />
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h4 className="text-sidebar-light mb-3">Purchasing</h4>
-          <div>
-            <SidebarLink Icon={ShoppingCartIcon} label="Purchase Order" />
+    <Box
+      component="nav"
+      className="Navigation"
+      sx={[
+        {
+          p: 3,
+          height: "100vh",
+          width: "16%",
+          bgcolor: "background.surface",
+          borderRight: "1px solid",
+          borderColor: "divider",
+        },
+      ]}
+    >
+      <h4 className="mb-4 p-2">COMPANY NAME</h4>
+      <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
+        <ListItem nested>
+          <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
+            Configuration
+          </ListSubheader>
+          <List aria-labelledby="nav-list-browse">
+            <SidebarLink
+              Icon={WidgetsRoundedIcon}
+              label="Items"
+              link="/configuration/item"
+            />
+            <SidebarLink
+              Icon={GroupsRoundedIcon}
+              label="Suppliers"
+              link="/configuration/supplier"
+            />
+            <SidebarLink
+              Icon={WarehouseRoundedIcon}
+              label="Warehouses"
+              link="/configuration/warehouse"
+            />
+          </List>
+        </ListItem>
+        <ListItem nested sx={{ mt: 2 }}>
+          <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
+            Purchasing
+          </ListSubheader>
+          <List
+            aria-labelledby="nav-list-tags"
+            size="sm"
+            sx={{
+              "--ListItemDecorator-size": "32px",
+            }}
+          >
+            <SidebarLink
+              Icon={ShoppingCartIcon}
+              label="Purchase Order"
+              link="/purchasing/purchase-order"
+            />
             <SidebarLink
               Icon={LocalShippingIcon}
               label="Supplier Delivery Receipt"
+              link="/purchasing/delivery-receipt"
             />
-            <SidebarLink Icon={InventoryRoundedIcon} label="Receiving Report" />
+            <SidebarLink
+              Icon={InventoryRoundedIcon}
+              label="Receiving Report"
+              link="/purchasing/receiving-report"
+            />
             <SidebarLink
               Icon={SwapHorizontalCircleRoundedIcon}
               label="Stock Transfer"
+              link="/purchasing/stock-transfer"
             />
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h4 className="text-sidebar-light mb-3">Sales</h4>
-          <div>
+          </List>
+        </ListItem>
+        <ListItem nested sx={{ mt: 2 }}>
+          <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
+            Sales
+          </ListSubheader>
+          <List
+            aria-labelledby="nav-list-tags"
+            size="sm"
+            sx={{
+              "--ListItemDecorator-size": "32px",
+            }}
+          >
             <SidebarLink
               Icon={ShoppingCartIcon}
               label="Customer Purchase Order"
+              link="/sales/customer-purchase-order"
             />
-            <SidebarLink Icon={MoveDownRoundedIcon} label="Allocation" />
-            <SidebarLink Icon={MoveUpRoundedIcon} label="De-Allocation" />
-            <SidebarLink Icon={LocalShippingIcon} label="Delivery Planning" />
+            <SidebarLink
+              Icon={MoveDownRoundedIcon}
+              label="Allocation"
+              link="/sales/allocation"
+            />
+            <SidebarLink
+              Icon={MoveUpRoundedIcon}
+              label="De-Allocation"
+              link="/sales/deallocation"
+            />
+            <SidebarLink
+              Icon={LocalShippingIcon}
+              label="Delivery Planning"
+              link="/sales/delivery-planning"
+            />
             <SidebarLink
               Icon={AssignmentReturnRoundedIcon}
               label="Customer Return"
+              link="/sales/customer-return"
             />
-            <SidebarLink Icon={PaidRoundedIcon} label="A.R. Receipts" />
-          </div>
-        </div>
-      </div>
-    </nav>
+            <SidebarLink
+              Icon={PaidRoundedIcon}
+              label="A.R. Receipts"
+              link="/sales/ar-receipts"
+            />
+          </List>
+        </ListItem>
+      </List>
+    </Box>
   );
-};
-
-export default Sidebar;
+}

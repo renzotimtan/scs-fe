@@ -1,16 +1,36 @@
+import ListItem from "@mui/joy/ListItem";
+import ListItemButton from "@mui/joy/ListItemButton";
+import ListItemDecorator from "@mui/joy/ListItemDecorator";
+import ListItemContent from "@mui/joy/ListItemContent";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 interface SidebarLinkProps {
   Icon: any;
   label: string;
+  link: string;
+  selected?: boolean;
 }
 
-const SidebarLink = ({ Icon, label }: SidebarLinkProps): JSX.Element => {
+const SidebarLink = ({
+  Icon,
+  label,
+  link,
+  selected,
+}: SidebarLinkProps): JSX.Element => {
+  const pathName = usePathname();
+
   return (
-    <div className="flex items-center ml-7">
-      <Icon className="text-sidebar-light" />
-      <p className="ml-2 text-sm text-sidebar-light hover:text-sidebar-white my-2 cursor-pointer">
-        {label}
-      </p>
-    </div>
+    <Link href={link}>
+      <ListItem>
+        <ListItemButton selected={pathName === link}>
+          <ListItemDecorator>
+            <Icon fontSize="small" />
+          </ListItemDecorator>
+          <ListItemContent>{label}</ListItemContent>
+        </ListItemButton>
+      </ListItem>
+    </Link>
   );
 };
 

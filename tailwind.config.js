@@ -12,11 +12,11 @@ module.exports = {
     colors: {
       "sidebar-dark": "#112D4E",
       "sidebar-light": "#DBE2EF",
-      "sidebar-white": "#F9F7F7"
+      "sidebar-white": "#F9F7F7",
     },
     extend: {
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
       },
     },
   },
