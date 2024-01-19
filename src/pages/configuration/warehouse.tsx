@@ -1,5 +1,5 @@
 const WarehouseForm = (): JSX.Element => {
-  return <h1>Create Warehouse</h1>;
+  return <h2>Create Warehouse</h2>;
 };
 
 export default WarehouseForm;

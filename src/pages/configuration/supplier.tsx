@@ -1,5 +1,5 @@
 const SupplierForm = (): JSX.Element => {
-  return <h1>Create Supplier</h1>;
+  return <h2>Create Supplier</h2>;
 };
 
 export default SupplierForm;

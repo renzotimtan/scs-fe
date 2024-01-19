@@ -1,5 +1,5 @@
 const DeliveryPlanningForm = (): JSX.Element => {
-  return <h1>Create Delivery Planning</h1>;
+  return <h2>Create Delivery Planning</h2>;
 };
 
 export default DeliveryPlanningForm;

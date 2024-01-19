@@ -1,5 +1,5 @@
 const ReceivingReportForm = (): JSX.Element => {
-  return <h1>Create Receiving Report</h1>;
+  return <h2>Create Receiving Report</h2>;
 };
 
 export default ReceivingReportForm;

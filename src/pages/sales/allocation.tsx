@@ -1,5 +1,5 @@
 const AllocationForm = (): JSX.Element => {
-  return <h1>Create Allocation</h1>;
+  return <h2>Create Allocation</h2>;
 };
 
 export default AllocationForm;

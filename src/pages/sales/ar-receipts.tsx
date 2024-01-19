@@ -1,5 +1,5 @@
 const AccountReceivableReceiptsForm = (): JSX.Element => {
-  return <h1>Create AR Receipts</h1>;
+  return <h2>Create AR Receipts</h2>;
 };
 
 export default AccountReceivableReceiptsForm;

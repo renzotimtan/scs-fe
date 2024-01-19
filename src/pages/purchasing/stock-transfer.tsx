@@ -1,5 +1,5 @@
 const StockTransferForm = (): JSX.Element => {
-  return <h1>Create Stock Transfer</h1>;
+  return <h2>Create Stock Transfer</h2>;
 };
 
 export default StockTransferForm;

@@ -1,5 +1,5 @@
 const DeliveryReceiptForm = (): JSX.Element => {
-  return <h1>Create Delivery Receipt</h1>;
+  return <h2>Create Delivery Receipt</h2>;
 };
 
 export default DeliveryReceiptForm;

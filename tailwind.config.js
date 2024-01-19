@@ -13,6 +13,8 @@ module.exports = {
       "sidebar-dark": "#112D4E",
       "sidebar-light": "#DBE2EF",
       "sidebar-white": "#F9F7F7",
+      "button-primary": "#0B6BCB",
+      "button-neutral": "#555E68",
     },
     extend: {
       fontFamily: {

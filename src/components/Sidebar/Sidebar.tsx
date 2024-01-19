@@ -1,4 +1,5 @@
 import Box from "@mui/joy/Box";
+import { Divider } from "@mui/joy";
 import List from "@mui/joy/List";
 import ListSubheader from "@mui/joy/ListSubheader";
 import ListItem from "@mui/joy/ListItem";
@@ -16,7 +17,7 @@ import SwapHorizontalCircleRoundedIcon from "@mui/icons-material/SwapHorizontalC
 
 import SidebarLink from "./SidebarLink";
 
-export default function Navigation(): JSX.Element {
+export default function Sidebar(): JSX.Element {
   return (
     <Box
       component="nav"
@@ -32,10 +33,13 @@ export default function Navigation(): JSX.Element {
         },
       ]}
     >
-      <h4 className="mb-4 p-2">COMPANY NAME</h4>
+      <h4 className="mb-2 p-2">COMPANY NAME</h4>
+      <Divider />
       <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
         <ListItem nested>
-          <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
+          <ListSubheader
+            sx={{ letterSpacing: "2px", fontWeight: "800", marginTop: "10px" }}
+          >
             Configuration
           </ListSubheader>
           <List aria-labelledby="nav-list-browse">

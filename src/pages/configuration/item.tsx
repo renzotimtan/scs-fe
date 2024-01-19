@@ -1,5 +1,5 @@
 const ItemForm = (): JSX.Element => {
-  return <h1>Create Item</h1>;
+  return <h2>Create Item</h2>;
 };
 
 export default ItemForm;

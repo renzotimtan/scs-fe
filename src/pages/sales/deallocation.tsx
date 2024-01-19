@@ -1,5 +1,5 @@
 const DeallocationForm = (): JSX.Element => {
-  return <h1>Create Deallocation</h1>;
+  return <h2>Create Deallocation</h2>;
 };
 
 export default DeallocationForm;
