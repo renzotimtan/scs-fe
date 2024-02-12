@@ -27,6 +27,7 @@ export default function Sidebar(): JSX.Element {
           p: 3,
           height: "100vh",
           width: "16%",
+          position: "fixed",
           bgcolor: "background.surface",
           borderRight: "1px solid",
           borderColor: "divider",

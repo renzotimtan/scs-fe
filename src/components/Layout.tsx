@@ -3,9 +3,9 @@ import Sidebar from "./Sidebar/Sidebar";
 
 const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
   return (
-    <div className="font-inter flex">
+    <div className="font-inter">
       <Sidebar />
-      <main className="w-[84%]">{children}</main>
+      <main className="w-[84%] ml-[16%]">{children}</main>
     </div>
   );
 };
