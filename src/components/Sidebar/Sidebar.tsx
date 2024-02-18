@@ -24,9 +24,9 @@ export default function Sidebar(): JSX.Element {
       className="Navigation"
       sx={[
         {
-          p: 3,
+          p: 2,
           height: "100vh",
-          width: "16%",
+          width: "18%",
           position: "fixed",
           bgcolor: "background.surface",
           borderRight: "1px solid",

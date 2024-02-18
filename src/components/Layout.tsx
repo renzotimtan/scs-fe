@@ -5,7 +5,7 @@ const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
   return (
     <div className="font-inter">
       <Sidebar />
-      <main className="w-[84%] ml-[16%]">{children}</main>
+      <main className="w-[82%] ml-[18%]">{children}</main>
     </div>
   );
 };

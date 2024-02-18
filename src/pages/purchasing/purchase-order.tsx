@@ -19,15 +19,15 @@ import Table from "@mui/joy/Table";
 
 const PurchaseOrderForm = (): JSX.Element => {
   return (
-    <div className="py-8 px-24">
+    <div className="py-8 px-20">
       <h2 className="mb-6">Create Purchase Order</h2>
       <Box sx={{ display: "flex" }}>
-        <Card className="w-2/3 mr-7">
+        <Card className="w-[60%] mr-7">
           <div>
             <div className="flex justify-between items-center">
               <FormControl size="sm" sx={{ mb: 1 }}>
                 <FormLabel>Purchase Order No.</FormLabel>
-                <h4>12345</h4>
+                <h5>12345</h5>
               </FormControl>
               <Button
                 className="ml-4 w-[130px] h-[35px] bg-button-neutral"
@@ -91,20 +91,20 @@ const PurchaseOrderForm = (): JSX.Element => {
             </Stack>
           </div>
         </Card>
-        <Card className="w-1/3">
+        <Card className="w-[40%]">
           <div>
             <div className="flex justify-around">
               <FormControl size="sm" sx={{ mb: 1 }}>
                 <FormLabel>FOB Total</FormLabel>
-                <h4>₱15,000</h4>
+                <h5>₱15,000</h5>
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1 }}>
                 <FormLabel>NET Amount</FormLabel>
-                <h4>₱15,000</h4>
+                <h5>₱15,000</h5>
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1 }}>
                 <FormLabel>LANDED Total</FormLabel>
-                <h4>₱15,000</h4>
+                <h5>₱15,000</h5>
               </FormControl>
             </div>
             <Divider />
@@ -155,7 +155,7 @@ const PurchaseOrderForm = (): JSX.Element => {
           </thead>
           <tbody>
             <tr>
-              <td className="flex items-center">
+              <td>
                 <FileDownloadIcon className="mr-2 cursor-pointer" />
                 MCRO1532
               </td>
