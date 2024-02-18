@@ -15,6 +15,7 @@ module.exports = {
       "sidebar-white": "#F9F7F7",
       "button-primary": "#0B6BCB",
       "button-neutral": "#555E68",
+      "delete-red": "#F7C5C5",
     },
     extend: {
       fontFamily: {

@@ -19,7 +19,7 @@ import Table from "@mui/joy/Table";
 
 const PurchaseOrderForm = (): JSX.Element => {
   return (
-    <div className="py-8 px-20">
+    <div>
       <h2 className="mb-6">Create Purchase Order</h2>
       <Box sx={{ display: "flex" }}>
         <Card className="w-[60%] mr-7">
