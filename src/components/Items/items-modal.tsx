@@ -1,8 +1,7 @@
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import DoDisturbIcon from "@mui/icons-material/DoDisturb";
-import SaveIcon from "@mui/icons-material/Save";
+import type { Item } from "../../pages/configuration/item";
 import {
   FormControl,
   FormLabel,
@@ -13,17 +12,19 @@ import {
   Box,
 } from "@mui/joy";
 
-interface AddItemsModalProps {
-  className: string;
+interface ItemsModalProps {
   open: boolean;
+  title: string;
   setOpen: (isOpen: boolean) => void;
+  row?: Item;
 }
 
-const AddItemsModal = ({
-  className,
+const ItemsModal = ({
   open,
+  title,
   setOpen,
-}: AddItemsModalProps): JSX.Element => {
+  row,
+}: ItemsModalProps): JSX.Element => {
   return (
     <Modal
       aria-labelledby="modal-title"
@@ -46,35 +47,42 @@ const AddItemsModal = ({
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <Box>
-            <h3 className="mb-6">Add Item</h3>
+            <h3 className="mb-6">{title}</h3>
             <Card className="w-[100%] mr-7">
               <div>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Stock Code</FormLabel>
-                    <Input size="sm" placeholder="ABC-123" />
+                    <Input
+                      size="sm"
+                      placeholder="ABC-123"
+                      value={row?.stockCode}
+                    />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Name</FormLabel>
-                    <Input size="sm" placeholder="Item Name" />
+                    <Input
+                      size="sm"
+                      placeholder="Item Name"
+                      value={row?.name}
+                    />
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Category</FormLabel>
-                    <Input size="sm" placeholder="Fans" />
+                    <Input size="sm" placeholder="Fans" value={row?.category} />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Brand</FormLabel>
-                    <Input size="sm" placeholder="Hayes" />
+                    <Input size="sm" placeholder="Hayes" value={row?.brand} />
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
-                    <FormLabel>Acquision Cost</FormLabel>
+                    <FormLabel>Acquision Cost (₱)</FormLabel>
                     <Input
                       type="number"
-                      startDecorator="₱"
                       size="sm"
                       placeholder="0"
                       slotProps={{
@@ -82,13 +90,13 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.acquisitionCost}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
-                    <FormLabel>Net Cost B/F Tax</FormLabel>
+                    <FormLabel>Net Cost B/F Tax (₱)</FormLabel>
                     <Input
                       type="number"
-                      startDecorator="₱"
                       size="sm"
                       placeholder="0"
                       slotProps={{
@@ -96,19 +104,23 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.netCostTax}
                     />
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Currency Used</FormLabel>
-                    <Input size="sm" placeholder="USD" />
+                    <Input
+                      size="sm"
+                      placeholder="USD"
+                      value={row?.currencyUsed}
+                    />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
-                    <FormLabel>Philippine Peso Rate</FormLabel>
+                    <FormLabel>Philippine Peso Rate (₱)</FormLabel>
                     <Input
                       type="number"
-                      startDecorator="₱"
                       size="sm"
                       placeholder="0"
                       slotProps={{
@@ -116,6 +128,7 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.pesoRate}
                     />
                   </FormControl>
                 </Stack>
@@ -131,6 +144,7 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.onStock}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
@@ -144,6 +158,7 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.available}
                     />
                   </FormControl>
                 </Stack>
@@ -159,6 +174,7 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.allocated}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
@@ -172,6 +188,7 @@ const AddItemsModal = ({
                           min: 0,
                         },
                       }}
+                      value={row?.purchased}
                     />
                   </FormControl>
                 </Stack>
@@ -189,4 +206,4 @@ const AddItemsModal = ({
   );
 };
 
-export default AddItemsModal;
+export default ItemsModal;

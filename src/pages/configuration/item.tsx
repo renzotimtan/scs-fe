@@ -1,26 +1,45 @@
 import { useState } from "react";
-import AddItemsModal from "../../components/Items/add-items";
+import ItemsModal from "../../components/Items/items-modal";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
+import DeleteItemsModal from "../../components/Items/delete-items-modal";
+
+export interface Item {
+  stockCode: string;
+  name: string;
+  category: string;
+  brand: string;
+  acquisitionCost: number;
+  netCostTax: number;
+  currencyUsed: string;
+  pesoRate: number;
+  onStock: number;
+  available: number;
+  allocated: number;
+  purchased: number;
+}
 
 const ItemForm = (): JSX.Element => {
-  const [open, setOpen] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Item>();
 
   function createData(
     stockCode: string,
     name: string,
     category: string,
     brand: string,
-    acquisitionCost: string,
-    netCostTax: string,
+    acquisitionCost: number,
+    netCostTax: number,
     currencyUsed: string,
-    pesoRate: string,
-    onStock: string,
-    available: string,
-    allocated: string,
-    purchased: string,
+    pesoRate: number,
+    onStock: number,
+    available: number,
+    allocated: number,
+    purchased: number,
   ) {
     return {
       stockCode,
@@ -44,196 +63,196 @@ const ItemForm = (): JSX.Element => {
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
     createData(
       "ABC123",
       "Item Name",
       "Fans",
       "Fayes",
-      "123",
-      "123",
+      123,
+      123,
       "USD",
-      "45",
-      "50",
-      "50",
-      "0",
-      "0",
+      45,
+      50,
+      50,
+      0,
+      0,
     ),
   ];
 
@@ -247,7 +266,7 @@ const ItemForm = (): JSX.Element => {
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
             onClick={() => {
-              setOpen(true);
+              setOpenAdd(true);
             }}
           >
             Add Item
@@ -314,14 +333,14 @@ const ItemForm = (): JSX.Element => {
                 <th style={{ width: 300 }}>Name</th>
                 <th style={{ width: 100 }}>Category</th>
                 <th style={{ width: 100 }}>Brand</th>
-                <th style={{ width: 100 }}>Acquision Cost</th>
-                <th style={{ width: 200 }}>Net Cost B/F Tax</th>
-                <th style={{ width: 100 }}>Currency Used</th>
-                <th style={{ width: 200 }}>Philippine Peso Rate</th>
-                <th style={{ width: 200 }}>On Stock</th>
-                <th style={{ width: 200 }}>Available</th>
-                <th style={{ width: 200 }}>Allocated</th>
-                <th style={{ width: 200 }}>Purchased</th>
+                <th style={{ width: 150 }}>Acquision Cost (₱)</th>
+                <th style={{ width: 170 }}>Net Cost B/F Tax (₱)</th>
+                <th style={{ width: 100 }}>Currency</th>
+                <th style={{ width: 130 }}>Peso Rate (₱)</th>
+                <th style={{ width: 100 }}>On Stock</th>
+                <th style={{ width: 100 }}>Available</th>
+                <th style={{ width: 100 }}>Allocated</th>
+                <th style={{ width: 100 }}>Purchased</th>
                 <th
                   aria-label="last"
                   style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -345,7 +364,15 @@ const ItemForm = (): JSX.Element => {
                   <td>{row.purchased}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      <Button size="sm" variant="plain" color="neutral">
+                      <Button
+                        size="sm"
+                        variant="plain"
+                        color="neutral"
+                        onClick={() => {
+                          setOpenEdit(true);
+                          setSelectedRow(row);
+                        }}
+                      >
                         Edit
                       </Button>
                       <Button
@@ -353,6 +380,10 @@ const ItemForm = (): JSX.Element => {
                         variant="soft"
                         color="danger"
                         className="bg-delete-red"
+                        onClick={() => {
+                          setOpenDelete(true);
+                          setSelectedRow(row);
+                        }}
                       >
                         Delete
                       </Button>
@@ -364,7 +395,18 @@ const ItemForm = (): JSX.Element => {
           </Table>
         </Sheet>
       </Box>
-      <AddItemsModal className="mt-5" open={open} setOpen={setOpen} />
+      <ItemsModal open={openAdd} setOpen={setOpenAdd} title="Add Items" />
+      <ItemsModal
+        open={openEdit}
+        setOpen={setOpenEdit}
+        title="Edit Item"
+        row={selectedRow}
+      />
+      <DeleteItemsModal
+        open={openDelete}
+        setOpen={setOpenDelete}
+        title="Delete Item"
+      />
     </>
   );
 };
