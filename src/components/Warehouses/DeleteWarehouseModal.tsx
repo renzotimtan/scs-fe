@@ -1,7 +1,7 @@
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import { Card, Button, Box } from "@mui/joy";
+import { Button, Box } from "@mui/joy";
 
 interface ItemsModalProps {
   open: boolean;
@@ -9,7 +9,7 @@ interface ItemsModalProps {
   setOpen: (isOpen: boolean) => void;
 }
 
-const DeleteItemsModal = ({
+const DeleteWarehouseModal = ({
   open,
   title,
   setOpen,
@@ -39,7 +39,7 @@ const DeleteItemsModal = ({
             <h4 className="mb-6">{title}</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to delete this Item?
+                Are you sure you want to delete this Warehouse?
               </p>
             </div>
             <div className="flex justify-end mt-5">
@@ -61,4 +61,4 @@ const DeleteItemsModal = ({
   );
 };
 
-export default DeleteItemsModal;
+export default DeleteWarehouseModal;

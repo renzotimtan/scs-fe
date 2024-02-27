@@ -1,0 +1,64 @@
+import Modal from "@mui/joy/Modal";
+import ModalClose from "@mui/joy/ModalClose";
+import Sheet from "@mui/joy/Sheet";
+import { Button, Box } from "@mui/joy";
+
+interface ItemsModalProps {
+  open: boolean;
+  title: string;
+  setOpen: (isOpen: boolean) => void;
+}
+
+const DeleteItemsModal = ({
+  open,
+  title,
+  setOpen,
+}: ItemsModalProps): JSX.Element => {
+  return (
+    <Modal
+      aria-labelledby="modal-title"
+      aria-describedby="modal-desc"
+      open={open}
+      onClose={() => {
+        setOpen(false);
+      }}
+      sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+    >
+      <div>
+        <Sheet
+          variant="outlined"
+          sx={{
+            maxWidth: 500,
+            borderRadius: "md",
+            p: 3,
+            boxShadow: "lg",
+          }}
+        >
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <Box>
+            <h4 className="mb-6">{title}</h4>
+            <div className="mb-7">
+              <p className="text-sm">
+                Are you sure you want to delete this Item?
+              </p>
+            </div>
+            <div className="flex justify-end mt-5">
+              <Button className="ml-4 w-[130px]" size="sm" variant="outlined">
+                Cancel
+              </Button>
+              <Button
+                className="ml-4 w-[130px] bg-button-warning"
+                color="danger"
+                size="sm"
+              >
+                Delete
+              </Button>
+            </div>
+          </Box>
+        </Sheet>
+      </div>
+    </Modal>
+  );
+};
+
+export default DeleteItemsModal;

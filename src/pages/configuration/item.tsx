@@ -1,10 +1,10 @@
 import { useState } from "react";
-import ItemsModal from "../../components/Items/items-modal";
+import ItemsModal from "../../components/Items/ItemsModal";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
-import DeleteItemsModal from "../../components/Items/delete-items-modal";
+import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
 
 export interface Item {
   stockCode: string;
@@ -27,7 +27,7 @@ const ItemForm = (): JSX.Element => {
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Item>();
 
-  function createData(
+  const createData = (
     stockCode: string,
     name: string,
     category: string,
@@ -40,7 +40,7 @@ const ItemForm = (): JSX.Element => {
     available: number,
     allocated: number,
     purchased: number,
-  ) {
+  ): Item => {
     return {
       stockCode,
       name,
@@ -55,7 +55,7 @@ const ItemForm = (): JSX.Element => {
       allocated,
       purchased,
     };
-  }
+  };
 
   const rows = [
     createData(
@@ -259,9 +259,8 @@ const ItemForm = (): JSX.Element => {
   return (
     <>
       <Box sx={{ width: "100%" }}>
-        <h2 className="mb-6">Items</h2>
-
-        <Box className="flex justify-end">
+        <Box className="flex justify-between mb-6">
+          <h2>Items</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
