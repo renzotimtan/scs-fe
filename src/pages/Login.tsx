@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import axiosInstance from '../utils/axiosConfig';
 
 export default function Login() {
 	const [username, setUsername] = useState('');
@@ -10,23 +11,16 @@ export default function Login() {
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		try {
-			const response = await fetch('http://localhost:8000/token', {
-				method: 'POST',
+			const response = await axiosInstance.post('/token', `username=${username}&password=${password}`, {
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
 				},
-				body: `username=${username}&password=${password}`,
 			});
-			if (!response.ok) {
-				throw new Error('Login failed');
-			}
-			const data = await response.json();
-			localStorage.setItem('accessToken', data.access_token);
-			console.log('Login successful:', data);
+			console.log('Login successful:', response.data);
 
 			router.push('/configuration/warehouse');
 		} catch (error) {
-			setError(error.message);
+			setError(error.response.data.detail || 'Login failed');
 		}
 	};
 

@@ -5,6 +5,7 @@ import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
+import axiosInstance from "../../utils/axiosConfig";
 
 export interface Warehouse {
   id: number;
@@ -27,29 +28,18 @@ const WarehouseForm = (): JSX.Element => {
 
   useEffect(() => {
     // Fetch warehouses
-    fetch("http://localhost:8000/api/warehouses/")
-      .then((response) => response.json())
-      .then((data) => setWarehouses(data))
+    axiosInstance.get("/api/warehouses/")
+      .then((response) => setWarehouses(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      fetch("http://localhost:8000/users/me/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => setUserId(data.id))
-        .catch((error) => console.error("Error fetching user ID:", error));
-    }
+    axiosInstance.get("/users/me/")
+      .then((response) => setUserId(response.data.id))
+      .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
   const handleSaveWarehouse = async (newWarehouse: Warehouse) => {
-    const token = localStorage.getItem('accessToken');
-    const method = 'PUT';
-    const url = `http://localhost:8000/api/warehouses/${newWarehouse.id}`;
+    const url = `/api/warehouses/${newWarehouse.id}`;
 
     const payload = {
       name: newWarehouse.name,
@@ -58,28 +48,12 @@ const WarehouseForm = (): JSX.Element => {
       id: newWarehouse.id,
       code: newWarehouse.code,
     };
-    
-    console.log("payload: ", payload)
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      console.log("RESPONSE#1@@: ", (response))
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const data = await response.json();
+      const response = await axiosInstance.put(url, payload);
 
       setWarehouses(
         warehouses.map((warehouse) =>
-          warehouse.id === data.id ? data : warehouse
+          warehouse.id === response.data.id ? response.data : warehouse
         )
       );
       
@@ -91,8 +65,6 @@ const WarehouseForm = (): JSX.Element => {
   };
 
   const handleCreateWarehouse = async (newWarehouse: Warehouse) => {
-    const token = localStorage.getItem('accessToken');
-  
     const payload = {
       name: newWarehouse.name,
       type: newWarehouse.type,
@@ -100,52 +72,21 @@ const WarehouseForm = (): JSX.Element => {
       id: newWarehouse.id,
       code: newWarehouse.code,
     };
-    
-    console.log("payload: ", payload)
-    const method = 'POST';
-    const url = 'http://localhost:8000/api/warehouses/';
-  
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      console.log("RESPONSE: ", (response))
+      const response = await axiosInstance.post('/api/warehouses/', payload);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      setWarehouses([...warehouses, data]);
+      setWarehouses([...warehouses, response.data]);
       setOpenAdd(false);
     } catch (error) {
       console.error('Error:', error);
     }
   };
-  
+
   const handleDeleteWarehouse = async () => {
     if (selectedRow) {
-      const token = localStorage.getItem('accessToken');
-      const url = `http://localhost:8000/api/warehouses/${selectedRow.id}`;
-  
+      const url = `/api/warehouses/${selectedRow.id}`;
       try {
-        const response = await fetch(url, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-  
+        await axiosInstance.delete(url);
         setWarehouses(warehouses.filter((warehouse) => warehouse.id !== selectedRow.id));
       } catch (error) {
         console.error('Error:', error);
