@@ -3,17 +3,19 @@ import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
 
-interface ItemsModalProps {
+interface DeleteWarehouseModalProps {
   open: boolean;
   title: string;
   setOpen: (isOpen: boolean) => void;
+  onDelete: () => void; // Function to handle the delete action
 }
 
 const DeleteWarehouseModal = ({
   open,
   title,
   setOpen,
-}: ItemsModalProps): JSX.Element => {
+  onDelete,
+}: DeleteWarehouseModalProps): JSX.Element => {
   return (
     <Modal
       aria-labelledby="modal-title"
@@ -43,13 +45,22 @@ const DeleteWarehouseModal = ({
               </p>
             </div>
             <div className="flex justify-end mt-5">
-              <Button className="ml-4 w-[130px]" size="sm" variant="outlined">
+              <Button
+                className="ml-4 w-[130px]"
+                size="sm"
+                variant="outlined"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
                 className="ml-4 w-[130px] bg-button-warning"
                 color="danger"
                 size="sm"
+                onClick={() => {
+                  onDelete(); // Call the onDelete function when the button is clicked
+                  setOpen(false);
+                }}
               >
                 Delete
               </Button>
