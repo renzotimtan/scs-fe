@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
@@ -20,7 +20,7 @@ interface WarehousesModalProps {
   title: string;
   setOpen: (isOpen: boolean) => void;
   row?: Warehouse;
-  onSave: (newWarehouse: Warehouse) => void;
+  onSave: (newWarehouse: Warehouse) => Promise<void>;
 }
 
 const WarehousesModal = ({
@@ -28,49 +28,54 @@ const WarehousesModal = ({
   title,
   setOpen,
   row,
-  onSave
+  onSave,
 }: WarehousesModalProps): JSX.Element => {
   const [warehouse, setWarehouse] = useState<Warehouse>({
-    id: row?.id || 0,
-    name: row?.name || '',
-    code: row?.code || '',
-    type: row?.type || 'stock',
-    created_by: row?.created_by || 0,
-    modified_by: row?.modified_by || 0,
-    date_created: row?.date_created || '',
-    date_modified: row?.date_modified || '',
+    id: row?.id ?? 0,
+    name: row?.name ?? "",
+    code: row?.code ?? "",
+    type: row?.type ?? "stock",
+    created_by: row?.created_by ?? 0,
+    modified_by: row?.modified_by ?? 0,
+    date_created: row?.date_created ?? "",
+    date_modified: row?.date_modified ?? "",
   });
 
   useEffect(() => {
     setWarehouse({
-      id: row?.id || 0,
-      code: row?.code || '',
-      name: row?.name || '',
-      type: row?.type || 'stock',
-      created_by: row?.created_by || 0,
-      modified_by: row?.modified_by || 0,
-      date_created: row?.date_created || '',
-      date_modified: row?.date_modified || '',
+      id: row?.id ?? 0,
+      name: row?.name ?? "",
+      code: row?.code ?? "",
+      type: row?.type ?? "stock",
+      created_by: row?.created_by ?? 0,
+      modified_by: row?.modified_by ?? 0,
+      date_created: row?.date_created ?? "",
+      date_modified: row?.date_modified ?? "",
     });
   }, [row]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ): void => {
     const { name, value } = e.target;
     setWarehouse({ ...warehouse, [name]: value });
   };
 
   const handleSelectChange = (
-    event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element> | React.FocusEvent<Element, Element> | null,
-    value: string | null
-  ) => {
+    event:
+      | React.MouseEvent<Element, MouseEvent>
+      | React.KeyboardEvent<Element>
+      | React.FocusEvent<Element, Element>
+      | null,
+    value: string | null,
+  ): void => {
     if (value !== null) {
       setWarehouse({ ...warehouse, type: value });
     }
   };
-  
 
-  const handleSave = () => {
-    onSave(warehouse);
+  const handleSave = async (): Promise<void> => {
+    await onSave(warehouse);
     setOpen(false);
   };
 

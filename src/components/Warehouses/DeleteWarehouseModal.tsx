@@ -7,7 +7,7 @@ interface DeleteWarehouseModalProps {
   open: boolean;
   title: string;
   setOpen: (isOpen: boolean) => void;
-  onDelete: () => void; // Function to handle the delete action
+  onDelete: () => Promise<void>;
 }
 
 const DeleteWarehouseModal = ({
@@ -57,8 +57,8 @@ const DeleteWarehouseModal = ({
                 className="ml-4 w-[130px] bg-button-warning"
                 color="danger"
                 size="sm"
-                onClick={() => {
-                  onDelete(); // Call the onDelete function when the button is clicked
+                onClick={async () => {
+                  await onDelete(); // Call the onDelete function when the button is clicked
                   setOpen(false);
                 }}
               >

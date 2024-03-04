@@ -18,6 +18,13 @@ export interface Warehouse {
   date_modified: string;
 }
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+}
+
 const WarehouseForm = (): JSX.Element => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
@@ -28,17 +35,21 @@ const WarehouseForm = (): JSX.Element => {
 
   useEffect(() => {
     // Fetch warehouses
-    axiosInstance.get("/api/warehouses/")
+    axiosInstance
+      .get<Warehouse[]>("/api/warehouses/")
       .then((response) => setWarehouses(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
-    axiosInstance.get("/users/me/")
+    axiosInstance
+      .get<User>("/users/me/")
       .then((response) => setUserId(response.data.id))
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
-  const handleSaveWarehouse = async (newWarehouse: Warehouse) => {
+  const handleSaveWarehouse = async (
+    newWarehouse: Warehouse,
+  ): Promise<void> => {
     const url = `/api/warehouses/${newWarehouse.id}`;
 
     const payload = {
@@ -53,18 +64,20 @@ const WarehouseForm = (): JSX.Element => {
 
       setWarehouses(
         warehouses.map((warehouse) =>
-          warehouse.id === response.data.id ? response.data : warehouse
-        )
+          warehouse.id === response.data.id ? response.data : warehouse,
+        ),
       );
-      
+
       setOpenAdd(false);
       setOpenEdit(false);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
-  const handleCreateWarehouse = async (newWarehouse: Warehouse) => {
+  const handleCreateWarehouse = async (
+    newWarehouse: Warehouse,
+  ): Promise<void> => {
     const payload = {
       name: newWarehouse.name,
       type: newWarehouse.type,
@@ -73,23 +86,25 @@ const WarehouseForm = (): JSX.Element => {
       code: newWarehouse.code,
     };
     try {
-      const response = await axiosInstance.post('/api/warehouses/', payload);
+      const response = await axiosInstance.post("/api/warehouses/", payload);
 
       setWarehouses([...warehouses, response.data]);
       setOpenAdd(false);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
-  const handleDeleteWarehouse = async () => {
-    if (selectedRow) {
+  const handleDeleteWarehouse = async (): Promise<void> => {
+    if (selectedRow !== undefined) {
       const url = `/api/warehouses/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
-        setWarehouses(warehouses.filter((warehouse) => warehouse.id !== selectedRow.id));
+        setWarehouses(
+          warehouses.filter((warehouse) => warehouse.id !== selectedRow.id),
+        );
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     }
   };
