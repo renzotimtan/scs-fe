@@ -30,19 +30,8 @@ const WarehousesModal = ({
   row,
   onSave,
 }: WarehousesModalProps): JSX.Element => {
-  const [warehouse, setWarehouse] = useState<Warehouse>({
-    id: row?.id ?? 0,
-    name: row?.name ?? "",
-    code: row?.code ?? "",
-    type: row?.type ?? "stock",
-    created_by: row?.created_by ?? 0,
-    modified_by: row?.modified_by ?? 0,
-    date_created: row?.date_created ?? "",
-    date_modified: row?.date_modified ?? "",
-  });
-
-  useEffect(() => {
-    setWarehouse({
+  const generateWarehouse = (): Warehouse => {
+    return {
       id: row?.id ?? 0,
       name: row?.name ?? "",
       code: row?.code ?? "",
@@ -51,7 +40,13 @@ const WarehousesModal = ({
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
       date_modified: row?.date_modified ?? "",
-    });
+    };
+  };
+
+  const [warehouse, setWarehouse] = useState<Warehouse>(generateWarehouse());
+
+  useEffect(() => {
+    setWarehouse(generateWarehouse());
   }, [row]);
 
   const handleChange = (
