@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
@@ -19,6 +20,7 @@ interface WarehousesModalProps {
   title: string;
   setOpen: (isOpen: boolean) => void;
   row?: Warehouse;
+  onSave: (newWarehouse: Warehouse) => void;
 }
 
 const WarehousesModal = ({
@@ -26,7 +28,52 @@ const WarehousesModal = ({
   title,
   setOpen,
   row,
+  onSave
 }: WarehousesModalProps): JSX.Element => {
+  const [warehouse, setWarehouse] = useState<Warehouse>({
+    id: row?.id || 0,
+    name: row?.name || '',
+    code: row?.code || '',
+    type: row?.type || 'stock',
+    created_by: row?.created_by || 0,
+    modified_by: row?.modified_by || 0,
+    date_created: row?.date_created || '',
+    date_modified: row?.date_modified || '',
+  });
+
+  useEffect(() => {
+    setWarehouse({
+      id: row?.id || 0,
+      code: row?.code || '',
+      name: row?.name || '',
+      type: row?.type || 'stock',
+      created_by: row?.created_by || 0,
+      modified_by: row?.modified_by || 0,
+      date_created: row?.date_created || '',
+      date_modified: row?.date_modified || '',
+    });
+  }, [row]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setWarehouse({ ...warehouse, [name]: value });
+  };
+
+  const handleSelectChange = (
+    event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element> | React.FocusEvent<Element, Element> | null,
+    value: string | null
+  ) => {
+    if (value !== null) {
+      setWarehouse({ ...warehouse, type: value });
+    }
+  };
+  
+
+  const handleSave = () => {
+    onSave(warehouse);
+    setOpen(false);
+  };
+
   return (
     <Modal
       aria-labelledby="modal-title"
@@ -55,28 +102,49 @@ const WarehousesModal = ({
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Code</FormLabel>
-                    <Input size="sm" placeholder="ABC-123" value={row?.code} />
+                    <Input
+                      size="sm"
+                      placeholder="ABC-123"
+                      name="code"
+                      value={warehouse.code}
+                      onChange={handleChange}
+                    />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Name</FormLabel>
-                    <Input size="sm" placeholder="Name" value={row?.name} />
+                    <Input
+                      size="sm"
+                      placeholder="Name"
+                      name="name"
+                      value={warehouse.name}
+                      onChange={handleChange}
+                    />
                   </FormControl>
                 </Stack>
 
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Type</FormLabel>
-                    <Select defaultValue="stock" size="sm">
-                      <Option value="stock">Stock</Option>
-                      <Option value="receiving">Receiving</Option>
-                      <Option value="preparation">Preparation</Option>
+                    <Select
+                      name="type"
+                      value={warehouse.type}
+                      size="sm"
+                      onChange={handleSelectChange}
+                    >
+                      <Option value="Stock">Stock</Option>
+                      <Option value="Receiving">Receiving</Option>
+                      <Option value="Preparation">Preparation</Option>
                     </Select>
                   </FormControl>
                 </Stack>
               </div>
             </Card>
             <div className="flex justify-end mt-5">
-              <Button className="ml-4 w-[130px] bg-button-primary" size="sm">
+              <Button
+                className="ml-4 w-[130px] bg-button-primary"
+                size="sm"
+                onClick={handleSave}
+              >
                 Save
               </Button>
             </div>

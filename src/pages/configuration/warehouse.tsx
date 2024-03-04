@@ -1,374 +1,98 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
+import axiosInstance from "../../utils/axiosConfig";
 
 export interface Warehouse {
+  id: number;
   code: string;
   name: string;
   type: string;
-  createdBy: string;
-  dateCreated: string;
-  modifiedBy: string;
-  dateModified: string;
+  created_by: number;
+  modified_by: number;
+  date_created: string;
+  date_modified: string;
 }
 
-const createData = (
-  code: string,
-  name: string,
-  type: string,
-  createdBy: string,
-  dateCreated: string,
-  modifiedBy: string,
-  dateModified: string,
-): Warehouse => {
-  return { code, name, type, createdBy, dateCreated, modifiedBy, dateModified };
-};
-
-const rows = [
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-  createData(
-    "RT1",
-    "ARANETA WAREHOUSE",
-    "Stock",
-    "TATA",
-    "02/18/2024 12:00AM",
-    "RENZO",
-    "02/18/2024 12:00AM",
-  ),
-];
-
 const WarehouseForm = (): JSX.Element => {
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Warehouse>();
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Fetch warehouses
+    axiosInstance.get("/api/warehouses/")
+      .then((response) => setWarehouses(response.data))
+      .catch((error) => console.error("Error:", error));
+
+    // Fetch user ID
+    axiosInstance.get("/users/me/")
+      .then((response) => setUserId(response.data.id))
+      .catch((error) => console.error("Error fetching user ID:", error));
+  }, []);
+
+  const handleSaveWarehouse = async (newWarehouse: Warehouse) => {
+    const url = `/api/warehouses/${newWarehouse.id}`;
+
+    const payload = {
+      name: newWarehouse.name,
+      type: newWarehouse.type,
+      modified_by: userId,
+      id: newWarehouse.id,
+      code: newWarehouse.code,
+    };
+    try {
+      const response = await axiosInstance.put(url, payload);
+
+      setWarehouses(
+        warehouses.map((warehouse) =>
+          warehouse.id === response.data.id ? response.data : warehouse
+        )
+      );
+      
+      setOpenAdd(false);
+      setOpenEdit(false);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleCreateWarehouse = async (newWarehouse: Warehouse) => {
+    const payload = {
+      name: newWarehouse.name,
+      type: newWarehouse.type,
+      created_by: userId,
+      id: newWarehouse.id,
+      code: newWarehouse.code,
+    };
+    try {
+      const response = await axiosInstance.post('/api/warehouses/', payload);
+
+      setWarehouses([...warehouses, response.data]);
+      setOpenAdd(false);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleDeleteWarehouse = async () => {
+    if (selectedRow) {
+      const url = `/api/warehouses/${selectedRow.id}`;
+      try {
+        await axiosInstance.delete(url);
+        setWarehouses(warehouses.filter((warehouse) => warehouse.id !== selectedRow.id));
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  };
 
   return (
     <>
@@ -439,7 +163,8 @@ const WarehouseForm = (): JSX.Element => {
           >
             <thead>
               <tr>
-                <th style={{ width: "var(--Table-firstColumnWidth)" }}>Code</th>
+                <th style={{ width: "var(--Table-firstColumnWidth)" }}>ID</th>
+                <th style={{ width: 300 }}>Code</th>
                 <th style={{ width: 300 }}>Name</th>
                 <th style={{ width: 100 }}>Type</th>
                 <th style={{ width: 100 }}>Created By</th>
@@ -453,15 +178,16 @@ const WarehouseForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.code}>
-                  <td>{row.code}</td>
-                  <td>{row.name}</td>
-                  <td>{row.type}</td>
-                  <td>{row.createdBy}</td>
-                  <td>{row.dateCreated}</td>
-                  <td>{row.modifiedBy}</td>
-                  <td>{row.dateModified}</td>
+              {warehouses.map((warehouse) => (
+                <tr key={warehouse.id}>
+                  <td>{warehouse.id}</td>
+                  <td>{warehouse.code}</td>
+                  <td>{warehouse.name}</td>
+                  <td>{warehouse.type}</td>
+                  <td>{warehouse.created_by}</td>
+                  <td>{warehouse.date_created}</td>
+                  <td>{warehouse.modified_by}</td>
+                  <td>{warehouse.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -470,7 +196,7 @@ const WarehouseForm = (): JSX.Element => {
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(row);
+                          setSelectedRow(warehouse);
                         }}
                       >
                         Edit
@@ -482,7 +208,7 @@ const WarehouseForm = (): JSX.Element => {
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(row);
+                          setSelectedRow(warehouse);
                         }}
                       >
                         Delete
@@ -499,17 +225,20 @@ const WarehouseForm = (): JSX.Element => {
         open={openAdd}
         setOpen={setOpenAdd}
         title="Add Warehouses"
+        onSave={handleCreateWarehouse}
       />
       <WarehousesModal
         open={openEdit}
         setOpen={setOpenEdit}
         title="Edit Warehouse"
         row={selectedRow}
+        onSave={handleSaveWarehouse}
       />
       <DeleteWarehousesModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Delete Warehouse"
+        onDelete={handleDeleteWarehouse}
       />
     </>
   );
