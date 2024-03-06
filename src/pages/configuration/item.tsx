@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ItemsModal from "../../components/Items/ItemsModal";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
-
+import axiosInstance from "../../utils/axiosConfig";
+import type { User } from "../Login";
 export interface Item {
+  id: number;
   stockCode: string;
   name: string;
   category: string;
@@ -19,242 +21,107 @@ export interface Item {
   available: number;
   allocated: number;
   purchased: number;
+  created_by: number;
+  modified_by: number;
+  date_created: string;
+  date_modified: string;
 }
 
 const ItemForm = (): JSX.Element => {
+  const [items, setItems] = useState<Item[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Item>();
+  const [userId, setUserId] = useState<number | null>(null);
 
-  const createData = (
-    stockCode: string,
-    name: string,
-    category: string,
-    brand: string,
-    acquisitionCost: number,
-    netCostTax: number,
-    currencyUsed: string,
-    pesoRate: number,
-    onStock: number,
-    available: number,
-    allocated: number,
-    purchased: number,
-  ): Item => {
-    return {
-      stockCode,
-      name,
-      category,
-      brand,
-      acquisitionCost,
-      netCostTax,
-      currencyUsed,
-      pesoRate,
-      onStock,
-      available,
-      allocated,
-      purchased,
+  useEffect(() => {
+    // Fetch items
+    axiosInstance
+      .get<Item[]>("/api/items/")
+      .then((response) => setItems(response.data))
+      .catch((error) => console.error("Error:", error));
+
+    // Fetch user ID
+    axiosInstance
+      .get<User>("/users/me/")
+      .then((response) => setUserId(response.data.id))
+      .catch((error) => console.error("Error fetching user ID:", error));
+  }, []);
+
+  const handleSaveItem = async (newItem: Item): Promise<void> => {
+    const url = `/api/items/${newItem.id}`;
+
+    const payload = {
+      id: newItem.id,
+      stockCode: newItem.stockCode,
+      name: newItem.name,
+      category: newItem.category,
+      brand: newItem.brand,
+      acquisitionCost: newItem.acquisitionCost,
+      netCostTax: newItem.netCostTax,
+      currencyUsed: newItem.currencyUsed,
+      pesoRate: newItem.pesoRate,
+      onStock: newItem.onStock,
+      available: newItem.available,
+      allocated: newItem.allocated,
+      purchased: newItem.purchased,
+      modified_by: userId,
     };
+    try {
+      const response = await axiosInstance.put(url, payload);
+
+      setItems(
+        items.map((item) =>
+          item.id === response.data.id ? response.data : item,
+        ),
+      );
+
+      setOpenAdd(false);
+      setOpenEdit(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
-  const rows = [
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-  ];
+  const handleCreateItem = async (newItem: Item): Promise<void> => {
+    const payload = {
+      id: newItem.id,
+      stock_code: newItem.stockCode,
+      name: newItem.name,
+      category: newItem.category,
+      brand: newItem.brand,
+      acquisition_cost: newItem.acquisitionCost,
+      net_cost_before_tax: newItem.netCostTax,
+      currency: newItem.currencyUsed,
+      pesoRate: newItem.pesoRate,
+      on_stock: newItem.onStock,
+      available: newItem.available,
+      allocated: newItem.allocated,
+      purchased: newItem.purchased,
+      created_by: userId,
+    };
+    try {
+      const response = await axiosInstance.post("/api/items/", payload);
+
+      setItems([...items, response.data]);
+      setOpenAdd(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleDeleteItem = async (): Promise<void> => {
+    if (selectedRow !== undefined) {
+      const url = `/api/items/${selectedRow.id}`;
+      try {
+        await axiosInstance.delete(url);
+        setItems(items.filter((item) => item.id !== selectedRow.id));
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  };
 
   return (
     <>
@@ -340,6 +207,10 @@ const ItemForm = (): JSX.Element => {
                 <th style={{ width: 100 }}>Available</th>
                 <th style={{ width: 100 }}>Allocated</th>
                 <th style={{ width: 100 }}>Purchased</th>
+                <th style={{ width: 100 }}>Created By</th>
+                <th style={{ width: 250 }}>Date Created</th>
+                <th style={{ width: 100 }}>Modified By</th>
+                <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"
                   style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -347,20 +218,24 @@ const ItemForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.stockCode}>
-                  <td>{row.stockCode}</td>
-                  <td>{row.name}</td>
-                  <td>{row.category}</td>
-                  <td>{row.brand}</td>
-                  <td>{row.acquisitionCost}</td>
-                  <td>{row.netCostTax}</td>
-                  <td>{row.currencyUsed}</td>
-                  <td>{row.pesoRate}</td>
-                  <td>{row.onStock}</td>
-                  <td>{row.available}</td>
-                  <td>{row.allocated}</td>
-                  <td>{row.purchased}</td>
+              {items.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.stockCode}</td>
+                  <td>{item.name}</td>
+                  <td>{item.category}</td>
+                  <td>{item.brand}</td>
+                  <td>{item.acquisitionCost}</td>
+                  <td>{item.netCostTax}</td>
+                  <td>{item.currencyUsed}</td>
+                  <td>{item.pesoRate}</td>
+                  <td>{item.onStock}</td>
+                  <td>{item.available}</td>
+                  <td>{item.allocated}</td>
+                  <td>{item.purchased}</td>
+                  <td>{item.created_by}</td>
+                  <td>{item.date_created}</td>
+                  <td>{item.modified_by}</td>
+                  <td>{item.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -369,7 +244,7 @@ const ItemForm = (): JSX.Element => {
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(row);
+                          setSelectedRow(item);
                         }}
                       >
                         Edit
@@ -381,7 +256,7 @@ const ItemForm = (): JSX.Element => {
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(row);
+                          setSelectedRow(item);
                         }}
                       >
                         Delete
@@ -394,17 +269,24 @@ const ItemForm = (): JSX.Element => {
           </Table>
         </Sheet>
       </Box>
-      <ItemsModal open={openAdd} setOpen={setOpenAdd} title="Add Items" />
+      <ItemsModal
+        open={openAdd}
+        setOpen={setOpenAdd}
+        title="Add Items"
+        onSave={handleCreateItem}
+      />
       <ItemsModal
         open={openEdit}
         setOpen={setOpenEdit}
         title="Edit Item"
         row={selectedRow}
+        onSave={handleSaveItem}
       />
       <DeleteItemsModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Delete Item"
+        onDelete={handleDeleteItem}
       />
     </>
   );

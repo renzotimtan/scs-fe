@@ -6,7 +6,7 @@ import Sheet from "@mui/joy/Sheet";
 import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
 import axiosInstance from "../../utils/axiosConfig";
-
+import type { User } from "../Login";
 export interface Warehouse {
   id: number;
   code: string;
@@ -16,13 +16,6 @@ export interface Warehouse {
   modified_by: number;
   date_created: string;
   date_modified: string;
-}
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  full_name: string;
 }
 
 const WarehouseForm = (): JSX.Element => {
@@ -79,10 +72,10 @@ const WarehouseForm = (): JSX.Element => {
     newWarehouse: Warehouse,
   ): Promise<void> => {
     const payload = {
+      id: newWarehouse.id,
       name: newWarehouse.name,
       type: newWarehouse.type,
       created_by: userId,
-      id: newWarehouse.id,
       code: newWarehouse.code,
     };
     try {
@@ -179,13 +172,13 @@ const WarehouseForm = (): JSX.Element => {
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>ID</th>
-                <th style={{ width: 300 }}>Code</th>
+                <th style={{ width: 140 }}>Code</th>
                 <th style={{ width: 300 }}>Name</th>
                 <th style={{ width: 100 }}>Type</th>
                 <th style={{ width: 100 }}>Created By</th>
-                <th style={{ width: 200 }}>Date Created</th>
+                <th style={{ width: 250 }}>Date Created</th>
                 <th style={{ width: 100 }}>Modified By</th>
-                <th style={{ width: 200 }}>Date Modified</th>
+                <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"
                   style={{ width: "var(--Table-lastColumnWidth)" }}

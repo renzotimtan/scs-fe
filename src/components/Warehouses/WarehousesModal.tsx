@@ -35,7 +35,7 @@ const WarehousesModal = ({
       id: row?.id ?? 0,
       name: row?.name ?? "",
       code: row?.code ?? "",
-      type: row?.type ?? "stock",
+      type: row?.type ?? "Stock",
       created_by: row?.created_by ?? 0,
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",

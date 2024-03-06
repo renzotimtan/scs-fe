@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import axiosInstance from "../utils/axiosConfig";
 
-export default function Login() {
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+}
+
+export default function Login(): JSX.Element {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,9 +29,9 @@ export default function Login() {
       );
       console.log("Login successful:", response.data);
 
-      router.push("/configuration/warehouse");
+      await router.push("/configuration/warehouse");
     } catch (error) {
-      setError(error.response.data.detail || "Login failed");
+      setError("Login failed");
     }
   };
 
@@ -51,7 +58,7 @@ export default function Login() {
           />
         </div>
         <button type="submit">Login</button>
-        {error && <p>{error}</p>}
+        {error !== "" && <p>{error}</p>}
       </form>
     </div>
   );

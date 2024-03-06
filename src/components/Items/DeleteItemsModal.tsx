@@ -7,12 +7,14 @@ interface ItemsModalProps {
   open: boolean;
   title: string;
   setOpen: (isOpen: boolean) => void;
+  onDelete: () => Promise<void>;
 }
 
 const DeleteItemsModal = ({
   open,
   title,
   setOpen,
+  onDelete,
 }: ItemsModalProps): JSX.Element => {
   return (
     <Modal
@@ -50,6 +52,10 @@ const DeleteItemsModal = ({
                 className="ml-4 w-[130px] bg-button-warning"
                 color="danger"
                 size="sm"
+                onClick={async () => {
+                  await onDelete(); // Call the onDelete function when the button is clicked
+                  setOpen(false);
+                }}
               >
                 Delete
               </Button>
