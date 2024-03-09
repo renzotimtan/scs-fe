@@ -40,6 +40,20 @@ const WarehousesModal = ({
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
       date_modified: row?.date_modified ?? "",
+      creator: row?.creator ?? {
+        id: 0,
+        username: "",
+        email: "",
+        full_name: "",
+        disabled: false,
+      },
+      modifier: row?.modifier ?? {
+        id: 0,
+        username: "",
+        email: "",
+        full_name: "",
+        disabled: false,
+      },
     };
   };
 

@@ -7,6 +7,15 @@ import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
+
+export interface Creator {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+  disabled: boolean;
+}
+
 export interface Warehouse {
   id: number;
   code: string;
@@ -16,6 +25,8 @@ export interface Warehouse {
   modified_by: number;
   date_created: string;
   date_modified: string;
+  creator: Creator;
+  modifier?: Creator;
 }
 
 const WarehouseForm = (): JSX.Element => {
@@ -72,7 +83,6 @@ const WarehouseForm = (): JSX.Element => {
     newWarehouse: Warehouse,
   ): Promise<void> => {
     const payload = {
-      id: newWarehouse.id,
       name: newWarehouse.name,
       type: newWarehouse.type,
       created_by: userId,
@@ -192,9 +202,9 @@ const WarehouseForm = (): JSX.Element => {
                   <td>{warehouse.code}</td>
                   <td>{warehouse.name}</td>
                   <td>{warehouse.type}</td>
-                  <td>{warehouse.created_by}</td>
+                  <td>{warehouse.creator.username}</td>
                   <td>{warehouse.date_created}</td>
-                  <td>{warehouse.modified_by}</td>
+                  <td>{warehouse.modifier?.username}</td>
                   <td>{warehouse.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
