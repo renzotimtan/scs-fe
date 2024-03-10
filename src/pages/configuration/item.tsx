@@ -16,11 +16,11 @@ export interface Item {
   acquisition_cost: number;
   net_cost_before_tax: number;
   currency: string;
-  pesoRate: number;
-  on_stock: number;
-  available: number;
-  allocated: number;
-  purchased: number;
+  rate: number;
+  total_on_stock: number;
+  total_available: number;
+  total_allocated: number;
+  total_purchased: number;
   created_by: number;
   modified_by: number;
   date_created: string;
@@ -61,12 +61,8 @@ const ItemForm = (): JSX.Element => {
       acquisition_cost: newItem.acquisition_cost,
       net_cost_before_tax: newItem.net_cost_before_tax,
       currency: newItem.currency,
-      rate: newItem.pesoRate,
-      on_stock: newItem.on_stock,
-      available: newItem.available,
-      allocated: newItem.allocated,
-      purchased: newItem.purchased,
-      created_by: userId,
+      rate: newItem.rate,
+      modified_by: userId,
     };
     try {
       const response = await axiosInstance.put(url, payload);
@@ -94,11 +90,7 @@ const ItemForm = (): JSX.Element => {
       acquisition_cost: newItem.acquisition_cost,
       net_cost_before_tax: newItem.net_cost_before_tax,
       currency: newItem.currency,
-      rate: newItem.pesoRate,
-      on_stock: newItem.on_stock,
-      available: newItem.available,
-      allocated: newItem.allocated,
-      purchased: newItem.purchased,
+      rate: newItem.rate,
       created_by: userId,
     };
     try {
@@ -227,11 +219,11 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.acquisition_cost}</td>
                   <td>{item.net_cost_before_tax}</td>
                   <td>{item.currency}</td>
-                  <td>{item.pesoRate}</td>
-                  <td>{item.on_stock}</td>
-                  <td>{item.available}</td>
-                  <td>{item.allocated}</td>
-                  <td>{item.purchased}</td>
+                  <td>{item.rate}</td>
+                  <td>{item.total_on_stock}</td>
+                  <td>{item.total_available}</td>
+                  <td>{item.total_allocated}</td>
+                  <td>{item.total_purchased}</td>
                   <td>{item.created_by}</td>
                   <td>{item.date_created}</td>
                   <td>{item.modified_by}</td>

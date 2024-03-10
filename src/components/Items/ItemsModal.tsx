@@ -38,11 +38,11 @@ const ItemsModal = ({
       acquisition_cost: row?.acquisition_cost ?? 0,
       net_cost_before_tax: row?.net_cost_before_tax ?? 0,
       currency: row?.currency ?? "",
-      pesoRate: row?.pesoRate ?? 0,
-      on_stock: row?.on_stock ?? 0,
-      available: row?.available ?? 0,
-      allocated: row?.allocated ?? 0,
-      purchased: row?.purchased ?? 0,
+      rate: row?.rate ?? 0,
+      total_on_stock: row?.total_on_stock ?? 0,
+      total_available: row?.total_available ?? 0,
+      total_allocated: row?.total_allocated ?? 0,
+      total_purchased: row?.total_purchased ?? 0,
       created_by: row?.created_by ?? 0,
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
@@ -185,7 +185,7 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Philippine Peso Rate (₱)</FormLabel>
                     <Input
-                      name="pesoRate"
+                      name="rate"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -194,7 +194,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.pesoRate}
+                      value={row?.rate}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -203,7 +203,7 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>On Stock</FormLabel>
                     <Input
-                      name="on_stock"
+                      name="total_on_stock"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -212,14 +212,14 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.on_stock}
+                      value={row?.total_on_stock}
                       onChange={handleChange}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Available</FormLabel>
                     <Input
-                      name="available"
+                      name="total_available"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -228,7 +228,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.available}
+                      value={row?.total_available}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -237,7 +237,7 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Allocated</FormLabel>
                     <Input
-                      name="allocated"
+                      name="total_allocated"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -246,14 +246,14 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.allocated}
+                      value={row?.total_allocated}
                       onChange={handleChange}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Purchased</FormLabel>
                     <Input
-                      name="purchased"
+                      name="total_purchased"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -262,7 +262,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.purchased}
+                      value={row?.total_purchased}
                       onChange={handleChange}
                     />
                   </FormControl>
