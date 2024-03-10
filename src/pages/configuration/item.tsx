@@ -136,7 +136,7 @@ const ItemForm = (): JSX.Element => {
             "--TableCell-height": "40px",
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-            "--Table-firstColumnWidth": "80px",
+            "--Table-firstColumnWidth": "150px",
             "--Table-lastColumnWidth": "144px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
