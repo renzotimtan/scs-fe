@@ -54,19 +54,19 @@ const ItemForm = (): JSX.Element => {
 
     const payload = {
       id: newItem.id,
-      stockCode: newItem.stockCode,
+      stock_code: newItem.stockCode,
       name: newItem.name,
       category: newItem.category,
       brand: newItem.brand,
-      acquisitionCost: newItem.acquisitionCost,
-      netCostTax: newItem.netCostTax,
-      currencyUsed: newItem.currencyUsed,
-      pesoRate: newItem.pesoRate,
-      onStock: newItem.onStock,
+      acquisition_cost: newItem.acquisitionCost,
+      net_cost_before_tax: newItem.netCostTax,
+      currency: newItem.currencyUsed,
+      rate: newItem.pesoRate,
+      on_stock: newItem.onStock,
       available: newItem.available,
       allocated: newItem.allocated,
       purchased: newItem.purchased,
-      modified_by: userId,
+      created_by: userId,
     };
     try {
       const response = await axiosInstance.put(url, payload);
@@ -94,7 +94,7 @@ const ItemForm = (): JSX.Element => {
       acquisition_cost: newItem.acquisitionCost,
       net_cost_before_tax: newItem.netCostTax,
       currency: newItem.currencyUsed,
-      pesoRate: newItem.pesoRate,
+      rate: newItem.pesoRate,
       on_stock: newItem.onStock,
       available: newItem.available,
       allocated: newItem.allocated,
