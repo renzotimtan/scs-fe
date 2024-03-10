@@ -31,18 +31,22 @@ const ItemsModal = ({
   const generateItem = (): Item => {
     return {
       id: row?.id ?? 0,
-      stockCode: row?.stockCode ?? "",
+      stock_code: row?.stock_code ?? "",
       name: row?.name ?? "",
       category: row?.category ?? "",
       brand: row?.brand ?? "",
-      acquisitionCost: row?.acquisitionCost ?? 0,
-      netCostTax: row?.netCostTax ?? 0,
-      currencyUsed: row?.currencyUsed ?? "",
+      acquisition_cost: row?.acquisition_cost ?? 0,
+      net_cost_before_tax: row?.net_cost_before_tax ?? 0,
+      currency: row?.currency ?? "",
       pesoRate: row?.pesoRate ?? 0,
-      onStock: row?.onStock ?? 0,
+      on_stock: row?.on_stock ?? 0,
       available: row?.available ?? 0,
       allocated: row?.allocated ?? 0,
       purchased: row?.purchased ?? 0,
+      created_by: row?.created_by ?? 0,
+      modified_by: row?.modified_by ?? 0,
+      date_created: row?.date_created ?? "",
+      date_modified: row?.date_modified ?? "",
     };
   };
 
@@ -93,10 +97,10 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Stock Code</FormLabel>
                     <Input
-                      name="stockCode"
+                      name="stock_code"
                       size="sm"
                       placeholder="ABC-123"
-                      value={row?.stockCode}
+                      value={row?.stock_code}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -137,7 +141,7 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Acquision Cost (₱)</FormLabel>
                     <Input
-                      name="acquisitionCost"
+                      name="acquisition_cost"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -146,14 +150,14 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.acquisitionCost}
+                      value={row?.acquisition_cost}
                       onChange={handleChange}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Net Cost B/F Tax (₱)</FormLabel>
                     <Input
-                      name="netCostTax"
+                      name="net_cost_before_tax"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -162,7 +166,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.netCostTax}
+                      value={row?.net_cost_before_tax}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -171,10 +175,10 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>Currency Used</FormLabel>
                     <Input
-                      name="currencyUsed"
+                      name="currency"
                       size="sm"
                       placeholder="USD"
-                      value={row?.currencyUsed}
+                      value={row?.currency}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -199,7 +203,7 @@ const ItemsModal = ({
                   <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
                     <FormLabel>On Stock</FormLabel>
                     <Input
-                      name="onStock"
+                      name="on_stock"
                       type="number"
                       size="sm"
                       placeholder="0"
@@ -208,7 +212,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.onStock}
+                      value={row?.on_stock}
                       onChange={handleChange}
                     />
                   </FormControl>

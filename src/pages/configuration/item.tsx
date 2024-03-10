@@ -9,15 +9,15 @@ import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 export interface Item {
   id: number;
-  stockCode: string;
+  stock_code: string;
   name: string;
   category: string;
   brand: string;
-  acquisitionCost: number;
-  netCostTax: number;
-  currencyUsed: string;
+  acquisition_cost: number;
+  net_cost_before_tax: number;
+  currency: string;
   pesoRate: number;
-  onStock: number;
+  on_stock: number;
   available: number;
   allocated: number;
   purchased: number;
@@ -54,15 +54,15 @@ const ItemForm = (): JSX.Element => {
 
     const payload = {
       id: newItem.id,
-      stock_code: newItem.stockCode,
+      stock_code: newItem.stock_code,
       name: newItem.name,
       category: newItem.category,
       brand: newItem.brand,
-      acquisition_cost: newItem.acquisitionCost,
-      net_cost_before_tax: newItem.netCostTax,
-      currency: newItem.currencyUsed,
+      acquisition_cost: newItem.acquisition_cost,
+      net_cost_before_tax: newItem.net_cost_before_tax,
+      currency: newItem.currency,
       rate: newItem.pesoRate,
-      on_stock: newItem.onStock,
+      on_stock: newItem.on_stock,
       available: newItem.available,
       allocated: newItem.allocated,
       purchased: newItem.purchased,
@@ -87,15 +87,15 @@ const ItemForm = (): JSX.Element => {
   const handleCreateItem = async (newItem: Item): Promise<void> => {
     const payload = {
       id: newItem.id,
-      stock_code: newItem.stockCode,
+      stock_code: newItem.stock_code,
       name: newItem.name,
       category: newItem.category,
       brand: newItem.brand,
-      acquisition_cost: newItem.acquisitionCost,
-      net_cost_before_tax: newItem.netCostTax,
-      currency: newItem.currencyUsed,
+      acquisition_cost: newItem.acquisition_cost,
+      net_cost_before_tax: newItem.net_cost_before_tax,
+      currency: newItem.currency,
       rate: newItem.pesoRate,
-      on_stock: newItem.onStock,
+      on_stock: newItem.on_stock,
       available: newItem.available,
       allocated: newItem.allocated,
       purchased: newItem.purchased,
@@ -220,15 +220,15 @@ const ItemForm = (): JSX.Element => {
             <tbody>
               {items.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.stockCode}</td>
+                  <td>{item.stock_code}</td>
                   <td>{item.name}</td>
                   <td>{item.category}</td>
                   <td>{item.brand}</td>
-                  <td>{item.acquisitionCost}</td>
-                  <td>{item.netCostTax}</td>
-                  <td>{item.currencyUsed}</td>
+                  <td>{item.acquisition_cost}</td>
+                  <td>{item.net_cost_before_tax}</td>
+                  <td>{item.currency}</td>
                   <td>{item.pesoRate}</td>
-                  <td>{item.onStock}</td>
+                  <td>{item.on_stock}</td>
                   <td>{item.available}</td>
                   <td>{item.allocated}</td>
                   <td>{item.purchased}</td>
