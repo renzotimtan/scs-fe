@@ -185,6 +185,7 @@ const ItemForm = (): JSX.Element => {
                 bgcolor: "var(--TableCell-headBackground)",
               },
             }}
+            borderAxis="both"
           >
             <thead>
               <tr>
@@ -202,9 +203,9 @@ const ItemForm = (): JSX.Element => {
                 <th style={{ width: 100 }}>Available</th>
                 <th style={{ width: 100 }}>Allocated</th>
                 <th style={{ width: 100 }}>Purchased</th>
-                <th style={{ width: 150 }}>Created By</th>
+                <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 250 }}>Date Created</th>
-                <th style={{ width: 150 }}>Modified By</th>
+                <th style={{ width: 200 }}>Modified By</th>
                 <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"

@@ -168,15 +168,16 @@ const WarehouseForm = (): JSX.Element => {
                 bgcolor: "var(--TableCell-headBackground)",
               },
             }}
+            borderAxis="both"
           >
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>Code</th>
                 <th style={{ width: 300 }}>Name</th>
                 <th style={{ width: 100 }}>Type</th>
-                <th style={{ width: 150 }}>Created By</th>
+                <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 250 }}>Date Created</th>
-                <th style={{ width: 150 }}>Modified By</th>
+                <th style={{ width: 200 }}>Modified By</th>
                 <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"

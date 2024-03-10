@@ -201,6 +201,7 @@ const SupplierForm = (): JSX.Element => {
                 bgcolor: "var(--TableCell-headBackground)",
               },
             }}
+            borderAxis="both"
           >
             <thead>
               <tr>
@@ -214,14 +215,14 @@ const SupplierForm = (): JSX.Element => {
                 <th style={{ width: 100 }}>Zip Code</th>
                 <th style={{ width: 150 }}>Contact Person</th>
                 <th style={{ width: 150 }}>Contact Number</th>
-                <th style={{ width: 150 }}>Contact Email</th>
+                <th style={{ width: 300 }}>Contact Email</th>
                 <th style={{ width: 150 }}>Fax Number</th>
                 <th style={{ width: 100 }}>Currency</th>
                 <th style={{ width: 100 }}>Discount Rate</th>
                 <th style={{ width: 100 }}>Supplier Balance</th>
-                <th style={{ width: 100 }}>Created By</th>
+                <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 250 }}>Date Created</th>
-                <th style={{ width: 100 }}>Modified By</th>
+                <th style={{ width: 200 }}>Modified By</th>
                 <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"
