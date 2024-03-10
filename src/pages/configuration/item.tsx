@@ -11,6 +11,7 @@ export interface Item {
   id: number;
   stock_code: string;
   name: string;
+  supplier_id: number;
   category: string;
   brand: string;
   acquisition_cost: number;
@@ -56,6 +57,7 @@ const ItemForm = (): JSX.Element => {
       id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
+      supplier_id: newItem.supplier_id,
       category: newItem.category,
       brand: newItem.brand,
       acquisition_cost: newItem.acquisition_cost,
@@ -85,6 +87,7 @@ const ItemForm = (): JSX.Element => {
       id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
+      supplier_id: newItem.supplier_id,
       category: newItem.category,
       brand: newItem.brand,
       acquisition_cost: newItem.acquisition_cost,

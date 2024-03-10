@@ -10,8 +10,15 @@ import {
   Stack,
   Button,
   Box,
+  Autocomplete,
 } from "@mui/joy";
 import { useState, useEffect } from "react";
+import axiosInstance from "../../utils/axiosConfig";
+
+interface Supplier {
+  supplier_id: number;
+  name: string;
+}
 
 interface ItemsModalProps {
   open: boolean;
@@ -33,6 +40,7 @@ const ItemsModal = ({
       id: row?.id ?? 0,
       stock_code: row?.stock_code ?? "",
       name: row?.name ?? "",
+      supplier_id: row?.supplier_id ?? 0,
       category: row?.category ?? "",
       brand: row?.brand ?? "",
       acquisition_cost: row?.acquisition_cost ?? 0,
@@ -47,19 +55,39 @@ const ItemsModal = ({
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
       date_modified: row?.date_modified ?? "",
+      // item_modifier: row?.item_modifier ?? "", // Add default value for item_modifier
+      // unit: row?.unit ?? "", // Add default value for unit
+      // previous_cost: row?.previous_cost ?? 0, // Add default value for previous_cost
+      // last_sale_price: row?.last_sale_price ?? 0, // Add default value for last_sale_price
     };
   };
 
   const [item, setItem] = useState<Item>(generateItem());
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   useEffect(() => {
     setItem(generateItem());
+    void fetchSuppliers();
   }, [row]);
+
+  const fetchSuppliers = async (): Promise<void> => {
+    try {
+      const response = await axiosInstance.get<Supplier[]>("/api/suppliers/");
+      setSuppliers(response.data);
+      console.log("Suppliers:", response.data);
+    } catch (error) {
+      console.error("Error fetching suppliers:", error);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ): void => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    const value =
+      e.target instanceof HTMLSelectElement
+        ? e.target.value
+        : (e.target as HTMLInputElement).value;
     setItem({ ...item, [name]: value });
   };
 
@@ -244,6 +272,34 @@ const ItemsModal = ({
                       placeholder="0"
                       value={row?.total_purchased}
                       disabled
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "100%" }}>
+                    <FormLabel>Supplier</FormLabel>
+                    <Autocomplete
+                      placeholder="Select a supplier"
+                      options={suppliers.map((supplier) => supplier.name)}
+                      value={
+                        suppliers.find(
+                          (supplier) =>
+                            supplier.supplier_id === item.supplier_id,
+                        )?.name ?? ""
+                      }
+                      onChange={(event, newValue) => {
+                        const selectedSupplier = suppliers.find(
+                          (supplier) => supplier.name === newValue,
+                        );
+                        setItem({
+                          ...item,
+                          supplier_id:
+                            selectedSupplier != null
+                              ? selectedSupplier.supplier_id
+                              : 0,
+                        });
+                      }}
+                      sx={{ width: "100%" }}
                     />
                   </FormControl>
                 </Stack>
