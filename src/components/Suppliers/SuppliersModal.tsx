@@ -1,7 +1,8 @@
+import React, { useEffect, useState } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import type { Item } from "../../pages/configuration/item";
+import type { Supplier } from "../../pages/configuration/supplier";
 import {
   FormControl,
   FormLabel,
@@ -11,38 +12,40 @@ import {
   Button,
   Box,
 } from "@mui/joy";
-import { useState, useEffect } from "react";
 
-interface ItemsModalProps {
+interface SuppliersModalProps {
   open: boolean;
   title: string;
   setOpen: (isOpen: boolean) => void;
-  row?: Item;
-  onSave: (newItem: Item) => Promise<void>;
+  row?: Supplier;
+  onSave: (newSupplier: Supplier) => Promise<void>;
 }
 
-const ItemsModal = ({
+const SuppliersModal = ({
   open,
   title,
   setOpen,
   row,
   onSave,
-}: ItemsModalProps): JSX.Element => {
-  const generateItem = (): Item => {
+}: SuppliersModalProps): JSX.Element => {
+  const generateSupplier = (): Supplier => {
     return {
-      id: row?.id ?? 0,
-      stock_code: row?.stock_code ?? "",
+      supplier_id: row?.supplier_id ?? 0,
+      code: row?.code ?? "",
       name: row?.name ?? "",
-      category: row?.category ?? "",
-      brand: row?.brand ?? "",
-      acquisition_cost: row?.acquisition_cost ?? 0,
-      net_cost_before_tax: row?.net_cost_before_tax ?? 0,
+      building_address: row?.building_address ?? "",
+      street_address: row?.street_address ?? "",
+      city: row?.city ?? "",
+      province: row?.province ?? "",
+      country: row?.country ?? "",
+      zip_code: row?.zip_code ?? "",
+      contact_person: row?.contact_person ?? "",
+      contact_number: row?.contact_number ?? "",
+      email: row?.email ?? "",
+      fax_number: row?.fax_number ?? "",
       currency: row?.currency ?? "",
-      rate: row?.rate ?? 0,
-      total_on_stock: row?.total_on_stock ?? 0,
-      total_available: row?.total_available ?? 0,
-      total_allocated: row?.total_allocated ?? 0,
-      total_purchased: row?.total_purchased ?? 0,
+      discount_rate: row?.discount_rate ?? 0,
+      supplier_balance: row?.supplier_balance ?? 0,
       created_by: row?.created_by ?? 0,
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
@@ -50,21 +53,21 @@ const ItemsModal = ({
     };
   };
 
-  const [item, setItem] = useState<Item>(generateItem());
+  const [supplier, setSupplier] = useState<Supplier>(generateSupplier());
 
   useEffect(() => {
-    setItem(generateItem());
+    setSupplier(generateSupplier());
   }, [row]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ): void => {
     const { name, value } = e.target;
-    setItem({ ...item, [name]: value });
+    setSupplier({ ...supplier, [name]: value });
   };
 
   const handleSave = async (): Promise<void> => {
-    await onSave(item);
+    await onSave(supplier);
     setOpen(false);
   };
 
@@ -82,7 +85,7 @@ const ItemsModal = ({
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: 500,
+            width: 800,
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
@@ -95,174 +98,166 @@ const ItemsModal = ({
               <div>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Stock Code</FormLabel>
+                    <FormLabel>Code</FormLabel>
                     <Input
-                      name="stock_code"
                       size="sm"
                       placeholder="ABC-123"
-                      value={row?.stock_code}
+                      name="code"
+                      value={supplier.code}
                       onChange={handleChange}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Name</FormLabel>
                     <Input
+                      size="sm"
+                      placeholder="Name"
                       name="name"
-                      size="sm"
-                      placeholder="Item Name"
-                      value={row?.name}
+                      value={supplier.name}
                       onChange={handleChange}
                     />
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Building Address</FormLabel>
                     <Input
-                      name="category"
                       size="sm"
-                      placeholder="Fans"
-                      value={row?.category}
+                      placeholder="Building Address"
+                      name="building_address"
+                      value={supplier.building_address}
                       onChange={handleChange}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Brand</FormLabel>
+                    <FormLabel>Street Address</FormLabel>
                     <Input
-                      name="brand"
                       size="sm"
-                      placeholder="Hayes"
-                      value={row?.brand}
-                      onChange={handleChange}
-                    />
-                  </FormControl>
-                </Stack>
-                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Acquision Cost (₱)</FormLabel>
-                    <Input
-                      name="acquisition_cost"
-                      type="number"
-                      size="sm"
-                      placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.acquisition_cost}
-                      onChange={handleChange}
-                    />
-                  </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Net Cost B/F Tax (₱)</FormLabel>
-                    <Input
-                      name="net_cost_before_tax"
-                      type="number"
-                      size="sm"
-                      placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.net_cost_before_tax}
+                      placeholder="Street Address"
+                      name="street_address"
+                      value={supplier.street_address}
                       onChange={handleChange}
                     />
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Currency Used</FormLabel>
+                    <FormLabel>City</FormLabel>
                     <Input
-                      name="currency"
+                      size="sm"
+                      placeholder="City"
+                      name="city"
+                      value={supplier.city}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Province</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Province"
+                      name="province"
+                      value={supplier.province}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Country</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Country"
+                      name="country"
+                      value={supplier.country}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Zip Code</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Zip Code"
+                      name="zip_code"
+                      value={supplier.zip_code}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Contact Person</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Contact Person"
+                      name="contact_person"
+                      value={supplier.contact_person}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Contact Number</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Contact Number"
+                      name="contact_number"
+                      value={supplier.contact_number}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Email</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Email"
+                      name="email"
+                      value={supplier.email}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Fax Number</FormLabel>
+                    <Input
+                      size="sm"
+                      placeholder="Fax Number"
+                      name="fax_number"
+                      value={supplier.fax_number}
+                      onChange={handleChange}
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Currency</FormLabel>
+                    <Input
                       size="sm"
                       placeholder="USD"
-                      value={row?.currency}
+                      name="currency"
+                      value={supplier.currency}
                       onChange={handleChange}
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Philippine Peso Rate (₱)</FormLabel>
+                    <FormLabel>Discount Rate</FormLabel>
                     <Input
-                      name="rate"
-                      type="number"
                       size="sm"
                       placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.rate}
+                      name="discount_rate"
+                      value={supplier.discount_rate}
                       onChange={handleChange}
                     />
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>On Stock</FormLabel>
+                    <FormLabel>Supplier Balance</FormLabel>
                     <Input
-                      name="total_on_stock"
-                      type="number"
                       size="sm"
                       placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.total_on_stock}
-                      onChange={handleChange}
-                    />
-                  </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Available</FormLabel>
-                    <Input
-                      name="total_available"
-                      type="number"
-                      size="sm"
-                      placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.total_available}
-                      onChange={handleChange}
-                    />
-                  </FormControl>
-                </Stack>
-                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Allocated</FormLabel>
-                    <Input
-                      name="total_allocated"
-                      type="number"
-                      size="sm"
-                      placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.total_allocated}
-                      onChange={handleChange}
-                    />
-                  </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Purchased</FormLabel>
-                    <Input
-                      name="total_purchased"
-                      type="number"
-                      size="sm"
-                      placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={row?.total_purchased}
+                      name="supplier_balance"
+                      value={supplier.supplier_balance}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -285,4 +280,4 @@ const ItemsModal = ({
   );
 };
 
-export default ItemsModal;
+export default SuppliersModal;

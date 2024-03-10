@@ -122,7 +122,7 @@ const WarehouseForm = (): JSX.Element => {
             "--TableCell-height": "40px",
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-            "--Table-firstColumnWidth": "80px",
+            "--Table-firstColumnWidth": "150px",
             "--Table-lastColumnWidth": "144px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -171,13 +171,12 @@ const WarehouseForm = (): JSX.Element => {
           >
             <thead>
               <tr>
-                <th style={{ width: "var(--Table-firstColumnWidth)" }}>ID</th>
-                <th style={{ width: 140 }}>Code</th>
+                <th style={{ width: "var(--Table-firstColumnWidth)" }}>Code</th>
                 <th style={{ width: 300 }}>Name</th>
                 <th style={{ width: 100 }}>Type</th>
-                <th style={{ width: 100 }}>Created By</th>
+                <th style={{ width: 150 }}>Created By</th>
                 <th style={{ width: 250 }}>Date Created</th>
-                <th style={{ width: 100 }}>Modified By</th>
+                <th style={{ width: 150 }}>Modified By</th>
                 <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"
@@ -188,7 +187,6 @@ const WarehouseForm = (): JSX.Element => {
             <tbody>
               {warehouses.map((warehouse) => (
                 <tr key={warehouse.id}>
-                  <td>{warehouse.id}</td>
                   <td>{warehouse.code}</td>
                   <td>{warehouse.name}</td>
                   <td>{warehouse.type}</td>

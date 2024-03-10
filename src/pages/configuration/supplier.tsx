@@ -1,260 +1,139 @@
-import { useState } from "react";
-import ItemsModal from "../../components/Items/ItemsModal";
+import { useEffect, useState } from "react";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
-import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
-
-export interface Item {
-  stockCode: string;
+import SuppliersModal from "../../components/Suppliers/SuppliersModal";
+import DeleteSuppliersModal from "../../components/Suppliers/DeleteSupplierModal";
+import axiosInstance from "../../utils/axiosConfig";
+import type { User } from "../Login";
+export interface Supplier {
+  supplier_id: number;
+  code: string;
   name: string;
-  category: string;
-  brand: string;
-  acquisitionCost: number;
-  netCostTax: number;
-  currencyUsed: string;
-  pesoRate: number;
-  onStock: number;
-  available: number;
-  allocated: number;
-  purchased: number;
+  building_address: string;
+  street_address: string;
+  city: string;
+  province: string;
+  country: string;
+  zip_code: string;
+  contact_person: string;
+  contact_number: string;
+  email: string;
+  fax_number: string;
+  currency: string;
+  discount_rate: number;
+  supplier_balance: number;
+  created_by: number;
+  modified_by: number;
+  date_created: string;
+  date_modified: string;
 }
 
 const SupplierForm = (): JSX.Element => {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<Item>();
+  const [selectedRow, setSelectedRow] = useState<Supplier>();
+  const [userId, setUserId] = useState<number | null>(null);
 
-  const createData = (
-    stockCode: string,
-    name: string,
-    category: string,
-    brand: string,
-    acquisitionCost: number,
-    netCostTax: number,
-    currencyUsed: string,
-    pesoRate: number,
-    onStock: number,
-    available: number,
-    allocated: number,
-    purchased: number,
-  ): Item => {
-    return {
-      stockCode,
-      name,
-      category,
-      brand,
-      acquisitionCost,
-      netCostTax,
-      currencyUsed,
-      pesoRate,
-      onStock,
-      available,
-      allocated,
-      purchased,
+  useEffect(() => {
+    // Fetch warehouses
+    axiosInstance
+      .get<Supplier[]>("/api/suppliers/")
+      .then((response) => setSuppliers(response.data))
+      .catch((error) => console.error("Error:", error));
+
+    // Fetch user ID
+    axiosInstance
+      .get<User>("/users/me/")
+      .then((response) => setUserId(response.data.id))
+      .catch((error) => console.error("Error fetching user ID:", error));
+  }, []);
+
+  const handleSaveSupplier = async (newSupplier: Supplier): Promise<void> => {
+    const url = `/api/suppliers/${newSupplier.supplier_id}`;
+
+    const payload = {
+      supplier_id: newSupplier.supplier_id,
+      code: newSupplier.code,
+      name: newSupplier.name,
+      building_address: newSupplier.building_address,
+      street_address: newSupplier.street_address,
+      city: newSupplier.city,
+      province: newSupplier.province,
+      country: newSupplier.country,
+      zip_code: newSupplier.zip_code,
+      contact_person: newSupplier.contact_person,
+      contact_number: newSupplier.contact_number,
+      email: newSupplier.email,
+      fax_number: newSupplier.fax_number,
+      currency: newSupplier.currency,
+      discount_rate: newSupplier.discount_rate,
+      supplier_balance: newSupplier.supplier_balance,
+      modified_by: userId,
     };
+    try {
+      const response = await axiosInstance.put(url, payload);
+
+      setSuppliers(
+        suppliers.map((supplier) =>
+          supplier.supplier_id === response.data.id ? response.data : supplier,
+        ),
+      );
+
+      setOpenAdd(false);
+      setOpenEdit(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
-  const rows = [
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-    createData(
-      "ABC123",
-      "Item Name",
-      "Fans",
-      "Fayes",
-      123,
-      123,
-      "USD",
-      45,
-      50,
-      50,
-      0,
-      0,
-    ),
-  ];
+  const handleCreateSupplier = async (newSupplier: Supplier): Promise<void> => {
+    const payload = {
+      code: newSupplier.code,
+      name: newSupplier.name,
+      building_address: newSupplier.building_address,
+      street_address: newSupplier.street_address,
+      city: newSupplier.city,
+      province: newSupplier.province,
+      country: newSupplier.country,
+      zip_code: newSupplier.zip_code,
+      contact_person: newSupplier.contact_person,
+      contact_number: newSupplier.contact_number,
+      email: newSupplier.email,
+      fax_number: newSupplier.fax_number,
+      currency: newSupplier.currency,
+      discount_rate: newSupplier.discount_rate,
+      supplier_balance: newSupplier.supplier_balance,
+      created_by: userId,
+    };
+    try {
+      const response = await axiosInstance.post("/api/suppliers/", payload);
+
+      setSuppliers([...suppliers, response.data]);
+      setOpenAdd(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleDeleteSupplier = async (): Promise<void> => {
+    if (selectedRow !== undefined) {
+      const url = `/api/warehouses/${selectedRow.supplier_id}`;
+      try {
+        await axiosInstance.delete(url);
+        setSuppliers(
+          suppliers.filter(
+            (supplier) => supplier.supplier_id !== selectedRow.supplier_id,
+          ),
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  };
 
   return (
     <>
@@ -268,16 +147,15 @@ const SupplierForm = (): JSX.Element => {
               setOpenAdd(true);
             }}
           >
-            Add Item
+            Add Suppliers
           </Button>
         </Box>
-
         <Sheet
           sx={{
             "--TableCell-height": "40px",
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-            "--Table-firstColumnWidth": "80px",
+            "--Table-firstColumnWidth": "150px",
             "--Table-lastColumnWidth": "144px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -326,20 +204,25 @@ const SupplierForm = (): JSX.Element => {
           >
             <thead>
               <tr>
-                <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  Stock Code
-                </th>
+                <th style={{ width: "var(--Table-firstColumnWidth)" }}>Code</th>
                 <th style={{ width: 300 }}>Name</th>
-                <th style={{ width: 100 }}>Category</th>
-                <th style={{ width: 100 }}>Brand</th>
-                <th style={{ width: 150 }}>Acquision Cost (₱)</th>
-                <th style={{ width: 170 }}>Net Cost B/F Tax (₱)</th>
+                <th style={{ width: 300 }}>Building Address</th>
+                <th style={{ width: 300 }}>Street Address</th>
+                <th style={{ width: 150 }}>City</th>
+                <th style={{ width: 150 }}>Province</th>
+                <th style={{ width: 150 }}>Country</th>
+                <th style={{ width: 100 }}>Zip Code</th>
+                <th style={{ width: 150 }}>Contact Person</th>
+                <th style={{ width: 150 }}>Contact Number</th>
+                <th style={{ width: 150 }}>Contact Email</th>
+                <th style={{ width: 150 }}>Fax Number</th>
                 <th style={{ width: 100 }}>Currency</th>
-                <th style={{ width: 130 }}>Peso Rate (₱)</th>
-                <th style={{ width: 100 }}>On Stock</th>
-                <th style={{ width: 100 }}>Available</th>
-                <th style={{ width: 100 }}>Allocated</th>
-                <th style={{ width: 100 }}>Purchased</th>
+                <th style={{ width: 100 }}>Discount Rate</th>
+                <th style={{ width: 100 }}>Supplier Balance</th>
+                <th style={{ width: 100 }}>Created By</th>
+                <th style={{ width: 250 }}>Date Created</th>
+                <th style={{ width: 100 }}>Modified By</th>
+                <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"
                   style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -347,20 +230,27 @@ const SupplierForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.stockCode}>
-                  <td>{row.stockCode}</td>
-                  <td>{row.name}</td>
-                  <td>{row.category}</td>
-                  <td>{row.brand}</td>
-                  <td>{row.acquisitionCost}</td>
-                  <td>{row.netCostTax}</td>
-                  <td>{row.currencyUsed}</td>
-                  <td>{row.pesoRate}</td>
-                  <td>{row.onStock}</td>
-                  <td>{row.available}</td>
-                  <td>{row.allocated}</td>
-                  <td>{row.purchased}</td>
+              {suppliers.map((supplier) => (
+                <tr key={supplier.supplier_id}>
+                  <td>{supplier.code}</td>
+                  <td>{supplier.name}</td>
+                  <td>{supplier.building_address}</td>
+                  <td>{supplier.street_address}</td>
+                  <td>{supplier.city}</td>
+                  <td>{supplier.province}</td>
+                  <td>{supplier.country}</td>
+                  <td>{supplier.zip_code}</td>
+                  <td>{supplier.contact_person}</td>
+                  <td>{supplier.contact_number}</td>
+                  <td>{supplier.email}</td>
+                  <td>{supplier.fax_number}</td>
+                  <td>{supplier.currency}</td>
+                  <td>{supplier.discount_rate}</td>
+                  <td>{supplier.supplier_balance}</td>
+                  <td>{supplier.created_by}</td>
+                  <td>{supplier.date_created}</td>
+                  <td>{supplier.modified_by}</td>
+                  <td>{supplier.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -369,7 +259,7 @@ const SupplierForm = (): JSX.Element => {
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(row);
+                          setSelectedRow(supplier);
                         }}
                       >
                         Edit
@@ -381,7 +271,7 @@ const SupplierForm = (): JSX.Element => {
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(row);
+                          setSelectedRow(supplier);
                         }}
                       >
                         Delete
@@ -394,17 +284,24 @@ const SupplierForm = (): JSX.Element => {
           </Table>
         </Sheet>
       </Box>
-      <ItemsModal open={openAdd} setOpen={setOpenAdd} title="Add Items" />
-      <ItemsModal
+      <SuppliersModal
+        open={openAdd}
+        setOpen={setOpenAdd}
+        title="Add Suppliers"
+        onSave={handleCreateSupplier}
+      />
+      <SuppliersModal
         open={openEdit}
         setOpen={setOpenEdit}
-        title="Edit Item"
+        title="Edit Supplier"
         row={selectedRow}
+        onSave={handleSaveSupplier}
       />
-      <DeleteItemsModal
+      <DeleteSuppliersModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Item"
+        title="Delete Supplier"
+        onDelete={handleDeleteSupplier}
       />
     </>
   );

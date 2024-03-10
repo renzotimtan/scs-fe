@@ -100,7 +100,7 @@ const WarehousesModal = ({
             <Card className="w-[100%] mr-7">
               <div>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Code</FormLabel>
                     <Input
                       size="sm"
@@ -110,7 +110,7 @@ const WarehousesModal = ({
                       onChange={handleChange}
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Name</FormLabel>
                     <Input
                       size="sm"
@@ -123,7 +123,7 @@ const WarehousesModal = ({
                 </Stack>
 
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Type</FormLabel>
                     <Select
                       name="type"

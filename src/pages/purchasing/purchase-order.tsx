@@ -54,37 +54,37 @@ const PurchaseOrderForm = (): JSX.Element => {
               </div>
             </FormControl>
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Status</FormLabel>
                 <Select size="sm" placeholder="Unposted">
                   <Option value="unposted">Unposted</Option>
                   <Option value="posted">Posted</Option>
                 </Select>
               </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Transaction Date</FormLabel>
                 <Input type="date" />
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Currency Used</FormLabel>
                 <Select size="sm" placeholder="USD">
                   <Option value="USD">USD</Option>
                   <Option value="AUD">AUD</Option>
                 </Select>
               </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Philippine Peso Rate</FormLabel>
                 <Input startDecorator="₱" size="sm" placeholder="55" />
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Supplier Discount</FormLabel>
                 <Input startDecorator="₱" size="sm" placeholder="55" />
               </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Transaction Discount</FormLabel>
                 <Input startDecorator="₱" size="sm" placeholder="55" />
               </FormControl>
@@ -109,21 +109,21 @@ const PurchaseOrderForm = (): JSX.Element => {
             </div>
             <Divider />
             <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Created by</FormLabel>
                 <p className="text-sm">Renzo Tan</p>
               </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Date Created</FormLabel>
                 <p className="text-sm">01/29/2024 11:55 AM</p>
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Modified by</FormLabel>
                 <p className="text-sm">Renzo Tan</p>
               </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "50%" }}>
+              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Date Modified</FormLabel>
                 <p className="text-sm">01/29/2024 11:55 AM</p>
               </FormControl>
