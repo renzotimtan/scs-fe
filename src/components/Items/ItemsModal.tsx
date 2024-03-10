@@ -207,13 +207,8 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
                       value={row?.total_on_stock}
-                      onChange={handleChange}
+                      disabled
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -223,13 +218,8 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
                       value={row?.total_available}
-                      onChange={handleChange}
+                      disabled
                     />
                   </FormControl>
                 </Stack>
@@ -241,13 +231,8 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
                       value={row?.total_allocated}
-                      onChange={handleChange}
+                      disabled
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -257,13 +242,8 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
                       value={row?.total_purchased}
-                      onChange={handleChange}
+                      disabled
                     />
                   </FormControl>
                 </Stack>
