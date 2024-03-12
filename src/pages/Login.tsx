@@ -15,7 +15,9 @@ export default function Login(): JSX.Element {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     try {
       const response = await axiosInstance.post(
@@ -28,6 +30,8 @@ export default function Login(): JSX.Element {
         },
       );
       console.log("Login successful:", response.data);
+      sessionStorage.setItem("token", response.data.access_token as string);
+      axiosInstance.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
 
       await router.push("/configuration/warehouse");
     } catch (error) {
