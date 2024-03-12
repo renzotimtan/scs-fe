@@ -79,7 +79,9 @@ const SupplierForm = (): JSX.Element => {
 
       setSuppliers(
         suppliers.map((supplier) =>
-          supplier.supplier_id === response.data.id ? response.data : supplier,
+          supplier.supplier_id === response.data.supplier_id
+            ? response.data
+            : supplier,
         ),
       );
 
@@ -121,7 +123,7 @@ const SupplierForm = (): JSX.Element => {
 
   const handleDeleteSupplier = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/warehouses/${selectedRow.supplier_id}`;
+      const url = `/api/suppliers/${selectedRow.supplier_id}`;
       try {
         await axiosInstance.delete(url);
         setSuppliers(

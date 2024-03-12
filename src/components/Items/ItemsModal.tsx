@@ -128,7 +128,7 @@ const ItemsModal = ({
                       name="stock_code"
                       size="sm"
                       placeholder="ABC-123"
-                      value={row?.stock_code}
+                      value={item?.stock_code}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -138,7 +138,7 @@ const ItemsModal = ({
                       name="name"
                       size="sm"
                       placeholder="Item Name"
-                      value={row?.name}
+                      value={item?.name}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -150,7 +150,7 @@ const ItemsModal = ({
                       name="category"
                       size="sm"
                       placeholder="Fans"
-                      value={row?.category}
+                      value={item?.category}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -160,7 +160,7 @@ const ItemsModal = ({
                       name="brand"
                       size="sm"
                       placeholder="Hayes"
-                      value={row?.brand}
+                      value={item?.brand}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -178,7 +178,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.acquisition_cost}
+                      value={item?.acquisition_cost}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -194,7 +194,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.net_cost_before_tax}
+                      value={item?.net_cost_before_tax}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -206,7 +206,7 @@ const ItemsModal = ({
                       name="currency"
                       size="sm"
                       placeholder="USD"
-                      value={row?.currency}
+                      value={item?.currency}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -222,7 +222,7 @@ const ItemsModal = ({
                           min: 0,
                         },
                       }}
-                      value={row?.rate}
+                      value={item?.rate}
                       onChange={handleChange}
                     />
                   </FormControl>
@@ -235,7 +235,7 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      value={row?.total_on_stock}
+                      value={item?.total_on_stock}
                       disabled
                     />
                   </FormControl>
@@ -246,7 +246,7 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      value={row?.total_available}
+                      value={item?.total_available}
                       disabled
                     />
                   </FormControl>
@@ -259,7 +259,7 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      value={row?.total_allocated}
+                      value={item?.total_allocated}
                       disabled
                     />
                   </FormControl>
@@ -270,7 +270,7 @@ const ItemsModal = ({
                       type="number"
                       size="sm"
                       placeholder="0"
-                      value={row?.total_purchased}
+                      value={item?.total_purchased}
                       disabled
                     />
                   </FormControl>
