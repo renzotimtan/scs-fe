@@ -57,6 +57,39 @@ interface Item {
   date_modified: string;
 }
 
+interface PurchaseOrder {
+  id: number;
+  purchase_order_number: number;
+  supplier_id: number;
+  status: string;
+  transaction_date: string;
+  supplier_discount: number;
+  transaction_discount: number;
+  currency_used: string;
+  peso_rate: number;
+  net_amount: number;
+  fob_total: number;
+  landed_total: number;
+  reference_number: string;
+  remarks: string;
+  created_by: number;
+  modified_by: number;
+  creator: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  date_created: string;
+  modifier: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  date_modified: string;
+}
+
 const PurchaseOrderForm = (): JSX.Element => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
@@ -67,6 +100,7 @@ const PurchaseOrderForm = (): JSX.Element => {
   const [supplierDiscount, setSupplierDiscount] = useState<number>(0);
   const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
   const [pesoRate, setPesoRate] = useState<number>(56);
+  const [purchaseOrderNumber, setPurchaseOrerNumber] = useState<number>();
 
   useEffect(() => {
     // Fetch suppliers
@@ -97,6 +131,36 @@ const PurchaseOrderForm = (): JSX.Element => {
     fobTotal - supplierDiscountAmount - transactionDiscountAmount;
   const landedTotal = netAmount * pesoRate;
 
+  const handleCreatePurchaseOrder = async (): Promise<void> => {
+    const payload = {
+      purchase_order_number: purchaseOrderNumber,
+      status: "pending", // Need to to make this dynamic based on user input
+      transaction_date: new Date().toISOString().split("T")[0], // Current date, Need to use a date picker input
+      supplier_id: selectedSupplier?.supplier_id ?? 0,
+      fob_total: fobTotal,
+      currency_used: currencyUsed,
+      supplier_discount: supplierDiscount,
+      transaction_discount: transactionDiscount,
+      peso_rate: pesoRate,
+      net_amount: netAmount,
+      reference_number: "123", // Need to add an input for this
+      landed_total: landedTotal,
+      remarks: "Handled manually in FE", // Need to add an input for this
+      created_by: 1, // Set this based on the logged-in user
+    };
+    try {
+      console.log("payload: ", payload);
+      const response = await axiosInstance.post(
+        "/api/purchase_orders/",
+        payload,
+      );
+      console.log("Response: ", response);
+      // Handle the response, update state, etc.
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   return (
     <div>
       <h2 className="mb-6">Create Purchase Order</h2>
@@ -106,7 +170,14 @@ const PurchaseOrderForm = (): JSX.Element => {
             <div className="flex justify-between items-center">
               <FormControl size="sm" sx={{ mb: 1 }}>
                 <FormLabel>Purchase Order No.</FormLabel>
-                <h5>12345</h5>
+                <Input
+                  size="sm"
+                  placeholder="12345"
+                  value={purchaseOrderNumber}
+                  onChange={(e) =>
+                    setPurchaseOrerNumber(Number(e.target.value))
+                  }
+                />
               </FormControl>
               <Button
                 className="ml-4 w-[130px] h-[35px] bg-button-neutral"
@@ -282,7 +353,11 @@ const PurchaseOrderForm = (): JSX.Element => {
             <DoDisturbIcon className="mr-2" />
             Cancel
           </Button>
-          <Button className="ml-4 w-[130px] bg-button-primary" size="sm">
+          <Button
+            className="ml-4 w-[130px] bg-button-primary"
+            size="sm"
+            onClick={handleCreatePurchaseOrder}
+          >
             <SaveIcon className="mr-2" />
             Save
           </Button>
