@@ -163,6 +163,7 @@ const SupplierForm = (): JSX.Element => {
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
             overflow: "auto",
+            borderRadius: 8,
             background: (
               theme,
             ) => `linear-gradient(to right, ${theme.vars.palette.background.surface} 30%, rgba(255, 255, 255, 0)),

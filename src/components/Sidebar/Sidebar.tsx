@@ -36,11 +36,12 @@ export default function Sidebar(): JSX.Element {
     >
       <h4 className="mb-2 p-2">COMPANY NAME</h4>
       <Divider />
-      <List size="sm" sx={{ "--ListItem-radius": "8px", "--List-gap": "4px" }}>
-        <ListItem nested>
-          <ListSubheader
-            sx={{ letterSpacing: "2px", fontWeight: "800", marginTop: "10px" }}
-          >
+      <List
+        size="sm"
+        sx={{ "--ListItem-radius": "8px", "--List-gap": "2px", fontSize: 13 }}
+      >
+        <ListItem nested sx={{ mt: 1 }}>
+          <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
             Configuration
           </ListSubheader>
           <List aria-labelledby="nav-list-browse">
@@ -61,7 +62,7 @@ export default function Sidebar(): JSX.Element {
             />
           </List>
         </ListItem>
-        <ListItem nested sx={{ mt: 2 }}>
+        <ListItem nested sx={{ mt: 1 }}>
           <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
             Purchasing
           </ListSubheader>
@@ -94,7 +95,7 @@ export default function Sidebar(): JSX.Element {
             />
           </List>
         </ListItem>
-        <ListItem nested sx={{ mt: 2 }}>
+        <ListItem nested sx={{ mt: 1 }}>
           <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
             Sales
           </ListSubheader>

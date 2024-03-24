@@ -3,19 +3,19 @@ import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
 
-interface DeleteSupplierModalProps {
+interface DeletePurchaseOrderProps {
   open: boolean;
   title: string;
   setOpen: (isOpen: boolean) => void;
   onDelete: () => Promise<void>;
 }
 
-const DeleteSuppliersModal = ({
+const DeletePurchaseOrderModal = ({
   open,
   title,
   setOpen,
   onDelete,
-}: DeleteSupplierModalProps): JSX.Element => {
+}: DeletePurchaseOrderProps): JSX.Element => {
   return (
     <Modal
       aria-labelledby="modal-title"
@@ -42,7 +42,7 @@ const DeleteSuppliersModal = ({
             <h4 className="mb-6">{title}</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to delete this Warehouse?
+                Are you sure you want to delete this Purchase Order?
               </p>
             </div>
             <div className="flex justify-end mt-5">
@@ -73,4 +73,4 @@ const DeleteSuppliersModal = ({
   );
 };
 
-export default DeleteSuppliersModal;
+export default DeletePurchaseOrderModal;

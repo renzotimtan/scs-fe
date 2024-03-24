@@ -3,98 +3,70 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
-import WarehousesModal from "../../components/Warehouses/WarehousesModal";
-import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
 import axiosInstance from "../../utils/axiosConfig";
-import type { User } from "../Login";
-export interface Warehouse {
+import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
+
+interface PurchaseOrder {
   id: number;
-  code: string;
-  name: string;
-  type: string;
+  purchase_order_number: number;
+  supplier_id: number;
+  status: string;
+  transaction_date: string;
+  supplier_discount: number;
+  transaction_discount: number;
+  currency_used: string;
+  peso_rate: number;
+  net_amount: number;
+  fob_total: number;
+  landed_total: number;
+  reference_number: string;
+  remarks: string;
   created_by: number;
   modified_by: number;
+  creator: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
   date_created: string;
+  modifier: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
   date_modified: string;
 }
 
-const WarehouseForm = (): JSX.Element => {
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [openAdd, setOpenAdd] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
+interface ViewPurchaseOrderProps {
+  setOpenCreate: (isOpen: boolean) => void;
+}
+
+const ViewPurchaseOrder = ({
+  setOpenCreate,
+}: ViewPurchaseOrderProps): JSX.Element => {
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<Warehouse>();
-  const [userId, setUserId] = useState<number | null>(null);
+  const [selectedRow, setSelectedRow] = useState<PurchaseOrder>();
 
   useEffect(() => {
-    // Fetch warehouses
+    // Fetch purchase orders
     axiosInstance
-      .get<Warehouse[]>("/api/warehouses/")
-      .then((response) => setWarehouses(response.data))
+      .get<PurchaseOrder[]>("/api/purchase_orders/")
+      .then((response) => setPurchaseOrders(response.data))
       .catch((error) => console.error("Error:", error));
-
-    // Fetch user ID
-    axiosInstance
-      .get<User>("/users/me/")
-      .then((response) => setUserId(response.data.id))
-      .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
-  const handleSaveWarehouse = async (
-    newWarehouse: Warehouse,
-  ): Promise<void> => {
-    const url = `/api/warehouses/${newWarehouse.id}`;
-
-    const payload = {
-      name: newWarehouse.name,
-      type: newWarehouse.type,
-      modified_by: userId,
-      id: newWarehouse.id,
-      code: newWarehouse.code,
-    };
-    try {
-      const response = await axiosInstance.put(url, payload);
-
-      setWarehouses(
-        warehouses.map((warehouse) =>
-          warehouse.id === response.data.id ? response.data : warehouse,
-        ),
-      );
-
-      setOpenAdd(false);
-      setOpenEdit(false);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handleCreateWarehouse = async (
-    newWarehouse: Warehouse,
-  ): Promise<void> => {
-    const payload = {
-      id: newWarehouse.id,
-      name: newWarehouse.name,
-      type: newWarehouse.type,
-      created_by: userId,
-      code: newWarehouse.code,
-    };
-    try {
-      const response = await axiosInstance.post("/api/warehouses/", payload);
-
-      setWarehouses([...warehouses, response.data]);
-      setOpenAdd(false);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handleDeleteWarehouse = async (): Promise<void> => {
+  const handleDeletePurchaseOrder = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/warehouses/${selectedRow.id}`;
+      const url = `/api/purchase_orders/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
-        setWarehouses(
-          warehouses.filter((warehouse) => warehouse.id !== selectedRow.id),
+        setPurchaseOrders(
+          purchaseOrders.filter(
+            (purchaseOrder) => purchaseOrder.id !== selectedRow.id,
+          ),
         );
       } catch (error) {
         console.error("Error:", error);
@@ -106,15 +78,15 @@ const WarehouseForm = (): JSX.Element => {
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Warehouses</h2>
+          <h2>Purchase Order</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
             onClick={() => {
-              setOpenAdd(true);
+              setOpenCreate(true);
             }}
           >
-            Add Warehouse
+            Add Purchase Order
           </Button>
         </Box>
         <Sheet
@@ -173,12 +145,23 @@ const WarehouseForm = (): JSX.Element => {
           >
             <thead>
               <tr>
-                <th style={{ width: "var(--Table-firstColumnWidth)" }}>Code</th>
-                <th style={{ width: 300 }}>Name</th>
-                <th style={{ width: 100 }}>Type</th>
+                <th style={{ width: "var(--Table-firstColumnWidth)" }}>
+                  PO Number
+                </th>
+                <th style={{ width: 300 }}>Status</th>
+                <th style={{ width: 300 }}>Supplier</th>
+                <th style={{ width: 250 }}>Transaction Date</th>
+                <th style={{ width: 150 }}>Supplier Discount</th>
+                <th style={{ width: 150 }}>Currency Used</th>
+                <th style={{ width: 150 }}>Peso Rate</th>
+                <th style={{ width: 150 }}>Net Amount</th>
+                <th style={{ width: 150 }}>FOB Total</th>
+                <th style={{ width: 150 }}>Landed Total</th>
+                <th style={{ width: 200 }}>Reference Number</th>
+                <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
-                <th style={{ width: 250 }}>Date Created</th>
                 <th style={{ width: 200 }}>Modified By</th>
+                <th style={{ width: 250 }}>Date Created</th>
                 <th style={{ width: 250 }}>Date Modified</th>
                 <th
                   aria-label="last"
@@ -187,25 +170,34 @@ const WarehouseForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {warehouses.map((warehouse) => (
-                <tr key={warehouse.id}>
-                  <td>{warehouse.code}</td>
-                  <td>{warehouse.name}</td>
-                  <td>{warehouse.type}</td>
-                  <td>{warehouse.created_by}</td>
-                  <td>{warehouse.date_created}</td>
-                  <td>{warehouse.modified_by}</td>
-                  <td>{warehouse.date_modified}</td>
+              {purchaseOrders.map((purchaseOrder) => (
+                <tr key={purchaseOrder.id}>
+                  <td>{purchaseOrder.purchase_order_number}</td>
+                  <td>{purchaseOrder.status}</td>
+                  <td>{purchaseOrder.supplier_id}</td>
+                  <td>{purchaseOrder.transaction_date}</td>
+                  <td>{purchaseOrder.supplier_discount}</td>
+                  <td>{purchaseOrder.currency_used}</td>
+                  <td>{purchaseOrder.peso_rate}</td>
+                  <td>{purchaseOrder.net_amount}</td>
+                  <td>{purchaseOrder.fob_total}</td>
+                  <td>{purchaseOrder.landed_total}</td>
+                  <td>{purchaseOrder.reference_number}</td>
+                  <td>{purchaseOrder.remarks}</td>
+                  <td>{purchaseOrder.created_by}</td>
+                  <td>{purchaseOrder.modified_by}</td>
+                  <td>{purchaseOrder.date_created}</td>
+                  <td>{purchaseOrder.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
                         size="sm"
                         variant="plain"
                         color="neutral"
-                        onClick={() => {
-                          setOpenEdit(true);
-                          setSelectedRow(warehouse);
-                        }}
+                        // onClick={() => {
+                        //   setOpenEdit(true);
+                        //   setSelectedRow(purchaseOrder);
+                        // }}
                       >
                         Edit
                       </Button>
@@ -216,7 +208,7 @@ const WarehouseForm = (): JSX.Element => {
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(warehouse);
+                          setSelectedRow(purchaseOrder);
                         }}
                       >
                         Delete
@@ -229,27 +221,14 @@ const WarehouseForm = (): JSX.Element => {
           </Table>
         </Sheet>
       </Box>
-      <WarehousesModal
-        open={openAdd}
-        setOpen={setOpenAdd}
-        title="Add Warehouses"
-        onSave={handleCreateWarehouse}
-      />
-      <WarehousesModal
-        open={openEdit}
-        setOpen={setOpenEdit}
-        title="Edit Warehouse"
-        row={selectedRow}
-        onSave={handleSaveWarehouse}
-      />
-      <DeleteWarehousesModal
+      <DeletePurchaseOrderModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Delete Warehouse"
-        onDelete={handleDeleteWarehouse}
+        onDelete={handleDeletePurchaseOrder}
       />
     </>
   );
 };
 
-export default WarehouseForm;
+export default ViewPurchaseOrder;

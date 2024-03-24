@@ -21,7 +21,8 @@ const DeleteWarehouseModal = ({
       aria-labelledby="modal-title"
       aria-describedby="modal-desc"
       open={open}
-      onClose={() => {
+      onClose={(event, reason) => {
+        if (reason === "backdropClick") return;
         setOpen(false);
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
