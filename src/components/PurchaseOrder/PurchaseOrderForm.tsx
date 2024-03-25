@@ -20,6 +20,7 @@ import Table from "@mui/joy/Table";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
+import { toast } from "react-toastify";
 
 interface Supplier {
   supplier_id: number;
@@ -160,11 +161,13 @@ const PurchaseOrderForm = ({
         "/api/purchase_orders/",
         payload,
       );
+      toast.success("Save successful!");
       setOpen(false);
       console.log("Response: ", response);
       // Handle the response, update state, etc.
     } catch (error) {
       console.error("Error:", error);
+      // toast.error("Error:", error);
     }
   };
 
@@ -192,10 +195,12 @@ const PurchaseOrderForm = ({
         payload,
       );
       setOpen(false);
+      toast.success("Save successful!");
       console.log("Response: ", response);
       // Handle the response, update state, etc.
     } catch (error) {
       console.error("Error:", error);
+      // toast.error("Error:", error);
     }
   };
 

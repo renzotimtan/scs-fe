@@ -7,6 +7,7 @@ import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
+import { toast } from "react-toastify";
 export interface Warehouse {
   id: number;
   code: string;
@@ -63,6 +64,7 @@ const WarehouseForm = (): JSX.Element => {
 
       setOpenAdd(false);
       setOpenEdit(false);
+      toast.success("Save successful!");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -83,6 +85,7 @@ const WarehouseForm = (): JSX.Element => {
 
       setWarehouses([...warehouses, response.data]);
       setOpenAdd(false);
+      toast.success("Save successful!");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -93,6 +96,7 @@ const WarehouseForm = (): JSX.Element => {
       const url = `/api/warehouses/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
+        toast.success("Delete successful!");
         setWarehouses(
           warehouses.filter((warehouse) => warehouse.id !== selectedRow.id),
         );

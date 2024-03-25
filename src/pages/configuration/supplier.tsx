@@ -7,6 +7,7 @@ import SuppliersModal from "../../components/Suppliers/SuppliersModal";
 import DeleteSuppliersModal from "../../components/Suppliers/DeleteSupplierModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
+import { toast } from "react-toastify";
 export interface Supplier {
   supplier_id: number;
   code: string;
@@ -87,6 +88,7 @@ const SupplierForm = (): JSX.Element => {
 
       setOpenAdd(false);
       setOpenEdit(false);
+      toast.success("Save successful!");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -116,6 +118,7 @@ const SupplierForm = (): JSX.Element => {
 
       setSuppliers([...suppliers, response.data]);
       setOpenAdd(false);
+      toast.success("Save successful!");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -126,6 +129,7 @@ const SupplierForm = (): JSX.Element => {
       const url = `/api/suppliers/${selectedRow.supplier_id}`;
       try {
         await axiosInstance.delete(url);
+        toast.success("Delete successful!");
         setSuppliers(
           suppliers.filter(
             (supplier) => supplier.supplier_id !== selectedRow.supplier_id,

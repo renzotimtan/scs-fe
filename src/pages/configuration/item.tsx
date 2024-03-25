@@ -7,6 +7,7 @@ import Sheet from "@mui/joy/Sheet";
 import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
+import { toast } from "react-toastify";
 export interface Item {
   id: number;
   stock_code: string;
@@ -77,6 +78,7 @@ const ItemForm = (): JSX.Element => {
 
       setOpenAdd(false);
       setOpenEdit(false);
+      toast.success("Save successful!");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -101,6 +103,7 @@ const ItemForm = (): JSX.Element => {
 
       setItems([...items, response.data]);
       setOpenAdd(false);
+      toast.success("Save successful!");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -111,6 +114,7 @@ const ItemForm = (): JSX.Element => {
       const url = `/api/items/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
+        toast.success("Delete successful!");
         setItems(items.filter((item) => item.id !== selectedRow.id));
       } catch (error) {
         console.error("Error:", error);

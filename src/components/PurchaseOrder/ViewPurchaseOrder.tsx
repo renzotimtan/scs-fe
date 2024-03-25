@@ -6,6 +6,7 @@ import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
 import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
 import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
+import { toast } from "react-toastify";
 
 interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
@@ -36,6 +37,7 @@ const ViewPurchaseOrder = ({
       const url = `/api/purchase_orders/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
+        toast.success("Delete successful!");
         setPurchaseOrders(
           purchaseOrders.filter(
             (purchaseOrder) => purchaseOrder.id !== selectedRow.id,
@@ -146,7 +148,7 @@ const ViewPurchaseOrder = ({
               {purchaseOrders.map((purchaseOrder) => (
                 <tr key={purchaseOrder.id}>
                   <td>{purchaseOrder.purchase_order_number}</td>
-                  <td>{purchaseOrder.status}</td>
+                  <td className="capitalize">{purchaseOrder.status}</td>
                   <td>{purchaseOrder.supplier_id}</td>
                   <td>{purchaseOrder.transaction_date}</td>
                   <td>{purchaseOrder.supplier_discount}</td>
