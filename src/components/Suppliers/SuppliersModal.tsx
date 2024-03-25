@@ -244,6 +244,7 @@ const SuppliersModal = ({
                     <FormLabel>Discount Rate</FormLabel>
                     <Input
                       size="sm"
+                      type="number"
                       placeholder="0"
                       name="discount_rate"
                       value={supplier.discount_rate}
@@ -256,6 +257,7 @@ const SuppliersModal = ({
                     <FormLabel>Supplier Balance</FormLabel>
                     <Input
                       size="sm"
+                      type="number"
                       placeholder="0"
                       name="supplier_balance"
                       value={supplier.supplier_balance}
