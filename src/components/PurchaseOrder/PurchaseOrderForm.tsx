@@ -19,6 +19,7 @@ import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import Table from "@mui/joy/Table";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
+import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 
 interface Supplier {
   supplier_id: number;
@@ -59,11 +60,19 @@ interface Item {
 }
 
 interface PurchaseOrderFormProps {
-  setOpenCreate: (isOpen: boolean) => void;
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: PurchaseOrder;
+  setSelectedRow?: (purchaseOrder: PurchaseOrder) => void;
 }
 
 const PurchaseOrderForm = ({
-  setOpenCreate,
+  setOpen,
+  openCreate,
+  openEdit,
+  selectedRow,
+  setSelectedRow,
 }: PurchaseOrderFormProps): JSX.Element => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
@@ -73,8 +82,12 @@ const PurchaseOrderForm = ({
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [supplierDiscount, setSupplierDiscount] = useState<number>(0);
   const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
-  const [pesoRate, setPesoRate] = useState<number>(56);
-  const [purchaseOrderNumber, setPurchaseOrerNumber] = useState<number>();
+  const [pesoRate, setPesoRate] = useState<number>(0);
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<number>(0);
+  const [status, setStatus] = useState("");
+  const [transactionDate, setTransactionDate] = useState("");
+  const [referenceNumber, setReferenceNumber] = useState("");
+  const [remarks, setRemarks] = useState("");
 
   useEffect(() => {
     // Fetch suppliers
@@ -83,6 +96,25 @@ const PurchaseOrderForm = ({
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
   }, []);
+
+  useEffect(() => {
+    if (selectedRow !== null) {
+      setCurrencyUsed(selectedRow?.currency_used ?? "USD");
+      setSupplierDiscount(selectedRow?.supplier_discount ?? 0);
+      setTransactionDiscount(selectedRow?.transaction_discount ?? 0);
+      setPesoRate(selectedRow?.peso_rate ?? 0);
+      setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
+      setStatus(selectedRow?.status ?? "pending");
+      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setReferenceNumber(selectedRow?.reference_number ?? "");
+      setRemarks(selectedRow?.remarks ?? "");
+
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${selectedRow?.supplier_id}`)
+        .then((response) => setSelectedSupplier(response.data))
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow]);
 
   useEffect(() => {
     if (selectedSupplier !== null) {
@@ -108,8 +140,8 @@ const PurchaseOrderForm = ({
   const handleCreatePurchaseOrder = async (): Promise<void> => {
     const payload = {
       purchase_order_number: purchaseOrderNumber,
-      status: "pending", // Need to to make this dynamic based on user input
-      transaction_date: new Date().toISOString().split("T")[0], // Current date, Need to use a date picker input
+      status,
+      transaction_date: transactionDate,
       supplier_id: selectedSupplier?.supplier_id ?? 0,
       fob_total: fobTotal,
       currency_used: currencyUsed,
@@ -117,9 +149,9 @@ const PurchaseOrderForm = ({
       transaction_discount: transactionDiscount,
       peso_rate: pesoRate,
       net_amount: netAmount,
-      reference_number: "123", // Need to add an input for this
+      reference_number: referenceNumber,
       landed_total: landedTotal,
-      remarks: "Handled manually in FE", // Need to add an input for this
+      remarks,
       created_by: 1, // Set this based on the logged-in user
     };
     try {
@@ -128,7 +160,38 @@ const PurchaseOrderForm = ({
         "/api/purchase_orders/",
         payload,
       );
-      setOpenCreate(false);
+      setOpen(false);
+      console.log("Response: ", response);
+      // Handle the response, update state, etc.
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleEditPurchaseOrder = async (): Promise<void> => {
+    const payload = {
+      purchase_order_number: purchaseOrderNumber,
+      status,
+      transaction_date: transactionDate,
+      supplier_id: selectedSupplier?.supplier_id ?? 0,
+      fob_total: fobTotal,
+      currency_used: currencyUsed,
+      supplier_discount: supplierDiscount,
+      transaction_discount: transactionDiscount,
+      peso_rate: pesoRate,
+      net_amount: netAmount,
+      reference_number: referenceNumber,
+      landed_total: landedTotal,
+      remarks,
+      modified_by: 1, // Set this based on the logged-in user
+    };
+    try {
+      console.log("payload: ", payload);
+      const response = await axiosInstance.put(
+        `/api/purchase_orders/${selectedRow?.id}`,
+        payload,
+      );
+      setOpen(false);
       console.log("Response: ", response);
       // Handle the response, update state, etc.
     } catch (error) {
@@ -150,10 +213,11 @@ const PurchaseOrderForm = ({
                 <FormLabel>Purchase Order No.</FormLabel>
                 <Input
                   size="sm"
+                  type="number"
                   placeholder="12345"
                   value={purchaseOrderNumber}
                   onChange={(e) =>
-                    setPurchaseOrerNumber(Number(e.target.value))
+                    setPurchaseOrderNumber(Number(e.target.value))
                   }
                 />
               </FormControl>
@@ -186,15 +250,26 @@ const PurchaseOrderForm = ({
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Status</FormLabel>
-                <Select size="sm" placeholder="Unposted">
-                  <Option value="unposted">Unposted</Option>
-                  <Option value="posted">Posted</Option>
+                <Select
+                  onChange={(event, value) => {
+                    if (value !== null) setStatus(value);
+                  }}
+                  size="sm"
+                  placeholder="Unposted"
+                  value={status}
+                >
+                  <Option value="pending">Pending</Option>
+                  <Option value="completed">Completed</Option>
                   <Option value="cancelled">Cancelled</Option>
                 </Select>
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Transaction Date</FormLabel>
-                <Input type="date" />
+                <Input
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                />
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
@@ -202,6 +277,7 @@ const PurchaseOrderForm = ({
                 <FormLabel>Supplier Discount</FormLabel>
                 <Input
                   endDecorator="%"
+                  type="number"
                   size="sm"
                   placeholder="55"
                   value={supplierDiscount}
@@ -212,6 +288,7 @@ const PurchaseOrderForm = ({
                 <FormLabel>Transaction Discount</FormLabel>
                 <Input
                   endDecorator="%"
+                  type="number"
                   size="sm"
                   placeholder="55"
                   value={transactionDiscount}
@@ -224,7 +301,14 @@ const PurchaseOrderForm = ({
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Currency Used</FormLabel>
-                <Select size="sm" placeholder="USD">
+                <Select
+                  onChange={(event, value) => {
+                    if (value !== null) setCurrencyUsed(value);
+                  }}
+                  size="sm"
+                  placeholder="USD"
+                  value={currencyUsed}
+                >
                   <Option value="USD">USD</Option>
                   <Option value="AUD">AUD</Option>
                 </Select>
@@ -233,6 +317,7 @@ const PurchaseOrderForm = ({
                 <FormLabel>Philippine Peso Rate</FormLabel>
                 <Input
                   startDecorator="₱"
+                  type="number"
                   size="sm"
                   placeholder="55"
                   value={pesoRate}
@@ -281,11 +366,21 @@ const PurchaseOrderForm = ({
             </Stack>
             <FormControl size="sm" sx={{ mb: 1, mt: 2.5 }}>
               <FormLabel>Reference No.</FormLabel>
-              <Input size="sm" placeholder="Search" />
+              <Input
+                size="sm"
+                placeholder="Search"
+                onChange={(e) => setReferenceNumber(e.target.value)}
+                value={referenceNumber}
+              />
             </FormControl>
             <FormControl size="sm" sx={{ mb: 3 }}>
               <FormLabel>Remarks</FormLabel>
-              <Textarea minRows={1} placeholder="Search" />
+              <Textarea
+                minRows={1}
+                placeholder="Search"
+                onChange={(e) => setRemarks(e.target.value)}
+                value={remarks}
+              />
             </FormControl>
           </div>
         </Card>
@@ -379,7 +474,9 @@ const PurchaseOrderForm = ({
           className="ml-4 w-[130px]"
           size="sm"
           variant="outlined"
-          onClick={() => setOpenCreate(false)}
+          onClick={() => {
+            setOpen(false);
+          }}
         >
           <DoDisturbIcon className="mr-2" />
           Cancel
@@ -387,7 +484,10 @@ const PurchaseOrderForm = ({
         <Button
           className="ml-4 w-[130px] bg-button-primary"
           size="sm"
-          onClick={handleCreatePurchaseOrder}
+          onClick={async () => {
+            if (openCreate) await handleCreatePurchaseOrder();
+            if (openEdit) await handleEditPurchaseOrder();
+          }}
         >
           <SaveIcon className="mr-2" />
           Save

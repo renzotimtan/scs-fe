@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
+import Sheet from "@mui/joy/Sheet";
+import Typography from "@mui/joy/Typography";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
+import Input from "@mui/joy/Input";
+import Button from "@mui/joy/Button";
 import axiosInstance from "../utils/axiosConfig";
-
 export interface User {
   id: number;
   username: string;
@@ -40,30 +46,59 @@ export default function Login(): JSX.Element {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+    <main>
+      <Sheet
+        sx={{
+          width: 300,
+          mx: "auto",
+          my: 14,
+          py: 4,
+          px: 3,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          borderRadius: "sm",
+          boxShadow: "md",
+        }}
+        variant="outlined"
+      >
         <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <Typography level="h4" component="h1">
+            <b>Welcome!</b>
+          </Typography>
+          <Typography level="body-sm">Sign in to continue.</Typography>
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
+        <form onSubmit={handleSubmit}>
+          <FormControl>
+            <FormLabel>Username</FormLabel>
+            <Input
+              type="text"
+              id="username"
+              value={username}
+              placeholder="johndoe"
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </FormControl>
+          <FormControl className="mt-4">
+            <FormLabel>Password</FormLabel>
+            <Input
+              type="password"
+              id="password"
+              value={password}
+              placeholder="********"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </FormControl>
+          <Button
+            className="bg-button-primary mt-5 w-full"
+            sx={{ mt: 4 }}
+            type="submit"
+          >
+            Log in
+          </Button>
+        </form>
         {error !== "" && <p>{error}</p>}
-      </form>
-    </div>
+      </Sheet>
+    </main>
   );
 }

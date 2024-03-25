@@ -5,50 +5,23 @@ import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
 import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
-
-interface PurchaseOrder {
-  id: number;
-  purchase_order_number: number;
-  supplier_id: number;
-  status: string;
-  transaction_date: string;
-  supplier_discount: number;
-  transaction_discount: number;
-  currency_used: string;
-  peso_rate: number;
-  net_amount: number;
-  fob_total: number;
-  landed_total: number;
-  reference_number: string;
-  remarks: string;
-  created_by: number;
-  modified_by: number;
-  creator: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  date_created: string;
-  modifier: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  date_modified: string;
-}
+import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 
 interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: PurchaseOrder | undefined;
+  setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
 }
 
 const ViewPurchaseOrder = ({
   setOpenCreate,
+  setOpenEdit,
+  selectedRow,
+  setSelectedRow,
 }: ViewPurchaseOrderProps): JSX.Element => {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<PurchaseOrder>();
 
   useEffect(() => {
     // Fetch purchase orders
@@ -194,10 +167,10 @@ const ViewPurchaseOrder = ({
                         size="sm"
                         variant="plain"
                         color="neutral"
-                        // onClick={() => {
-                        //   setOpenEdit(true);
-                        //   setSelectedRow(purchaseOrder);
-                        // }}
+                        onClick={() => {
+                          setOpenEdit(true);
+                          setSelectedRow(purchaseOrder);
+                        }}
                       >
                         Edit
                       </Button>
