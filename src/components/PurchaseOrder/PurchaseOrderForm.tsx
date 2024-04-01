@@ -17,7 +17,7 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import Table from "@mui/joy/Table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
@@ -68,6 +68,9 @@ interface PurchaseOrderFormProps {
   setSelectedRow?: (purchaseOrder: PurchaseOrder) => void;
 }
 
+//  Initialize state of selectedItems outside of component to avoid creating new object on each render
+const INITIAL_SELECTED_ITEMS = [{ id: null }];
+
 const PurchaseOrderForm = ({
   setOpen,
   openCreate,
@@ -80,11 +83,9 @@ const PurchaseOrderForm = ({
     null,
   );
   const [items, setItems] = useState<Item[]>([]);
-  const [selectedItems, setSelectedItems] = useState<any>([
-    {
-      id: null,
-    },
-  ]);
+  const [selectedItems, setSelectedItems] = useState<any>(
+    INITIAL_SELECTED_ITEMS,
+  );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [supplierDiscount, setSupplierDiscount] = useState<number>(0);
   const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
@@ -104,7 +105,7 @@ const PurchaseOrderForm = ({
   }, []);
 
   useEffect(() => {
-    if (selectedRow !== null) {
+    if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
       setCurrencyUsed(selectedRow?.currency_used ?? "USD");
       setSupplierDiscount(selectedRow?.supplier_discount ?? 0);
       setTransactionDiscount(selectedRow?.transaction_discount ?? 0);
@@ -130,6 +131,14 @@ const PurchaseOrderForm = ({
         .then((response) => setItems(response.data))
         .catch((error) => console.error("Error:", error));
     }
+  }, [selectedSupplier]);
+
+  const resetSelectedItems = useCallback(() => {
+    setSelectedItems(INITIAL_SELECTED_ITEMS);
+  }, []);
+
+  useEffect(() => {
+    resetSelectedItems();
   }, [selectedSupplier]);
 
   // Calculations
@@ -233,6 +242,10 @@ const PurchaseOrderForm = ({
 
       setSelectedItems(newSelectedItems);
     }
+  };
+
+  const handleRemoveItem = (index: number): void => {
+    setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
 
   return (
@@ -426,7 +439,7 @@ const PurchaseOrderForm = ({
           // the number is the amount of the header rows.
           "--TableHeader-height": "calc(1 * var(--TableCell-height))",
           "--Table-firstColumnWidth": "150px",
-          "--Table-lastColumnWidth": "144px",
+          "--Table-lastColumnWidth": "86px",
           // background needs to have transparency to show the scrolling shadows
           "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
           "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -462,6 +475,11 @@ const PurchaseOrderForm = ({
               boxShadow: "1px 0 var(--TableCell-borderColor)",
               bgcolor: "background.surface",
             },
+            "& tr > *:last-child": {
+              position: "sticky",
+              right: 0,
+              bgcolor: "var(--TableCell-headBackground)",
+            },
           }}
           borderAxis="both"
         >
@@ -484,16 +502,22 @@ const PurchaseOrderForm = ({
               <th style={{ width: 250 }}>Date Created</th>
               <th style={{ width: 200 }}>Modified By</th>
               <th style={{ width: 250 }}>Date Modified</th>
+              <th
+                aria-label="last"
+                style={{ width: "var(--Table-lastColumnWidth)" }}
+              />
             </tr>
           </thead>
           <tbody>
-            {selectedItems.map((selectedItem, index) => (
+            {selectedItems.map((selectedItem: Item, index: number) => (
               <tr key={selectedItem.id}>
                 <td>
                   <Select
-                    onChange={(event, value) =>
-                      fetchSelectedItem(event, value, index)
-                    }
+                    onChange={(event, value) => {
+                      if (value !== null) {
+                        fetchSelectedItem(event, value, index);
+                      }
+                    }}
                     className="mt-1 border-0"
                     size="sm"
                     placeholder="Select Item"
@@ -519,6 +543,17 @@ const PurchaseOrderForm = ({
                 <td>{selectedItem?.date_created}</td>
                 <td>{selectedItem?.modifier?.username}</td>
                 <td>{selectedItem?.date_modified}</td>
+                <td>
+                  <Button
+                    size="sm"
+                    variant="soft"
+                    color="danger"
+                    className="bg-delete-red"
+                    onClick={() => handleRemoveItem(index)}
+                  >
+                    Delete
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
