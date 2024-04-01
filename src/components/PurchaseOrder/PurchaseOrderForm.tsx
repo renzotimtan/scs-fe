@@ -80,6 +80,11 @@ const PurchaseOrderForm = ({
     null,
   );
   const [items, setItems] = useState<Item[]>([]);
+  const [selectedItems, setSelectedItems] = useState<any>([
+    {
+      id: null,
+    },
+  ]);
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [supplierDiscount, setSupplierDiscount] = useState<number>(0);
   const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
@@ -204,12 +209,35 @@ const PurchaseOrderForm = ({
     }
   };
 
+  const fetchSelectedItem = (event, value: number, index: number): void => {
+    if (value !== undefined) {
+      const item = items.find((item) => item.id === value);
+
+      const hasBeenAdded = selectedItems.find(
+        (selectedItem: Item) => selectedItem.id === item?.id,
+      );
+
+      if (hasBeenAdded !== undefined) {
+        toast.error("Error: The item has already been added");
+        return;
+      }
+
+      // We need to add the new item before the null item
+      const newSelectedItems = selectedItems.filter(
+        (selectedItem: Item) => selectedItem.id !== null,
+      );
+      newSelectedItems[index] = item;
+      newSelectedItems.push({ id: null });
+
+      setSelectedItems(newSelectedItems);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between">
         <h2 className="mb-6">Create Purchase Order</h2>
       </div>
-
       <Box sx={{ display: "flex" }}>
         <Card className="w-[60%] mr-7">
           <div>
@@ -390,7 +418,6 @@ const PurchaseOrderForm = ({
           </div>
         </Card>
       </Box>
-
       <Sheet
         sx={{
           "--TableCell-height": "40px",
@@ -438,9 +465,14 @@ const PurchaseOrderForm = ({
         >
           <thead>
             <tr>
-              <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                Stock Code
+              <th
+                style={{
+                  width: "var(--Table-firstColumnWidth)",
+                }}
+              >
+                Selected Item
               </th>
+              <th style={{ width: 300 }}>Stock Code</th>
               <th style={{ width: 300 }}>Name</th>
               <th style={{ width: 150 }}>Current Price</th>
               <th style={{ width: 150 }}>Volume</th>
@@ -453,26 +485,43 @@ const PurchaseOrderForm = ({
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.stock_code}</td>
-                <td>{item.name}</td>
-                <td>{item.acquisition_cost}</td>
-                <td>{item.total_on_stock}</td>
-                <td>{item.acquisition_cost}</td>
+            {selectedItems.map((selectedItem, index) => (
+              <tr key={selectedItem.id}>
                 <td>
-                  {Number(item.total_available) * Number(item.acquisition_cost)}
+                  <Select
+                    onChange={(event, value) =>
+                      fetchSelectedItem(event, value, index)
+                    }
+                    className="mt-1 border-0"
+                    size="sm"
+                    placeholder="Select Item"
+                    value={selectedItem.id}
+                  >
+                    {items.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
                 </td>
-                <td>{item.creator.username}</td>
-                <td>{item.date_created}</td>
-                <td>{item.modifier?.username}</td>
-                <td>{item?.date_modified}</td>
+                <td>{selectedItem?.stock_code}</td>
+                <td>{selectedItem?.name}</td>
+                <td>{selectedItem?.acquisition_cost}</td>
+                <td>{selectedItem?.total_on_stock}</td>
+                <td>{selectedItem?.acquisition_cost}</td>
+                <td>
+                  {Number(selectedItem?.total_available) *
+                    Number(selectedItem?.acquisition_cost)}
+                </td>
+                <td>{selectedItem?.creator?.username}</td>
+                <td>{selectedItem?.date_created}</td>
+                <td>{selectedItem?.modifier?.username}</td>
+                <td>{selectedItem?.date_modified}</td>
               </tr>
             ))}
           </tbody>
         </Table>
       </Sheet>
-
       <Divider />
       <div className="flex justify-end mt-4">
         <Button
