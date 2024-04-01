@@ -16,6 +16,9 @@ export interface PurchaseOrder {
   landed_total: number;
   reference_number: string;
   remarks: string;
+  supplier: {
+    name: string;
+  };
   created_by: number;
   modified_by: number;
   creator: {

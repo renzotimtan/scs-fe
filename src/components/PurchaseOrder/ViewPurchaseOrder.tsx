@@ -149,7 +149,7 @@ const ViewPurchaseOrder = ({
                 <tr key={purchaseOrder.id}>
                   <td>{purchaseOrder.purchase_order_number}</td>
                   <td className="capitalize">{purchaseOrder.status}</td>
-                  <td>{purchaseOrder.supplier_id}</td>
+                  <td>{purchaseOrder?.supplier?.name}</td>
                   <td>{purchaseOrder.transaction_date}</td>
                   <td>{purchaseOrder.supplier_discount}</td>
                   <td>{purchaseOrder.currency_used}</td>
@@ -159,8 +159,8 @@ const ViewPurchaseOrder = ({
                   <td>{purchaseOrder.landed_total}</td>
                   <td>{purchaseOrder.reference_number}</td>
                   <td>{purchaseOrder.remarks}</td>
-                  <td>{purchaseOrder.created_by}</td>
-                  <td>{purchaseOrder.modified_by}</td>
+                  <td>{purchaseOrder?.creator?.username}</td>
+                  <td>{purchaseOrder?.modifier?.username}</td>
                   <td>{purchaseOrder.date_created}</td>
                   <td>{purchaseOrder.date_modified}</td>
                   <td>
