@@ -88,7 +88,7 @@ const PurchaseOrderForm = ({
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [supplierDiscount, setSupplierDiscount] = useState<number>(0);
   const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
-  const [pesoRate, setPesoRate] = useState<number>(0);
+  const [pesoRate, setPesoRate] = useState<number>(56);
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<number>(0);
   const [status, setStatus] = useState("");
   const [transactionDate, setTransactionDate] = useState("");
@@ -133,10 +133,12 @@ const PurchaseOrderForm = ({
   }, [selectedSupplier]);
 
   // Calculations
-  const fobTotal = items.reduce(
-    (acc, item) => acc + item.total_available * item.acquisition_cost,
-    0,
-  );
+  const fobTotal = selectedItems.reduce((acc: number, item: Item) => {
+    const itemCost = item.acquisition_cost ?? 0;
+    const itemAvailable = item.total_available ?? 0;
+    return acc + itemAvailable * itemCost;
+  }, 0);
+
   const supplierDiscountAmount = (supplierDiscount / 100) * fobTotal;
   const transactionDiscountAmount = (transactionDiscount / 100) * fobTotal;
   const netAmount =
