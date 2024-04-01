@@ -108,7 +108,7 @@ const PurchaseOrderForm = ({
       setCurrencyUsed(selectedRow?.currency_used ?? "USD");
       setSupplierDiscount(selectedRow?.supplier_discount ?? 0);
       setTransactionDiscount(selectedRow?.transaction_discount ?? 0);
-      setPesoRate(selectedRow?.peso_rate ?? 0);
+      setPesoRate(selectedRow?.peso_rate ?? 56);
       setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
       setStatus(selectedRow?.status ?? "pending");
       setTransactionDate(selectedRow?.transaction_date ?? "");
@@ -354,7 +354,7 @@ const PurchaseOrderForm = ({
                   startDecorator="₱"
                   type="number"
                   size="sm"
-                  placeholder="55"
+                  placeholder="56"
                   value={pesoRate}
                   onChange={(e) => setPesoRate(Number(e.target.value))}
                 />
