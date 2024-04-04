@@ -69,7 +69,10 @@ const WarehousesModal = ({
     }
   };
 
-  const handleSave = async (): Promise<void> => {
+  const handleSave = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    e.preventDefault();
     await onSave(warehouse);
     setOpen(false);
   };
@@ -85,7 +88,7 @@ const WarehousesModal = ({
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
     >
-      <div>
+      <form onSubmit={async (e) => await handleSave(e)}>
         <Sheet
           variant="outlined"
           sx={{
@@ -109,6 +112,7 @@ const WarehousesModal = ({
                       name="code"
                       value={warehouse.code}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -119,6 +123,7 @@ const WarehousesModal = ({
                       name="name"
                       value={warehouse.name}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -142,16 +147,16 @@ const WarehousesModal = ({
             </Card>
             <div className="flex justify-end mt-5">
               <Button
+                type="submit"
                 className="ml-4 w-[130px] bg-button-primary"
                 size="sm"
-                onClick={handleSave}
               >
                 Save
               </Button>
             </div>
           </Box>
         </Sheet>
-      </div>
+      </form>
     </Modal>
   );
 };

@@ -66,7 +66,10 @@ const SuppliersModal = ({
     setSupplier({ ...supplier, [name]: value });
   };
 
-  const handleSave = async (): Promise<void> => {
+  const handleSave = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    e.preventDefault();
     await onSave(supplier);
     setOpen(false);
   };
@@ -82,7 +85,7 @@ const SuppliersModal = ({
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
     >
-      <div>
+      <form onSubmit={async (e) => await handleSave(e)}>
         <Sheet
           variant="outlined"
           sx={{
@@ -106,6 +109,7 @@ const SuppliersModal = ({
                       name="code"
                       value={supplier.code}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -116,6 +120,7 @@ const SuppliersModal = ({
                       name="name"
                       value={supplier.name}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -128,6 +133,7 @@ const SuppliersModal = ({
                       name="building_address"
                       value={supplier.building_address}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -138,6 +144,7 @@ const SuppliersModal = ({
                       name="street_address"
                       value={supplier.street_address}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -150,6 +157,7 @@ const SuppliersModal = ({
                       name="city"
                       value={supplier.city}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -160,6 +168,7 @@ const SuppliersModal = ({
                       name="province"
                       value={supplier.province}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -172,6 +181,7 @@ const SuppliersModal = ({
                       name="country"
                       value={supplier.country}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -182,6 +192,7 @@ const SuppliersModal = ({
                       name="zip_code"
                       value={supplier.zip_code}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -194,6 +205,7 @@ const SuppliersModal = ({
                       name="contact_person"
                       value={supplier.contact_person}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -204,6 +216,7 @@ const SuppliersModal = ({
                       name="contact_number"
                       value={supplier.contact_number}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -216,6 +229,7 @@ const SuppliersModal = ({
                       name="email"
                       value={supplier.email}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -226,6 +240,7 @@ const SuppliersModal = ({
                       name="fax_number"
                       value={supplier.fax_number}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -238,6 +253,7 @@ const SuppliersModal = ({
                       name="currency"
                       value={supplier.currency}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -249,6 +265,7 @@ const SuppliersModal = ({
                       name="discount_rate"
                       value={supplier.discount_rate}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -262,6 +279,7 @@ const SuppliersModal = ({
                       name="supplier_balance"
                       value={supplier.supplier_balance}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -269,16 +287,16 @@ const SuppliersModal = ({
             </Card>
             <div className="flex justify-end mt-5">
               <Button
+                type="submit"
                 className="ml-4 w-[130px] bg-button-primary"
                 size="sm"
-                onClick={handleSave}
               >
                 Save
               </Button>
             </div>
           </Box>
         </Sheet>
-      </div>
+      </form>
     </Modal>
   );
 };

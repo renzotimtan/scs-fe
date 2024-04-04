@@ -44,6 +44,8 @@ interface Item {
   total_reorder_level: number;
   total_unserved_cpo: number;
   total_unserved_spo: number;
+  volume: number;
+  price: number;
   creator: {
     full_name: string;
     username: string;
@@ -91,7 +93,7 @@ const PurchaseOrderForm = ({
   const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
   const [pesoRate, setPesoRate] = useState<number>(56);
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<number>(0);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("pending");
   const [transactionDate, setTransactionDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -143,8 +145,17 @@ const PurchaseOrderForm = ({
 
   // Calculations
   const fobTotal = selectedItems.reduce((acc: number, item: Item) => {
-    const itemCost = item.acquisition_cost ?? 0;
-    const itemAvailable = item.total_available ?? 0;
+    let itemCost;
+
+    if (item?.price !== undefined) {
+      itemCost = item.price;
+    } else if (item?.acquisition_cost !== undefined) {
+      itemCost = item.acquisition_cost;
+    } else {
+      itemCost = 0;
+    }
+
+    const itemAvailable = item.volume ?? 0;
     return acc + itemAvailable * itemCost;
   }, 0);
 
@@ -155,6 +166,11 @@ const PurchaseOrderForm = ({
   const landedTotal = netAmount * pesoRate;
 
   const handleCreatePurchaseOrder = async (): Promise<void> => {
+    if (selectedItems.length === 1) {
+      toast.error("Error: No Items Selected");
+      return;
+    }
+
     const payload = {
       purchase_order_number: purchaseOrderNumber,
       status,
@@ -245,11 +261,45 @@ const PurchaseOrderForm = ({
   };
 
   const handleRemoveItem = (index: number): void => {
-    setSelectedItems(selectedItems.filter((_, i) => i !== index));
+    if (selectedItems[index].id !== null) {
+      setSelectedItems(
+        selectedItems.filter((_: Item, i: number) => i !== index),
+      );
+    }
+  };
+
+  const addItemVolume = (value: number, index: number): void => {
+    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
+      if (i === index) {
+        return { ...item, volume: value };
+      }
+
+      return item;
+    });
+
+    setSelectedItems(newSelectedItems);
+  };
+
+  const addItemPrice = (value: number, index: number): void => {
+    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
+      if (i === index) {
+        return { ...item, price: value };
+      }
+
+      return item;
+    });
+
+    setSelectedItems(newSelectedItems);
   };
 
   return (
-    <div>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (openCreate) await handleCreatePurchaseOrder();
+        if (openEdit) await handleEditPurchaseOrder();
+      }}
+    >
       <div className="flex justify-between">
         <h2 className="mb-6">Create Purchase Order</h2>
       </div>
@@ -267,6 +317,7 @@ const PurchaseOrderForm = ({
                   onChange={(e) =>
                     setPurchaseOrderNumber(Number(e.target.value))
                   }
+                  required
                 />
               </FormControl>
               <Button
@@ -292,6 +343,7 @@ const PurchaseOrderForm = ({
                   size="sm"
                   className="w-[100%]"
                   placeholder="Select Supplier"
+                  required
                 />
               </div>
             </FormControl>
@@ -303,7 +355,6 @@ const PurchaseOrderForm = ({
                     if (value !== null) setStatus(value);
                   }}
                   size="sm"
-                  placeholder="Unposted"
                   value={status}
                 >
                   <Option value="pending">Pending</Option>
@@ -317,6 +368,7 @@ const PurchaseOrderForm = ({
                   type="date"
                   value={transactionDate}
                   onChange={(e) => setTransactionDate(e.target.value)}
+                  required
                 />
               </FormControl>
             </Stack>
@@ -330,6 +382,7 @@ const PurchaseOrderForm = ({
                   placeholder="55"
                   value={supplierDiscount}
                   onChange={(e) => setSupplierDiscount(Number(e.target.value))}
+                  required
                 />
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -343,6 +396,7 @@ const PurchaseOrderForm = ({
                   onChange={(e) =>
                     setTransactionDiscount(Number(e.target.value))
                   }
+                  required
                 />
               </FormControl>
             </Stack>
@@ -370,6 +424,7 @@ const PurchaseOrderForm = ({
                   placeholder="56"
                   value={pesoRate}
                   onChange={(e) => setPesoRate(Number(e.target.value))}
+                  required
                 />
               </FormControl>
             </Stack>
@@ -533,26 +588,48 @@ const PurchaseOrderForm = ({
                 <td>{selectedItem?.stock_code}</td>
                 <td>{selectedItem?.name}</td>
                 <td>{selectedItem?.acquisition_cost}</td>
-                <td>{selectedItem?.total_on_stock}</td>
-                <td>{selectedItem?.acquisition_cost}</td>
                 <td>
-                  {Number(selectedItem?.total_available) *
-                    Number(selectedItem?.acquisition_cost)}
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) =>
+                        addItemVolume(Number(e.target.value), index)
+                      }
+                      required
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) =>
+                        addItemPrice(Number(e.target.value), index)
+                      }
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null &&
+                    Number(selectedItem?.total_available) *
+                      Number(selectedItem?.acquisition_cost)}
                 </td>
                 <td>{selectedItem?.creator?.username}</td>
                 <td>{selectedItem?.date_created}</td>
                 <td>{selectedItem?.modifier?.username}</td>
                 <td>{selectedItem?.date_modified}</td>
                 <td>
-                  <Button
-                    size="sm"
-                    variant="soft"
-                    color="danger"
-                    className="bg-delete-red"
-                    onClick={() => handleRemoveItem(index)}
-                  >
-                    Delete
-                  </Button>
+                  {selectedItem?.id !== null && (
+                    <Button
+                      size="sm"
+                      variant="soft"
+                      color="danger"
+                      className="bg-delete-red"
+                      onClick={() => handleRemoveItem(index)}
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -573,18 +650,15 @@ const PurchaseOrderForm = ({
           Cancel
         </Button>
         <Button
+          type="submit"
           className="ml-4 w-[130px] bg-button-primary"
           size="sm"
-          onClick={async () => {
-            if (openCreate) await handleCreatePurchaseOrder();
-            if (openEdit) await handleEditPurchaseOrder();
-          }}
         >
           <SaveIcon className="mr-2" />
           Save
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 

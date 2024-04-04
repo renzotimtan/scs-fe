@@ -12,7 +12,7 @@ import {
   Box,
   Autocomplete,
 } from "@mui/joy";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 
 interface Supplier {
@@ -91,7 +91,10 @@ const ItemsModal = ({
     setItem({ ...item, [name]: value });
   };
 
-  const handleSave = async (): Promise<void> => {
+  const handleSave = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    e.preventDefault();
     await onSave(item);
     setOpen(false);
   };
@@ -107,7 +110,7 @@ const ItemsModal = ({
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
     >
-      <div>
+      <form onSubmit={async (e) => await handleSave(e)}>
         <Sheet
           variant="outlined"
           sx={{
@@ -131,6 +134,7 @@ const ItemsModal = ({
                       placeholder="ABC-123"
                       value={item?.stock_code}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -141,6 +145,7 @@ const ItemsModal = ({
                       placeholder="Item Name"
                       value={item?.name}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -153,6 +158,7 @@ const ItemsModal = ({
                       placeholder="Fans"
                       value={item?.category}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -163,6 +169,7 @@ const ItemsModal = ({
                       placeholder="Hayes"
                       value={item?.brand}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -181,6 +188,7 @@ const ItemsModal = ({
                       }}
                       value={item?.acquisition_cost}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -209,6 +217,7 @@ const ItemsModal = ({
                       placeholder="USD"
                       value={item?.currency}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -225,6 +234,7 @@ const ItemsModal = ({
                       }}
                       value={item?.rate}
                       onChange={handleChange}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -301,6 +311,7 @@ const ItemsModal = ({
                         });
                       }}
                       sx={{ width: "100%" }}
+                      required
                     />
                   </FormControl>
                 </Stack>
@@ -308,16 +319,16 @@ const ItemsModal = ({
             </Card>
             <div className="flex justify-end mt-5">
               <Button
+                type="submit"
                 className="ml-4 w-[130px] bg-button-primary"
                 size="sm"
-                onClick={handleSave}
               >
                 Save
               </Button>
             </div>
           </Box>
         </Sheet>
-      </div>
+      </form>
     </Modal>
   );
 };
