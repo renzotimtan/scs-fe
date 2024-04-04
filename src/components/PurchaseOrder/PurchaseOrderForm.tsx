@@ -566,7 +566,7 @@ const PurchaseOrderForm = ({
           <tbody>
             {selectedItems.map((selectedItem: Item, index: number) => (
               <tr key={selectedItem.id}>
-                <td>
+                <td style={{ zIndex: 1 }}>
                   <Select
                     onChange={(event, value) => {
                       if (value !== null) {
@@ -588,7 +588,7 @@ const PurchaseOrderForm = ({
                 <td>{selectedItem?.stock_code}</td>
                 <td>{selectedItem?.name}</td>
                 <td>{selectedItem?.acquisition_cost}</td>
-                <td>
+                <td style={{ zIndex: 2 }}>
                   {selectedItem?.id !== null && (
                     <Input
                       type="number"
@@ -599,7 +599,7 @@ const PurchaseOrderForm = ({
                     />
                   )}
                 </td>
-                <td>
+                <td style={{ zIndex: 2 }}>
                   {selectedItem?.id !== null && (
                     <Input
                       type="number"
