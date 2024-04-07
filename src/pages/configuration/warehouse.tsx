@@ -5,6 +5,7 @@ import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
+import ViewWHModal from "../../components/Items/ViewWHModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
@@ -20,6 +21,7 @@ export interface Warehouse {
 }
 
 const WarehouseForm = (): JSX.Element => {
+  const [openWH, setOpenWH] = useState(false);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -127,7 +129,7 @@ const WarehouseForm = (): JSX.Element => {
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "144px",
+            "--Table-lastColumnWidth": "230px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -205,6 +207,18 @@ const WarehouseForm = (): JSX.Element => {
                       <Button
                         size="sm"
                         variant="plain"
+                        color="primary"
+                        className="bg-primary"
+                        onClick={() => {
+                          setOpenWH(true);
+                          setSelectedRow(warehouse);
+                        }}
+                      >
+                        Stocks
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="plain"
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
@@ -251,6 +265,12 @@ const WarehouseForm = (): JSX.Element => {
         setOpen={setOpenDelete}
         title="Delete Warehouse"
         onDelete={handleDeleteWarehouse}
+      />
+      <ViewWHModal
+        open={openWH}
+        setOpen={setOpenWH}
+        row={selectedRow}
+        type="warehouse"
       />
     </>
   );

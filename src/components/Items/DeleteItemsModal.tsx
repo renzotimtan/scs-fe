@@ -42,7 +42,7 @@ const DeleteItemsModal = ({
             <h4 className="mb-6">{title}</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to delete this Item?
+                Are you sure you want to delete this Stock?
               </p>
             </div>
             <div className="flex justify-end mt-5">

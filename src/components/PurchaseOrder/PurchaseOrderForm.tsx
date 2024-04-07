@@ -21,6 +21,7 @@ import { useEffect, useState, useCallback } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
+import { AVAILABLE_CURRENCIES } from "../../constants";
 
 interface Supplier {
   supplier_id: number;
@@ -411,8 +412,11 @@ const PurchaseOrderForm = ({
                   placeholder="USD"
                   value={currencyUsed}
                 >
-                  <Option value="USD">USD</Option>
-                  <Option value="AUD">AUD</Option>
+                  {AVAILABLE_CURRENCIES.map((currency) => (
+                    <Option key={currency} value={currency}>
+                      {currency}
+                    </Option>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>

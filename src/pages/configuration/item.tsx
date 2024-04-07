@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ItemsModal from "../../components/Items/ItemsModal";
+import ViewWHModal from "../../components/Items/ViewWHModal";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
@@ -18,6 +19,8 @@ export interface Item {
   acquisition_cost: number;
   net_cost_before_tax: number;
   currency: string;
+  last_sale_price: number;
+  srp: number;
   rate: number;
   total_on_stock: number;
   total_available: number;
@@ -33,6 +36,7 @@ const ItemForm = (): JSX.Element => {
   const [items, setItems] = useState<Item[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openWH, setOpenWH] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Item>();
   const [userId, setUserId] = useState<number | null>(null);
@@ -65,6 +69,8 @@ const ItemForm = (): JSX.Element => {
       net_cost_before_tax: newItem.net_cost_before_tax,
       currency: newItem.currency,
       rate: newItem.rate,
+      last_sale_price: newItem.last_sale_price,
+      srp: newItem.srp,
       modified_by: userId,
     };
     try {
@@ -96,6 +102,8 @@ const ItemForm = (): JSX.Element => {
       net_cost_before_tax: newItem.net_cost_before_tax,
       currency: newItem.currency,
       rate: newItem.rate,
+      last_sale_price: newItem.last_sale_price,
+      srp: newItem.srp,
       created_by: userId,
     };
     try {
@@ -126,7 +134,7 @@ const ItemForm = (): JSX.Element => {
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Items</h2>
+          <h2>Stocks</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -134,7 +142,7 @@ const ItemForm = (): JSX.Element => {
               setOpenAdd(true);
             }}
           >
-            Add Item
+            Add Stock
           </Button>
         </Box>
 
@@ -144,7 +152,7 @@ const ItemForm = (): JSX.Element => {
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "144px",
+            "--Table-lastColumnWidth": "240px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -197,11 +205,13 @@ const ItemForm = (): JSX.Element => {
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   Stock Code
                 </th>
-                <th style={{ width: 300 }}>Name</th>
+                <th style={{ width: 300 }}>Description</th>
                 <th style={{ width: 100 }}>Category</th>
                 <th style={{ width: 100 }}>Brand</th>
                 <th style={{ width: 150 }}>Acquision Cost (₱)</th>
                 <th style={{ width: 200 }}>Net Cost B/F Tax (₱)</th>
+                <th style={{ width: 150 }}>Last Sale Price (₱)</th>
+                <th style={{ width: 200 }}>SRP (₱)</th>
                 <th style={{ width: 100 }}>Currency</th>
                 <th style={{ width: 150 }}>Peso Rate (₱)</th>
                 <th style={{ width: 100 }}>On Stock</th>
@@ -227,6 +237,8 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.brand}</td>
                   <td>{item.acquisition_cost}</td>
                   <td>{item.net_cost_before_tax}</td>
+                  <td>{item.srp}</td>
+                  <td>{item.last_sale_price}</td>
                   <td>{item.currency}</td>
                   <td>{item.rate}</td>
                   <td>{item.total_on_stock}</td>
@@ -239,6 +251,18 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
+                      <Button
+                        size="sm"
+                        variant="plain"
+                        color="primary"
+                        className="bg-primary"
+                        onClick={() => {
+                          setOpenWH(true);
+                          setSelectedRow(item);
+                        }}
+                      >
+                        Locations
+                      </Button>
                       <Button
                         size="sm"
                         variant="plain"
@@ -273,21 +297,27 @@ const ItemForm = (): JSX.Element => {
       <ItemsModal
         open={openAdd}
         setOpen={setOpenAdd}
-        title="Add Items"
+        title="Add Stocks"
         onSave={handleCreateItem}
       />
       <ItemsModal
         open={openEdit}
         setOpen={setOpenEdit}
-        title="Edit Item"
+        title="Edit Stock"
         row={selectedRow}
         onSave={handleSaveItem}
       />
       <DeleteItemsModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Item"
+        title="Delete Stock"
         onDelete={handleDeleteItem}
+      />
+      <ViewWHModal
+        open={openWH}
+        setOpen={setOpenWH}
+        row={selectedRow}
+        type="item"
       />
     </>
   );

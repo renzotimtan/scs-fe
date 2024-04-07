@@ -29,6 +29,7 @@ export interface Supplier {
   modified_by: number;
   date_created: string;
   date_modified: string;
+  notes: string;
 }
 
 const SupplierForm = (): JSX.Element => {
@@ -74,6 +75,7 @@ const SupplierForm = (): JSX.Element => {
       discount_rate: newSupplier.discount_rate,
       supplier_balance: newSupplier.supplier_balance,
       modified_by: userId,
+      notes: newSupplier.notes,
     };
     try {
       const response = await axiosInstance.put(url, payload);
@@ -112,6 +114,7 @@ const SupplierForm = (): JSX.Element => {
       discount_rate: newSupplier.discount_rate,
       supplier_balance: newSupplier.supplier_balance,
       created_by: userId,
+      notes: newSupplier.notes,
     };
     try {
       const response = await axiosInstance.post("/api/suppliers/", payload);

@@ -11,9 +11,12 @@ import {
   Button,
   Box,
   Autocomplete,
+  Select,
+  Option,
 } from "@mui/joy";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
+import { AVAILABLE_CURRENCIES } from "../../constants";
 
 interface Supplier {
   supplier_id: number;
@@ -47,6 +50,8 @@ const ItemsModal = ({
       net_cost_before_tax: row?.net_cost_before_tax ?? 0,
       currency: row?.currency ?? "",
       rate: row?.rate ?? 0,
+      srp: row?.srp ?? 0,
+      last_sale_price: row?.last_sale_price ?? 0,
       total_on_stock: row?.total_on_stock ?? 0,
       total_available: row?.total_available ?? 0,
       total_allocated: row?.total_allocated ?? 0,
@@ -58,7 +63,6 @@ const ItemsModal = ({
       // item_modifier: row?.item_modifier ?? "", // Add default value for item_modifier
       // unit: row?.unit ?? "", // Add default value for unit
       // previous_cost: row?.previous_cost ?? 0, // Add default value for previous_cost
-      // last_sale_price: row?.last_sale_price ?? 0, // Add default value for last_sale_price
     };
   };
 
@@ -91,6 +95,19 @@ const ItemsModal = ({
     setItem({ ...item, [name]: value });
   };
 
+  const handleSelectChange = (
+    event:
+      | React.MouseEvent<Element, MouseEvent>
+      | React.KeyboardEvent<Element>
+      | React.FocusEvent<Element, Element>
+      | null,
+    value: string | null,
+  ): void => {
+    if (value !== null) {
+      setItem({ ...item, currency: value });
+    }
+  };
+
   const handleSave = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -114,7 +131,7 @@ const ItemsModal = ({
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: 500,
+            width: 800,
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
@@ -138,11 +155,11 @@ const ItemsModal = ({
                     />
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <Input
                       name="name"
                       size="sm"
-                      placeholder="Item Name"
+                      placeholder="Stock Description"
                       value={item?.name}
                       onChange={handleChange}
                       required
@@ -210,15 +227,56 @@ const ItemsModal = ({
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                    <FormLabel>Currency Used</FormLabel>
+                    <FormLabel>SRP (₱)</FormLabel>
                     <Input
-                      name="currency"
+                      name="srp"
+                      type="number"
                       size="sm"
-                      placeholder="USD"
-                      value={item?.currency}
+                      placeholder="0"
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
+                      value={item?.srp}
                       onChange={handleChange}
                       required
                     />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Last Sale Price (₱)</FormLabel>
+                    <Input
+                      name="last_sale_price"
+                      type="number"
+                      size="sm"
+                      placeholder="0"
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
+                      value={item?.last_sale_price}
+                      onChange={handleChange}
+                      required
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Currency Used</FormLabel>
+                    <Select
+                      name="currency"
+                      size="sm"
+                      value={item?.currency}
+                      onChange={handleSelectChange}
+                      required
+                    >
+                      {AVAILABLE_CURRENCIES.map((currency) => (
+                        <Option key={currency} value={currency}>
+                          {currency}
+                        </Option>
+                      ))}
+                    </Select>
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Philippine Peso Rate (₱)</FormLabel>

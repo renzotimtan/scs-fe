@@ -47,7 +47,7 @@ export default function Sidebar(): JSX.Element {
           <List aria-labelledby="nav-list-browse">
             <SidebarLink
               Icon={WidgetsRoundedIcon}
-              label="Items"
+              label="Stocks"
               link="/configuration/item"
             />
             <SidebarLink

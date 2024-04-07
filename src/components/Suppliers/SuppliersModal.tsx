@@ -11,7 +11,11 @@ import {
   Stack,
   Button,
   Box,
+  Select,
+  Option,
+  Textarea,
 } from "@mui/joy";
+import { AVAILABLE_CURRENCIES } from "../../constants";
 
 interface SuppliersModalProps {
   open: boolean;
@@ -50,6 +54,7 @@ const SuppliersModal = ({
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
       date_modified: row?.date_modified ?? "",
+      notes: row?.notes ?? "",
     };
   };
 
@@ -60,7 +65,9 @@ const SuppliersModal = ({
   }, [row]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ): void => {
     const { name, value } = e.target;
     setSupplier({ ...supplier, [name]: value });
@@ -72,6 +79,19 @@ const SuppliersModal = ({
     e.preventDefault();
     await onSave(supplier);
     setOpen(false);
+  };
+
+  const handleSelectChange = (
+    event:
+      | React.MouseEvent<Element, MouseEvent>
+      | React.KeyboardEvent<Element>
+      | React.FocusEvent<Element, Element>
+      | null,
+    value: string | null,
+  ): void => {
+    if (value !== null) {
+      setSupplier({ ...supplier, currency: value });
+    }
   };
 
   return (
@@ -149,7 +169,7 @@ const SuppliersModal = ({
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>City</FormLabel>
                     <Input
                       size="sm"
@@ -160,7 +180,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Province</FormLabel>
                     <Input
                       size="sm"
@@ -171,9 +191,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                </Stack>
-                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Country</FormLabel>
                     <Input
                       size="sm"
@@ -184,7 +202,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Zip Code</FormLabel>
                     <Input
                       size="sm"
@@ -197,7 +215,7 @@ const SuppliersModal = ({
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Contact Person</FormLabel>
                     <Input
                       size="sm"
@@ -208,7 +226,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Contact Number</FormLabel>
                     <Input
                       size="sm"
@@ -219,9 +237,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                </Stack>
-                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Email</FormLabel>
                     <Input
                       size="sm"
@@ -232,7 +248,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Fax Number</FormLabel>
                     <Input
                       size="sm"
@@ -245,18 +261,23 @@ const SuppliersModal = ({
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Currency</FormLabel>
-                    <Input
-                      size="sm"
-                      placeholder="USD"
+                    <Select
                       name="currency"
-                      value={supplier.currency}
-                      onChange={handleChange}
+                      size="sm"
+                      value={supplier?.currency}
+                      onChange={handleSelectChange}
                       required
-                    />
+                    >
+                      {AVAILABLE_CURRENCIES.map((currency) => (
+                        <Option key={currency} value={currency}>
+                          {currency}
+                        </Option>
+                      ))}
+                    </Select>
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Discount Rate</FormLabel>
                     <Input
                       size="sm"
@@ -268,9 +289,7 @@ const SuppliersModal = ({
                       required
                     />
                   </FormControl>
-                </Stack>
-                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "23%" }}>
                     <FormLabel>Supplier Balance</FormLabel>
                     <Input
                       size="sm"
@@ -280,6 +299,18 @@ const SuppliersModal = ({
                       value={supplier.supplier_balance}
                       onChange={handleChange}
                       required
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "100%" }}>
+                    <FormLabel>Notes</FormLabel>
+                    <Textarea
+                      size="sm"
+                      minRows={5}
+                      name="notes"
+                      value={supplier.notes}
+                      onChange={handleChange}
                     />
                   </FormControl>
                 </Stack>
