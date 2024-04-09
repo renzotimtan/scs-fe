@@ -361,6 +361,7 @@ const PurchaseOrderForm = ({
                   <Option value="pending">Pending</Option>
                   <Option value="completed">Completed</Option>
                   <Option value="cancelled">Cancelled</Option>
+                  <Option value="draft">Draft</Option>
                 </Select>
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
