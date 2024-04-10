@@ -8,6 +8,7 @@ import DeleteSuppliersModal from "../../components/Suppliers/DeleteSupplierModal
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
+
 export interface Supplier {
   supplier_id: number;
   code: string;
@@ -26,14 +27,42 @@ export interface Supplier {
   discount_rate: number;
   supplier_balance: number;
   created_by: number;
+  creator: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  modifier: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
   modified_by: number;
   date_created: string;
   date_modified: string;
   notes: string;
 }
 
+interface PaginatedSuppliers {
+  total: number;
+  items: Supplier[];
+}
+
+interface SupplierQueryParams {
+  page?: number;
+  limit?: number;
+  sort_by?: string;
+  sort_order?: string;
+  search_term?: string;
+}
+
 const SupplierForm = (): JSX.Element => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+    total: 0,
+    items: [],
+  });
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -41,9 +70,39 @@ const SupplierForm = (): JSX.Element => {
   const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    // Fetch warehouses
+    // Query parameters
+    const queryParams: SupplierQueryParams = {
+      page: 1,
+      limit: 10,
+      sort_by: "supplier_id",
+      sort_order: "asc",
+      search_term: "",
+    };
+
+    // Convert the query parameters to a query string
+    const queryString = Object.entries(queryParams)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => {
+        if (
+          typeof value === "string" ||
+          typeof value === "number" ||
+          typeof value === "boolean"
+        ) {
+          return `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`;
+        } else {
+          console.error(
+            `Invalid query parameter value for key "${key}":`,
+            value,
+          );
+          return "";
+        }
+      })
+      .filter((param) => param !== "")
+      .join("&");
+
+    // Fetch suppliers
     axiosInstance
-      .get<Supplier[]>("/api/suppliers/")
+      .get<PaginatedSuppliers>(`/api/suppliers/?${queryString}`)
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
 
@@ -80,13 +139,14 @@ const SupplierForm = (): JSX.Element => {
     try {
       const response = await axiosInstance.put(url, payload);
 
-      setSuppliers(
-        suppliers.map((supplier) =>
+      setSuppliers((prevSuppliers) => ({
+        ...prevSuppliers,
+        items: prevSuppliers.items.map((supplier) =>
           supplier.supplier_id === response.data.supplier_id
             ? response.data
             : supplier,
         ),
-      );
+      }));
 
       setOpenAdd(false);
       setOpenEdit(false);
@@ -119,7 +179,11 @@ const SupplierForm = (): JSX.Element => {
     try {
       const response = await axiosInstance.post("/api/suppliers/", payload);
 
-      setSuppliers([...suppliers, response.data]);
+      setSuppliers((prevSuppliers) => ({
+        ...prevSuppliers,
+        items: [...prevSuppliers.items, response.data],
+        total: prevSuppliers.total + 1,
+      }));
       setOpenAdd(false);
       toast.success("Save successful!");
     } catch (error) {
@@ -133,11 +197,13 @@ const SupplierForm = (): JSX.Element => {
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setSuppliers(
-          suppliers.filter(
+        setSuppliers((prevSuppliers) => ({
+          ...prevSuppliers,
+          items: prevSuppliers.items.filter(
             (supplier) => supplier.supplier_id !== selectedRow.supplier_id,
           ),
-        );
+          total: prevSuppliers.total - 1,
+        }));
       } catch (error) {
         console.error("Error:", error);
       }
@@ -241,7 +307,7 @@ const SupplierForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {suppliers.map((supplier) => (
+              {suppliers.items.map((supplier) => (
                 <tr key={supplier.supplier_id}>
                   <td>{supplier.code}</td>
                   <td>{supplier.name}</td>
@@ -258,9 +324,9 @@ const SupplierForm = (): JSX.Element => {
                   <td>{supplier.currency}</td>
                   <td>{supplier.discount_rate}</td>
                   <td>{supplier.supplier_balance}</td>
-                  <td>{supplier.created_by}</td>
+                  <td>{supplier.creator.full_name}</td>
                   <td>{supplier.date_created}</td>
-                  <td>{supplier.modified_by}</td>
+                  <td>{supplier?.modifier?.full_name}</td>
                   <td>{supplier.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>

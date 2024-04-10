@@ -23,6 +23,11 @@ interface Supplier {
   name: string;
 }
 
+interface PaginatedSuppliers {
+  total: number;
+  items: Supplier[];
+}
+
 interface ItemsModalProps {
   open: boolean;
   title: string;
@@ -44,6 +49,7 @@ const ItemsModal = ({
       stock_code: row?.stock_code ?? "",
       name: row?.name ?? "",
       supplier_id: row?.supplier_id ?? 0,
+      status: row?.status ?? "",
       category: row?.category ?? "",
       brand: row?.brand ?? "",
       acquisition_cost: row?.acquisition_cost ?? 0,
@@ -67,7 +73,10 @@ const ItemsModal = ({
   };
 
   const [item, setItem] = useState<Item>(generateItem());
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+    total: 0,
+    items: [],
+  });
 
   useEffect(() => {
     setItem(generateItem());
@@ -76,7 +85,8 @@ const ItemsModal = ({
 
   const fetchSuppliers = async (): Promise<void> => {
     try {
-      const response = await axiosInstance.get<Supplier[]>("/api/suppliers/");
+      const response =
+        await axiosInstance.get<PaginatedSuppliers>("/api/suppliers/");
       setSuppliers(response.data);
       console.log("Suppliers:", response.data);
     } catch (error) {
@@ -150,6 +160,17 @@ const ItemsModal = ({
                       size="sm"
                       placeholder="ABC-123"
                       value={item?.stock_code}
+                      onChange={handleChange}
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                    <FormLabel>Status</FormLabel>
+                    <Input
+                      name="status"
+                      size="sm"
+                      placeholder=""
+                      value={item?.status}
                       onChange={handleChange}
                       required
                     />
@@ -349,15 +370,15 @@ const ItemsModal = ({
                     <FormLabel>Supplier</FormLabel>
                     <Autocomplete
                       placeholder="Select a supplier"
-                      options={suppliers.map((supplier) => supplier.name)}
+                      options={suppliers.items.map((supplier) => supplier.name)}
                       value={
-                        suppliers.find(
+                        suppliers.items.find(
                           (supplier) =>
                             supplier.supplier_id === item.supplier_id,
                         )?.name ?? ""
                       }
                       onChange={(event, newValue) => {
-                        const selectedSupplier = suppliers.find(
+                        const selectedSupplier = suppliers.items.find(
                           (supplier) => supplier.name === newValue,
                         );
                         setItem({

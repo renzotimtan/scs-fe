@@ -71,6 +71,11 @@ interface PurchaseOrderFormProps {
   setSelectedRow?: (purchaseOrder: PurchaseOrder) => void;
 }
 
+interface PaginatedSuppliers {
+  total: number;
+  items: Supplier[];
+}
+
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
@@ -81,7 +86,10 @@ const PurchaseOrderForm = ({
   selectedRow,
   setSelectedRow,
 }: PurchaseOrderFormProps): JSX.Element => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+    total: 0,
+    items: [],
+  });
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
     null,
   );
@@ -102,7 +110,7 @@ const PurchaseOrderForm = ({
   useEffect(() => {
     // Fetch suppliers
     axiosInstance
-      .get<Supplier[]>("/api/suppliers/")
+      .get<PaginatedSuppliers>("/api/suppliers/")
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
   }, []);
@@ -355,7 +363,7 @@ const PurchaseOrderForm = ({
               <FormLabel>Supplier</FormLabel>
               <div className="flex">
                 <Autocomplete
-                  options={suppliers}
+                  options={suppliers.items}
                   getOptionLabel={(option) => option.name}
                   value={selectedSupplier}
                   onChange={(event, newValue) => {

@@ -31,6 +31,18 @@ export interface Item {
   total_purchased: number;
   created_by: number;
   modified_by: number;
+  creator: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  modifier: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
   date_created: string;
   date_modified: string;
 }
@@ -227,6 +239,7 @@ const ItemForm = (): JSX.Element => {
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   Stock Code
                 </th>
+                <th style={{ width: 100 }}>Status</th>
                 <th style={{ width: 300 }}>Description</th>
                 <th style={{ width: 100 }}>Category</th>
                 <th style={{ width: 100 }}>Brand</th>
@@ -254,6 +267,7 @@ const ItemForm = (): JSX.Element => {
               {items.map((item) => (
                 <tr key={item.id}>
                   <td>{item.stock_code}</td>
+                  <td>{item.status}</td>
                   <td>{item.name}</td>
                   <td>{item.category}</td>
                   <td>{item.brand}</td>
@@ -267,9 +281,9 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.total_available}</td>
                   <td>{item.total_allocated}</td>
                   <td>{item.total_purchased}</td>
-                  <td>{item.created_by}</td>
+                  <td>{item.creator.full_name}</td>
                   <td>{item.date_created}</td>
-                  <td>{item.modified_by}</td>
+                  <td>{item?.modifier?.full_name}</td>
                   <td>{item.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
