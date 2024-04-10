@@ -147,7 +147,7 @@ const ViewPurchaseOrder = ({
             <tbody>
               {purchaseOrders.map((purchaseOrder) => (
                 <tr key={purchaseOrder.id}>
-                  <td>{purchaseOrder.purchase_order_number}</td>
+                  <td>{purchaseOrder.id}</td>
                   <td className="capitalize">{purchaseOrder.status}</td>
                   <td>{purchaseOrder?.supplier?.name}</td>
                   <td>{purchaseOrder.transaction_date}</td>

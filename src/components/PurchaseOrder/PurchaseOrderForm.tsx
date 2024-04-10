@@ -172,6 +172,15 @@ const PurchaseOrderForm = ({
       return;
     }
 
+    const itemPayload = selectedItems
+      .filter((item: Item) => item.id !== null)
+      .map((item: Item) => ({
+        item_id: item.id,
+        volume: item.volume,
+        price: item.price,
+        total_price: item.volume * item.price,
+      }));
+
     const payload = {
       purchase_order_number: purchaseOrderNumber,
       status,
@@ -187,6 +196,7 @@ const PurchaseOrderForm = ({
       landed_total: landedTotal,
       remarks,
       created_by: 1, // Set this based on the logged-in user
+      items: itemPayload,
     };
     try {
       console.log("payload: ", payload);
@@ -205,6 +215,15 @@ const PurchaseOrderForm = ({
   };
 
   const handleEditPurchaseOrder = async (): Promise<void> => {
+    const itemPayload = selectedItems
+      .filter((item: Item) => item.id !== null)
+      .map((item: Item) => ({
+        item_id: item.id,
+        volume: item.volume,
+        price: item.price,
+        total_price: item.volume * item.price,
+      }));
+
     const payload = {
       purchase_order_number: purchaseOrderNumber,
       status,
@@ -220,6 +239,7 @@ const PurchaseOrderForm = ({
       landed_total: landedTotal,
       remarks,
       modified_by: 1, // Set this based on the logged-in user
+      items: itemPayload,
     };
     try {
       console.log("payload: ", payload);
@@ -308,7 +328,7 @@ const PurchaseOrderForm = ({
         <Card className="w-[60%] mr-7">
           <div>
             <div className="flex justify-between items-center">
-              <FormControl size="sm" sx={{ mb: 1 }}>
+              {/* <FormControl size="sm" sx={{ mb: 1 }}>
                 <FormLabel>Purchase Order No.</FormLabel>
                 <Input
                   size="sm"
@@ -320,7 +340,7 @@ const PurchaseOrderForm = ({
                   }
                   required
                 />
-              </FormControl>
+              </FormControl> */}
               <Button
                 className="ml-4 w-[130px] h-[35px] bg-button-neutral"
                 size="sm"
