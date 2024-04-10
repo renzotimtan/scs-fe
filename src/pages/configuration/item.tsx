@@ -9,6 +9,8 @@ import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
+import { AxiosError } from "axios";
+
 export interface Item {
   id: number;
   stock_code: string;
@@ -126,9 +128,26 @@ const ItemForm = (): JSX.Element => {
         setItems(items.filter((item) => item.id !== selectedRow.id));
       } catch (error) {
         console.error("Error:", error);
+        if (isAxiosError(error)) {
+          if (
+            error.response?.status === 400 &&
+            (error.response.data as any)?.detail ===
+              "Cannot delete item with associated purchase orders."
+          ) {
+            toast.error("Cannot delete item with associated purchase orders.");
+          } else {
+            toast.error("An error occurred while deleting the item.");
+          }
+        } else {
+          toast.error("An error occurred while deleting the item.");
+        }
       }
     }
   };
+
+  function isAxiosError(error: any): error is AxiosError {
+    return error.isAxiosError !== undefined;
+  }
 
   return (
     <>
