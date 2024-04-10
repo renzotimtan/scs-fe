@@ -9,13 +9,14 @@ import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
-import { AxiosError } from "axios";
+import type { AxiosError } from "axios";
 
 export interface Item {
   id: number;
   stock_code: string;
   name: string;
   supplier_id: number;
+  status: string;
   category: string;
   brand: string;
   acquisition_cost: number;
@@ -65,6 +66,7 @@ const ItemForm = (): JSX.Element => {
       stock_code: newItem.stock_code,
       name: newItem.name,
       supplier_id: newItem.supplier_id,
+      status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,
       acquisition_cost: newItem.acquisition_cost,
@@ -98,6 +100,7 @@ const ItemForm = (): JSX.Element => {
       stock_code: newItem.stock_code,
       name: newItem.name,
       supplier_id: newItem.supplier_id,
+      status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,
       acquisition_cost: newItem.acquisition_cost,
