@@ -23,6 +23,11 @@ import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
 import { AVAILABLE_CURRENCIES } from "../../constants";
 
+const INITIAL_DISCOUNTS = {
+  supplier: ["0", "0", "0"],
+  transaction: ["0", "0", "0"],
+};
+
 interface Supplier {
   supplier_id: number;
   name: string;
@@ -98,6 +103,7 @@ const PurchaseOrderForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
+  const [discounts, setDiscounts] = useState(INITIAL_DISCOUNTS);
   const [supplierDiscount, setSupplierDiscount] = useState<string>("0");
   const [transactionDiscount, setTransactionDiscount] = useState<string>("0");
   const [pesoRate, setPesoRate] = useState<number>(56);
@@ -114,6 +120,50 @@ const PurchaseOrderForm = ({
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
   }, []);
+
+  const handleDiscountChange = (type, index, value) => {
+    const newDiscounts = { ...discounts };
+    newDiscounts[type][index] = value;
+    setDiscounts(newDiscounts);
+  };
+
+  const calculateDiscount = (discountStr, total) => {
+    if (discountStr.trim() === "") return 0;
+    if (discountStr.includes("%")) {
+      const percentage = parseFloat(discountStr.replace("%", ""));
+      return (percentage / 100) * total;
+    }
+    return parseFloat(discountStr);
+  };
+
+  const calculateTotalWithDiscounts = (discountArray, initialTotal) =>
+    discountArray.reduce(
+      (subtotal, discount) => subtotal - calculateDiscount(discount, subtotal),
+      initialTotal,
+    );
+
+  const fobTotal = selectedItems.reduce((acc, item) => {
+    if (
+      item?.id &&
+      !isNaN(item.price) &&
+      item.price > 0 &&
+      !isNaN(item.volume) &&
+      item.volume > 0
+    ) {
+      return acc + item.price * item.volume;
+    }
+    return acc;
+  }, 0);
+
+  const subtotalAfterSupplierDiscounts = calculateTotalWithDiscounts(
+    discounts.supplier,
+    fobTotal,
+  );
+  const netAmount = calculateTotalWithDiscounts(
+    discounts.transaction,
+    subtotalAfterSupplierDiscounts,
+  );
+  const landedTotal = netAmount * pesoRate;
 
   useEffect(() => {
     if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
@@ -152,70 +202,6 @@ const PurchaseOrderForm = ({
     resetSelectedItems();
   }, [selectedSupplier]);
 
-  // Calculation of FOB Total only when items are selected with defined price and volume
-  const fobTotal: number = selectedItems.reduce((acc: number, item: Item) => {
-    // Explicitly check that price and volume are not zero or NaN
-    if (
-      item?.id != null &&
-      item?.id !== 0 &&
-      !isNaN(item?.price) &&
-      item?.price > 0 &&
-      !isNaN(item?.volume) &&
-      item?.volume > 0
-    ) {
-      const itemCost = item.price;
-      const itemAvailable = item.volume;
-      return acc + itemAvailable * itemCost;
-    }
-    return acc; // Continue accumulating without adding anything for this item
-  }, 0);
-
-  // Helper function to determine discount type and calculate discount
-  const calculateDiscount = (
-    discountStr: string | null | undefined,
-    total: number,
-  ): number => {
-    if (
-      discountStr === null ||
-      discountStr === undefined ||
-      discountStr.trim() === ""
-    ) {
-      return 0;
-    }
-
-    if (discountStr.includes("%")) {
-      const percentage = parseFloat(discountStr.replace("%", ""));
-      return isNaN(percentage) ? 0 : (percentage / 100) * total;
-    } else {
-      const fixedDiscount = parseFloat(discountStr);
-      return isNaN(fixedDiscount) ? 0 : fixedDiscount;
-    }
-  };
-
-  // First apply the supplier discount to the FOB total
-  const supplierDiscountAmount = calculateDiscount(supplierDiscount, fobTotal);
-  const subtotalAfterSupplierDiscount = fobTotal - supplierDiscountAmount;
-
-  // Then apply the transaction discount to the new subtotal
-  const transactionDiscountAmount = calculateDiscount(
-    transactionDiscount,
-    subtotalAfterSupplierDiscount,
-  );
-  const netAmount = subtotalAfterSupplierDiscount - transactionDiscountAmount;
-
-  // Calculate the landed total using the net amount and the peso rate
-  const landedTotal = netAmount * pesoRate;
-
-  console.log("FOB Total: ", fobTotal);
-  console.log("Supplier Discount Amount: ", supplierDiscountAmount);
-  console.log(
-    "Subtotal after Supplier Discount: ",
-    subtotalAfterSupplierDiscount,
-  );
-  console.log("Transaction Discount Amount: ", transactionDiscountAmount);
-  console.log("Net Amount: ", netAmount);
-  console.log("Landed Total: ", landedTotal);
-
   const handleCreatePurchaseOrder = async (): Promise<void> => {
     if (selectedItems.length === 1) {
       toast.error("Error: No Items Selected");
@@ -238,12 +224,12 @@ const PurchaseOrderForm = ({
       supplier_id: selectedSupplier?.supplier_id ?? 0,
       fob_total: fobTotal,
       currency_used: currencyUsed,
-      supplier_discount_1: supplierDiscount,
-      supplier_discount_2: "0",
-      supplier_discount_3: "0",
-      transaction_discount_1: transactionDiscount,
-      transaction_discount_2: "0",
-      transaction_discount_3: "0",
+      supplier_discount_1: discounts.supplier[0],
+      supplier_discount_2: discounts.supplier[1],
+      supplier_discount_3: discounts.supplier[2],
+      transaction_discount_1: discounts.transaction[0],
+      transaction_discount_2: discounts.transaction[1],
+      transaction_discount_3: discounts.transaction[2],
       peso_rate: pesoRate,
       net_amount: netAmount,
       reference_number: referenceNumber,
@@ -448,27 +434,41 @@ const PurchaseOrderForm = ({
                 />
               </FormControl>
             </Stack>
-            <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Supplier Discount</FormLabel>
-                <Input
-                  size="sm"
-                  placeholder="Enter % or Actual Discount"
-                  value={supplierDiscount}
-                  onChange={(e) => setSupplierDiscount(e.target.value)}
-                  required
-                />
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Transaction Discount</FormLabel>
-                <Input
-                  size="sm"
-                  placeholder="Enter % or Actual Discount"
-                  value={transactionDiscount}
-                  onChange={(e) => setTransactionDiscount(e.target.value)}
-                  required
-                />
-              </FormControl>
+            <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
+              {discounts.supplier.map((discount, index) => (
+                <Stack
+                  key={`discount-row-${index}`}
+                  direction="row"
+                  spacing={2}
+                >
+                  <FormControl size="sm" sx={{ width: "48%" }}>
+                    <FormLabel>{`Supplier Discount ${index + 1}`}</FormLabel>
+                    <Input
+                      value={discount}
+                      onChange={(e) =>
+                        handleDiscountChange("supplier", index, e.target.value)
+                      }
+                      placeholder="Enter % or actual discount"
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="sm" sx={{ width: "48%" }}>
+                    <FormLabel>{`Transaction Discount ${index + 1}`}</FormLabel>
+                    <Input
+                      value={discounts.transaction[index]}
+                      onChange={(e) =>
+                        handleDiscountChange(
+                          "transaction",
+                          index,
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Enter % or actual discount"
+                      required
+                    />
+                  </FormControl>
+                </Stack>
+              ))}
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
