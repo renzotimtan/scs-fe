@@ -98,8 +98,8 @@ const PurchaseOrderForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
-  const [supplierDiscount, setSupplierDiscount] = useState<number>(0);
-  const [transactionDiscount, setTransactionDiscount] = useState<number>(0);
+  const [supplierDiscount, setSupplierDiscount] = useState<string>("0");
+  const [transactionDiscount, setTransactionDiscount] = useState<string>("0");
   const [pesoRate, setPesoRate] = useState<number>(56);
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<number>(0);
   const [status, setStatus] = useState("pending");
@@ -118,8 +118,8 @@ const PurchaseOrderForm = ({
   useEffect(() => {
     if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
       setCurrencyUsed(selectedRow?.currency_used ?? "USD");
-      setSupplierDiscount(selectedRow?.supplier_discount ?? 0);
-      setTransactionDiscount(selectedRow?.transaction_discount ?? 0);
+      setSupplierDiscount(selectedRow?.supplier_discount_1 ?? 0);
+      setTransactionDiscount(selectedRow?.transaction_discount_1 ?? 0);
       setPesoRate(selectedRow?.peso_rate ?? 56);
       setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
       setStatus(selectedRow?.status ?? "pending");
@@ -152,27 +152,69 @@ const PurchaseOrderForm = ({
     resetSelectedItems();
   }, [selectedSupplier]);
 
-  // Calculations
-  const fobTotal = selectedItems.reduce((acc: number, item: Item) => {
-    let itemCost;
-
-    if (item?.price !== undefined) {
-      itemCost = item.price;
-    } else if (item?.acquisition_cost !== undefined) {
-      itemCost = item.acquisition_cost;
-    } else {
-      itemCost = 0;
+  // Calculation of FOB Total only when items are selected with defined price and volume
+  const fobTotal: number = selectedItems.reduce((acc: number, item: Item) => {
+    // Explicitly check that price and volume are not zero or NaN
+    if (
+      item?.id != null &&
+      item?.id !== 0 &&
+      !isNaN(item?.price) &&
+      item?.price > 0 &&
+      !isNaN(item?.volume) &&
+      item?.volume > 0
+    ) {
+      const itemCost = item.price;
+      const itemAvailable = item.volume;
+      return acc + itemAvailable * itemCost;
     }
-
-    const itemAvailable = item.volume ?? 0;
-    return acc + itemAvailable * itemCost;
+    return acc; // Continue accumulating without adding anything for this item
   }, 0);
 
-  const supplierDiscountAmount = (supplierDiscount / 100) * fobTotal;
-  const transactionDiscountAmount = (transactionDiscount / 100) * fobTotal;
-  const netAmount =
-    fobTotal - supplierDiscountAmount - transactionDiscountAmount;
+  // Helper function to determine discount type and calculate discount
+  const calculateDiscount = (
+    discountStr: string | null | undefined,
+    total: number,
+  ): number => {
+    if (
+      discountStr === null ||
+      discountStr === undefined ||
+      discountStr.trim() === ""
+    ) {
+      return 0;
+    }
+
+    if (discountStr.includes("%")) {
+      const percentage = parseFloat(discountStr.replace("%", ""));
+      return isNaN(percentage) ? 0 : (percentage / 100) * total;
+    } else {
+      const fixedDiscount = parseFloat(discountStr);
+      return isNaN(fixedDiscount) ? 0 : fixedDiscount;
+    }
+  };
+
+  // First apply the supplier discount to the FOB total
+  const supplierDiscountAmount = calculateDiscount(supplierDiscount, fobTotal);
+  const subtotalAfterSupplierDiscount = fobTotal - supplierDiscountAmount;
+
+  // Then apply the transaction discount to the new subtotal
+  const transactionDiscountAmount = calculateDiscount(
+    transactionDiscount,
+    subtotalAfterSupplierDiscount,
+  );
+  const netAmount = subtotalAfterSupplierDiscount - transactionDiscountAmount;
+
+  // Calculate the landed total using the net amount and the peso rate
   const landedTotal = netAmount * pesoRate;
+
+  console.log("FOB Total: ", fobTotal);
+  console.log("Supplier Discount Amount: ", supplierDiscountAmount);
+  console.log(
+    "Subtotal after Supplier Discount: ",
+    subtotalAfterSupplierDiscount,
+  );
+  console.log("Transaction Discount Amount: ", transactionDiscountAmount);
+  console.log("Net Amount: ", netAmount);
+  console.log("Landed Total: ", landedTotal);
 
   const handleCreatePurchaseOrder = async (): Promise<void> => {
     if (selectedItems.length === 1) {
@@ -196,8 +238,12 @@ const PurchaseOrderForm = ({
       supplier_id: selectedSupplier?.supplier_id ?? 0,
       fob_total: fobTotal,
       currency_used: currencyUsed,
-      supplier_discount: supplierDiscount,
-      transaction_discount: transactionDiscount,
+      supplier_discount_1: supplierDiscount,
+      supplier_discount_2: "0",
+      supplier_discount_3: "0",
+      transaction_discount_1: transactionDiscount,
+      transaction_discount_2: "0",
+      transaction_discount_3: "0",
       peso_rate: pesoRate,
       net_amount: netAmount,
       reference_number: referenceNumber,
@@ -239,8 +285,8 @@ const PurchaseOrderForm = ({
       supplier_id: selectedSupplier?.supplier_id ?? 0,
       fob_total: fobTotal,
       currency_used: currencyUsed,
-      supplier_discount: supplierDiscount,
-      transaction_discount: transactionDiscount,
+      supplier_discount_1: supplierDiscount,
+      transaction_discount_1: transactionDiscount,
       peso_rate: pesoRate,
       net_amount: netAmount,
       reference_number: referenceNumber,
@@ -406,26 +452,20 @@ const PurchaseOrderForm = ({
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Supplier Discount</FormLabel>
                 <Input
-                  endDecorator="%"
-                  type="number"
                   size="sm"
-                  placeholder="55"
+                  placeholder="Enter % or Actual Discount"
                   value={supplierDiscount}
-                  onChange={(e) => setSupplierDiscount(Number(e.target.value))}
+                  onChange={(e) => setSupplierDiscount(e.target.value)}
                   required
                 />
               </FormControl>
               <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                 <FormLabel>Transaction Discount</FormLabel>
                 <Input
-                  endDecorator="%"
-                  type="number"
                   size="sm"
-                  placeholder="55"
+                  placeholder="Enter % or Actual Discount"
                   value={transactionDiscount}
-                  onChange={(e) =>
-                    setTransactionDiscount(Number(e.target.value))
-                  }
+                  onChange={(e) => setTransactionDiscount(e.target.value)}
                   required
                 />
               </FormControl>
