@@ -28,6 +28,8 @@ const INITIAL_DISCOUNTS = {
   transaction: ["0", "0", "0"],
 };
 
+type DiscountType = "supplier" | "transaction";
+
 interface Supplier {
   supplier_id: number;
   name: string;
@@ -121,13 +123,17 @@ const PurchaseOrderForm = ({
       .catch((error) => console.error("Error:", error));
   }, []);
 
-  const handleDiscountChange = (type, index, value) => {
+  const handleDiscountChange = (
+    type: DiscountType,
+    index: number,
+    value: string,
+  ): void => {
     const newDiscounts = { ...discounts };
     newDiscounts[type][index] = value;
     setDiscounts(newDiscounts);
   };
 
-  const calculateDiscount = (discountStr, total) => {
+  const calculateDiscount = (discountStr: string, total: number): number => {
     if (discountStr.trim() === "") return 0;
     if (discountStr.includes("%")) {
       const percentage = parseFloat(discountStr.replace("%", ""));
@@ -136,15 +142,20 @@ const PurchaseOrderForm = ({
     return parseFloat(discountStr);
   };
 
-  const calculateTotalWithDiscounts = (discountArray, initialTotal) =>
-    discountArray.reduce(
+  const calculateTotalWithDiscounts = (
+    discountArray: string[],
+    initialTotal: number,
+  ): number => {
+    return discountArray.reduce(
       (subtotal, discount) => subtotal - calculateDiscount(discount, subtotal),
       initialTotal,
     );
+  };
 
-  const fobTotal = selectedItems.reduce((acc, item) => {
+  const fobTotal: number = selectedItems.reduce((acc: number, item: Item) => {
+    // Explicitly check for a valid number on id, and ensure price and volume are greater than zero.
     if (
-      item?.id &&
+      typeof item.id === "number" && // Check that id is a number.
       !isNaN(item.price) &&
       item.price > 0 &&
       !isNaN(item.volume) &&
@@ -245,6 +256,7 @@ const PurchaseOrderForm = ({
         payload,
       );
       toast.success("Save successful!");
+      resetForm();
       setOpen(false);
       console.log("Response: ", response);
       // Handle the response, update state, etc.
@@ -252,6 +264,20 @@ const PurchaseOrderForm = ({
       console.error("Error:", error);
       // toast.error("Error:", error);
     }
+  };
+
+  const resetForm = (): void => {
+    setSelectedSupplier(null);
+    setItems([]);
+    setSelectedItems(INITIAL_SELECTED_ITEMS);
+    setCurrencyUsed("USD");
+    setDiscounts(INITIAL_DISCOUNTS);
+    setPesoRate(56);
+    setPurchaseOrderNumber(0);
+    setStatus("pending");
+    setTransactionDate("");
+    setReferenceNumber("");
+    setRemarks("");
   };
 
   const handleEditPurchaseOrder = async (): Promise<void> => {
