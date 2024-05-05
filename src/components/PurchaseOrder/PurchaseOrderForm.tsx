@@ -95,7 +95,6 @@ const PurchaseOrderForm = ({
   setSelectedRow,
   title,
 }: PurchaseOrderFormProps): JSX.Element => {
-  console.log(selectedRow);
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -132,6 +131,17 @@ const PurchaseOrderForm = ({
     const newDiscounts = { ...discounts };
     newDiscounts[type][index] = value;
     setDiscounts(newDiscounts);
+  };
+
+  const areDiscountsValid = (): boolean => {
+    const isSupplierValid = discounts.supplier.every((str) =>
+      /^(\d+|\d+%?)$/.test(str),
+    );
+    const isTransactionValid = discounts.transaction.every((str) =>
+      /^(\d+|\d+%?)$/.test(str),
+    );
+
+    return isSupplierValid && isTransactionValid;
   };
 
   const calculateDiscount = (discountStr: string, total: number): number => {
@@ -179,7 +189,6 @@ const PurchaseOrderForm = ({
 
   const getAllPOItems = (): void => {
     const POItems = selectedRow?.items;
-    console.log(POItems);
 
     // If selected supplier is different from the selected row supplier (i.e. user edited supplier)
     // make PO blank
@@ -264,6 +273,13 @@ const PurchaseOrderForm = ({
       return;
     }
 
+    if (!areDiscountsValid()) {
+      toast.error(
+        "Error: Discounts must be a positive number with or without %",
+      );
+      return;
+    }
+
     const itemPayload = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
@@ -326,6 +342,18 @@ const PurchaseOrderForm = ({
   };
 
   const handleEditPurchaseOrder = async (): Promise<void> => {
+    if (selectedItems.length === 1) {
+      toast.error("Error: No Items Selected");
+      return;
+    }
+
+    if (!areDiscountsValid()) {
+      toast.error(
+        "Error: Discounts must be a positive number with or without %",
+      );
+      return;
+    }
+
     const itemPayload = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
@@ -575,6 +603,11 @@ const PurchaseOrderForm = ({
                   placeholder="56"
                   value={pesoRate}
                   onChange={(e) => setPesoRate(Number(e.target.value))}
+                  slotProps={{
+                    input: {
+                      min: 0,
+                    },
+                  }}
                   required
                 />
               </FormControl>
@@ -630,8 +663,8 @@ const PurchaseOrderForm = ({
             <FormControl size="sm" sx={{ mb: 3 }}>
               <FormLabel>Remarks</FormLabel>
               <Textarea
-                minRows={1}
-                placeholder="Search"
+                minRows={7}
+                placeholder="Remarks"
                 onChange={(e) => setRemarks(e.target.value)}
                 value={remarks}
               />
@@ -742,6 +775,11 @@ const PurchaseOrderForm = ({
                       onChange={(e) =>
                         addItemVolume(Number(e.target.value), index)
                       }
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
                       value={selectedItem.volume}
                       required
                     />
@@ -752,6 +790,11 @@ const PurchaseOrderForm = ({
                     <Input
                       type="number"
                       value={selectedItem.price}
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
                       onChange={(e) =>
                         addItemPrice(Number(e.target.value), index)
                       }
