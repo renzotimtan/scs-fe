@@ -52,8 +52,8 @@ interface Item {
   total_reorder_level: number;
   total_unserved_cpo: number;
   total_unserved_spo: number;
-  volume: number;
-  price: number;
+  volume?: number;
+  price?: number;
   creator: {
     full_name: string;
     username: string;
