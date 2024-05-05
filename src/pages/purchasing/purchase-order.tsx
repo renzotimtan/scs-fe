@@ -1,14 +1,26 @@
 import { useState } from "react";
+import type { Supplier } from "../configuration/supplier";
 import PurchaseOrderForm from "../../components/PurchaseOrder/PurchaseOrderForm";
 import ViewPurchaseOrder from "../../components/PurchaseOrder/ViewPurchaseOrder";
+
+export interface POItems {
+  item_id: number;
+  volume: number;
+  price: number;
+  total_amount: number;
+}
 export interface PurchaseOrder {
   id: number;
   purchase_order_number: number;
   supplier_id: number;
   status: string;
   transaction_date: string;
-  supplier_discount: number;
-  transaction_discount: number;
+  supplier_discount_1: string;
+  transaction_discount_1: string;
+  supplier_discount_2: string;
+  transaction_discount_2: string;
+  supplier_discount_3: string;
+  transaction_discount_3: string;
   currency_used: string;
   peso_rate: number;
   net_amount: number;
@@ -16,9 +28,7 @@ export interface PurchaseOrder {
   landed_total: number;
   reference_number: string;
   remarks: string;
-  supplier: {
-    name: string;
-  };
+  supplier: Supplier;
   created_by: number;
   modified_by: number;
   creator: {
@@ -35,6 +45,7 @@ export interface PurchaseOrder {
     id: number;
   };
   date_modified: string;
+  items: POItems[];
 }
 
 const PurchaseOrderMenu = (): JSX.Element => {
@@ -49,6 +60,7 @@ const PurchaseOrderMenu = (): JSX.Element => {
           setOpen={setOpenCreate}
           openCreate={openCreate}
           openEdit={openEdit}
+          title="Create Purchase Order"
         />
       )}
 
@@ -59,6 +71,7 @@ const PurchaseOrderMenu = (): JSX.Element => {
           openEdit={openEdit}
           selectedRow={selectedRow}
           setSelectedRow={setSelectedRow}
+          title="Edit Purchase Order"
         />
       )}
 

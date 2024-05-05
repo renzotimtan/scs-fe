@@ -17,7 +17,7 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import Table from "@mui/joy/Table";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
@@ -76,6 +76,7 @@ interface PurchaseOrderFormProps {
   openEdit: boolean;
   selectedRow?: PurchaseOrder;
   setSelectedRow?: (purchaseOrder: PurchaseOrder) => void;
+  title: string;
 }
 
 interface PaginatedSuppliers {
@@ -92,7 +93,9 @@ const PurchaseOrderForm = ({
   openEdit,
   selectedRow,
   setSelectedRow,
+  title,
 }: PurchaseOrderFormProps): JSX.Element => {
+  console.log(selectedRow);
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -106,8 +109,6 @@ const PurchaseOrderForm = ({
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [discounts, setDiscounts] = useState(INITIAL_DISCOUNTS);
-  const [supplierDiscount, setSupplierDiscount] = useState<string>("0");
-  const [transactionDiscount, setTransactionDiscount] = useState<string>("0");
   const [pesoRate, setPesoRate] = useState<number>(56);
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<number>(0);
   const [status, setStatus] = useState("pending");
@@ -176,11 +177,52 @@ const PurchaseOrderForm = ({
   );
   const landedTotal = netAmount * pesoRate;
 
+  const getAllPOItems = (): void => {
+    const POItems = selectedRow?.items;
+    console.log(POItems);
+
+    // If selected supplier is different from the selected row supplier (i.e. user edited supplier)
+    // make PO blank
+    if (selectedRow?.supplier.supplier_id !== selectedSupplier?.supplier_id) {
+      setSelectedItems(INITIAL_SELECTED_ITEMS);
+      return;
+    }
+
+    const selectedItems = POItems?.map((item) => {
+      const id = item.item_id;
+      const foundItem = items.find((i) => i.id === id);
+
+      const modifiedItem = {
+        ...foundItem,
+        price: item.price,
+        volume: item.volume,
+      };
+
+      return modifiedItem;
+    });
+
+    if (selectedItems !== undefined) {
+      selectedItems?.push({ id: null });
+      setSelectedItems(selectedItems);
+    }
+  };
+
   useEffect(() => {
+    // Set fields for Edit
     if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
       setCurrencyUsed(selectedRow?.currency_used ?? "USD");
-      setSupplierDiscount(selectedRow?.supplier_discount_1 ?? 0);
-      setTransactionDiscount(selectedRow?.transaction_discount_1 ?? 0);
+      setDiscounts({
+        supplier: [
+          selectedRow?.supplier_discount_1 ?? 0,
+          selectedRow?.supplier_discount_2 ?? 0,
+          selectedRow?.supplier_discount_3 ?? 0,
+        ],
+        transaction: [
+          selectedRow?.transaction_discount_1 ?? 0,
+          selectedRow?.transaction_discount_2 ?? 0,
+          selectedRow?.transaction_discount_3 ?? 0,
+        ],
+      });
       setPesoRate(selectedRow?.peso_rate ?? 56);
       setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
       setStatus(selectedRow?.status ?? "pending");
@@ -190,27 +232,30 @@ const PurchaseOrderForm = ({
 
       axiosInstance
         .get<Supplier>(`/api/suppliers/${selectedRow?.supplier_id}`)
-        .then((response) => setSelectedSupplier(response.data))
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedRow]);
+
+  useEffect(() => {
+    // Set POItems only after items exist for edit
+    if (selectedRow !== undefined && items.length > 0) {
+      getAllPOItems();
+    }
+  }, [items]);
 
   useEffect(() => {
     if (selectedSupplier !== null) {
       // Fetch items for the selected supplier
       axiosInstance
         .get<Item[]>(`/api/items?supplier_id=${selectedSupplier.supplier_id}`)
-        .then((response) => setItems(response.data))
+        .then((response) => {
+          setItems(response.data);
+        })
         .catch((error) => console.error("Error:", error));
     }
-  }, [selectedSupplier]);
-
-  const resetSelectedItems = useCallback(() => {
-    setSelectedItems(INITIAL_SELECTED_ITEMS);
-  }, []);
-
-  useEffect(() => {
-    resetSelectedItems();
   }, [selectedSupplier]);
 
   const handleCreatePurchaseOrder = async (): Promise<void> => {
@@ -225,7 +270,7 @@ const PurchaseOrderForm = ({
         item_id: item.id,
         volume: item.volume,
         price: item.price,
-        total_price: item.volume * item.price,
+        total_price: Number(item.volume) * Number(item.price),
       }));
 
     const payload = {
@@ -287,7 +332,7 @@ const PurchaseOrderForm = ({
         item_id: item.id,
         volume: item.volume,
         price: item.price,
-        total_price: item.volume * item.price,
+        total_price: Number(item.volume) * Number(item.price),
       }));
 
     const payload = {
@@ -297,8 +342,12 @@ const PurchaseOrderForm = ({
       supplier_id: selectedSupplier?.supplier_id ?? 0,
       fob_total: fobTotal,
       currency_used: currencyUsed,
-      supplier_discount_1: supplierDiscount,
-      transaction_discount_1: transactionDiscount,
+      supplier_discount_1: discounts.supplier[0],
+      supplier_discount_2: discounts.supplier[1],
+      supplier_discount_3: discounts.supplier[2],
+      transaction_discount_1: discounts.transaction[0],
+      transaction_discount_2: discounts.transaction[1],
+      transaction_discount_3: discounts.transaction[2],
       peso_rate: pesoRate,
       net_amount: netAmount,
       reference_number: referenceNumber,
@@ -323,9 +372,19 @@ const PurchaseOrderForm = ({
     }
   };
 
-  const fetchSelectedItem = (event, value: number, index: number): void => {
+  const fetchSelectedItem = (
+    event: any,
+    value: number,
+    index: number,
+  ): void => {
     if (value !== undefined) {
       const item = items.find((item) => item.id === value);
+
+      if (item !== undefined) {
+        // default to cost and 1 unit
+        item.price = item?.acquisition_cost;
+        item.volume = 1;
+      }
 
       const hasBeenAdded = selectedItems.find(
         (selectedItem: Item) => selectedItem.id === item?.id,
@@ -388,27 +447,19 @@ const PurchaseOrderForm = ({
       }}
     >
       <div className="flex justify-between">
-        <h2 className="mb-6">Create Purchase Order</h2>
+        <h2 className="mb-6">{title}</h2>
       </div>
       <Box sx={{ display: "flex" }}>
         <Card className="w-[60%] mr-7">
           <div>
-            <div className="flex justify-between items-center">
-              {/* <FormControl size="sm" sx={{ mb: 1 }}>
-                <FormLabel>Purchase Order No.</FormLabel>
-                <Input
-                  size="sm"
-                  type="number"
-                  placeholder="12345"
-                  value={purchaseOrderNumber}
-                  onChange={(e) =>
-                    setPurchaseOrderNumber(Number(e.target.value))
-                  }
-                  required
-                />
-              </FormControl> */}
+            <div className="flex justify-between items-center mb-2">
+              {openEdit && (
+                <div>
+                  <h4>PO No. {selectedRow?.id}</h4>
+                </div>
+              )}
               <Button
-                className="ml-4 w-[130px] h-[35px] bg-button-neutral"
+                className="w-[130px] h-[35px] bg-button-neutral"
                 size="sm"
                 color="neutral"
               >
@@ -426,6 +477,7 @@ const PurchaseOrderForm = ({
                   value={selectedSupplier}
                   onChange={(event, newValue) => {
                     setSelectedSupplier(newValue);
+                    setSelectedItems(INITIAL_SELECTED_ITEMS);
                   }}
                   size="sm"
                   className="w-[100%]"
@@ -652,10 +704,6 @@ const PurchaseOrderForm = ({
               <th style={{ width: 150 }}>Volume</th>
               <th style={{ width: 150 }}>Price</th>
               <th style={{ width: 150 }}>Gross</th>
-              <th style={{ width: 200 }}>Created By</th>
-              <th style={{ width: 250 }}>Date Created</th>
-              <th style={{ width: 200 }}>Modified By</th>
-              <th style={{ width: 250 }}>Date Modified</th>
               <th
                 aria-label="last"
                 style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -694,6 +742,7 @@ const PurchaseOrderForm = ({
                       onChange={(e) =>
                         addItemVolume(Number(e.target.value), index)
                       }
+                      value={selectedItem.volume}
                       required
                     />
                   )}
@@ -702,6 +751,7 @@ const PurchaseOrderForm = ({
                   {selectedItem?.id !== null && (
                     <Input
                       type="number"
+                      value={selectedItem.price}
                       onChange={(e) =>
                         addItemPrice(Number(e.target.value), index)
                       }
@@ -710,13 +760,8 @@ const PurchaseOrderForm = ({
                 </td>
                 <td>
                   {selectedItem?.id !== null &&
-                    Number(selectedItem?.total_available) *
-                      Number(selectedItem?.acquisition_cost)}
+                    Number(selectedItem?.price) * Number(selectedItem?.volume)}
                 </td>
-                <td>{selectedItem?.creator?.username}</td>
-                <td>{selectedItem?.date_created}</td>
-                <td>{selectedItem?.modifier?.username}</td>
-                <td>{selectedItem?.date_modified}</td>
                 <td>
                   {selectedItem?.id !== null && (
                     <Button
