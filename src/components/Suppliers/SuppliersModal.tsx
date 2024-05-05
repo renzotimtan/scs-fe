@@ -78,6 +78,7 @@ const SuppliersModal = ({
   ): Promise<void> => {
     e.preventDefault();
     await onSave(supplier);
+    setSupplier(generateSupplier());
     setOpen(false);
   };
 

@@ -123,6 +123,7 @@ const ItemsModal = ({
   ): Promise<void> => {
     e.preventDefault();
     await onSave(item);
+    setItem(generateItem());
     setOpen(false);
   };
 
@@ -166,16 +167,24 @@ const ItemsModal = ({
                   </FormControl>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Status</FormLabel>
-                    <Input
+                    <Select
                       name="status"
                       size="sm"
-                      placeholder=""
                       value={item?.status}
-                      onChange={handleChange}
+                      onChange={(event, value) => {
+                        if (value !== null) {
+                          setItem({ ...item, status: value });
+                        }
+                      }}
                       required
-                    />
+                    >
+                      <Option value="active">Active</Option>
+                      <Option value="inactive">Inactive</Option>
+                    </Select>
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                </Stack>
+                <Stack>
+                  <FormControl size="sm" sx={{ mb: 1, width: "98%" }}>
                     <FormLabel>Description</FormLabel>
                     <Input
                       name="name"
@@ -212,7 +221,7 @@ const ItemsModal = ({
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "22.9%" }}>
                     <FormLabel>Acquision Cost (₱)</FormLabel>
                     <Input
                       name="acquisition_cost"
@@ -229,7 +238,7 @@ const ItemsModal = ({
                       required
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "22.9%" }}>
                     <FormLabel>Net Cost B/F Tax (₱)</FormLabel>
                     <Input
                       name="net_cost_before_tax"
@@ -245,9 +254,7 @@ const ItemsModal = ({
                       onChange={handleChange}
                     />
                   </FormControl>
-                </Stack>
-                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "22.9%" }}>
                     <FormLabel>SRP (₱)</FormLabel>
                     <Input
                       name="srp"
@@ -264,7 +271,7 @@ const ItemsModal = ({
                       required
                     />
                   </FormControl>
-                  <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "22.9%" }}>
                     <FormLabel>Last Sale Price (₱)</FormLabel>
                     <Input
                       name="last_sale_price"
@@ -282,6 +289,7 @@ const ItemsModal = ({
                     />
                   </FormControl>
                 </Stack>
+
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
                     <FormLabel>Currency Used</FormLabel>
@@ -366,7 +374,7 @@ const ItemsModal = ({
                   </FormControl>
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                  <FormControl size="sm" sx={{ mb: 1, width: "100%" }}>
+                  <FormControl size="sm" sx={{ mb: 1, width: "98%" }}>
                     <FormLabel>Supplier</FormLabel>
                     <Autocomplete
                       placeholder="Select a supplier"

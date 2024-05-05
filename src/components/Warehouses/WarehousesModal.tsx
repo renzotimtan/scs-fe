@@ -74,6 +74,7 @@ const WarehousesModal = ({
   ): Promise<void> => {
     e.preventDefault();
     await onSave(warehouse);
+    setWarehouse(generateWarehouse());
     setOpen(false);
   };
 
