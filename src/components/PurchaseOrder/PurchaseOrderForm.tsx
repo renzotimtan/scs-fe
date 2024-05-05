@@ -323,7 +323,8 @@ const PurchaseOrderForm = ({
       // Handle the response, update state, etc.
     } catch (error) {
       console.error("Error:", error);
-      // toast.error("Error:", error);
+      const errorMessage = error.response.data.detail;
+      toast.error(`Input Error: ${errorMessage}`);
     }
   };
 
@@ -396,7 +397,8 @@ const PurchaseOrderForm = ({
       // Handle the response, update state, etc.
     } catch (error) {
       console.error("Error:", error);
-      // toast.error("Error:", error);
+      const errorMessage = error.response.data.detail;
+      toast.error(`Input Error: ${errorMessage}`);
     }
   };
 
@@ -736,7 +738,7 @@ const PurchaseOrderForm = ({
           </thead>
           <tbody>
             {selectedItems.map((selectedItem: Item, index: number) => (
-              <tr key={selectedItem.id}>
+              <tr key={`${selectedItem.id}-${selectedItem.volume}`}>
                 <td style={{ zIndex: 1 }}>
                   <Select
                     onChange={(event, value) => {
