@@ -414,15 +414,6 @@ const PurchaseOrderForm = ({
         item.volume = 1;
       }
 
-      const hasBeenAdded = selectedItems.find(
-        (selectedItem: Item) => selectedItem.id === item?.id,
-      );
-
-      if (hasBeenAdded !== undefined) {
-        toast.error("Error: The item has already been added");
-        return;
-      }
-
       // We need to add the new item before the null item
       const newSelectedItems = selectedItems.filter(
         (selectedItem: Item) => selectedItem.id !== null,
