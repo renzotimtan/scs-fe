@@ -24,3 +24,10 @@
     @apply text-base font-normal;
   }
 }
+
+td,
+th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

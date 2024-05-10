@@ -4,23 +4,23 @@ import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
-import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
+import DeletePurchaseOrderModal from "./DeleteReceivingReportModal";
 import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
 
-interface ViewPurchaseOrderProps {
+interface ViewReceivingReportProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: PurchaseOrder | undefined;
   setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
 }
 
-const ViewPurchaseOrder = ({
+const ViewReceivingReport = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewPurchaseOrderProps): JSX.Element => {
+}: ViewReceivingReportProps): JSX.Element => {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [openDelete, setOpenDelete] = useState(false);
 
@@ -53,7 +53,7 @@ const ViewPurchaseOrder = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Purchase Order</h2>
+          <h2>Receiving Report</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -61,7 +61,7 @@ const ViewPurchaseOrder = ({
               setOpenCreate(true);
             }}
           >
-            Add Purchase Order
+            Add Receiving Report
           </Button>
         </Box>
         <Sheet
@@ -197,11 +197,11 @@ const ViewPurchaseOrder = ({
       <DeletePurchaseOrderModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Purchase Order"
+        title="Delete Delivery Receipt"
         onDelete={handleDeletePurchaseOrder}
       />
     </>
   );
 };
 
-export default ViewPurchaseOrder;
+export default ViewReceivingReport;

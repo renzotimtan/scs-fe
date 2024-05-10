@@ -70,7 +70,7 @@ interface Item {
   date_modified: string;
 }
 
-interface PurchaseOrderFormProps {
+interface DeliveryReceiptFormProps {
   setOpen: (isOpen: boolean) => void;
   openCreate: boolean;
   openEdit: boolean;
@@ -87,14 +87,14 @@ interface PaginatedSuppliers {
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
-const PurchaseOrderForm = ({
+const DeliveryReceiptForm = ({
   setOpen,
   openCreate,
   openEdit,
   selectedRow,
   setSelectedRow,
   title,
-}: PurchaseOrderFormProps): JSX.Element => {
+}: DeliveryReceiptFormProps): JSX.Element => {
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -122,57 +122,6 @@ const PurchaseOrderForm = ({
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
   }, []);
-
-  useEffect(() => {
-    // Set fields for Edit
-    if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
-      setCurrencyUsed(selectedRow?.currency_used ?? "USD");
-      setDiscounts({
-        supplier: [
-          selectedRow?.supplier_discount_1 ?? 0,
-          selectedRow?.supplier_discount_2 ?? 0,
-          selectedRow?.supplier_discount_3 ?? 0,
-        ],
-        transaction: [
-          selectedRow?.transaction_discount_1 ?? 0,
-          selectedRow?.transaction_discount_2 ?? 0,
-          selectedRow?.transaction_discount_3 ?? 0,
-        ],
-      });
-      setPesoRate(selectedRow?.peso_rate ?? 56);
-      setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
-      setStatus(selectedRow?.status ?? "pending");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
-      setReferenceNumber(selectedRow?.reference_number ?? "");
-      setRemarks(selectedRow?.remarks ?? "");
-
-      axiosInstance
-        .get<Supplier>(`/api/suppliers/${selectedRow?.supplier_id}`)
-        .then((response) => {
-          setSelectedSupplier(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedRow]);
-
-  useEffect(() => {
-    // Set POItems only after items exist for edit
-    if (selectedRow !== undefined && items.length > 0) {
-      getAllPOItems();
-    }
-  }, [items]);
-
-  useEffect(() => {
-    if (selectedSupplier !== null) {
-      // Fetch items for the selected supplier
-      axiosInstance
-        .get<Item[]>(`/api/items?supplier_id=${selectedSupplier.supplier_id}`)
-        .then((response) => {
-          setItems(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedSupplier]);
 
   const handleDiscountChange = (
     type: DiscountType,
@@ -266,6 +215,57 @@ const PurchaseOrderForm = ({
       setSelectedItems(selectedItems);
     }
   };
+
+  useEffect(() => {
+    // Set fields for Edit
+    if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
+      setCurrencyUsed(selectedRow?.currency_used ?? "USD");
+      setDiscounts({
+        supplier: [
+          selectedRow?.supplier_discount_1 ?? 0,
+          selectedRow?.supplier_discount_2 ?? 0,
+          selectedRow?.supplier_discount_3 ?? 0,
+        ],
+        transaction: [
+          selectedRow?.transaction_discount_1 ?? 0,
+          selectedRow?.transaction_discount_2 ?? 0,
+          selectedRow?.transaction_discount_3 ?? 0,
+        ],
+      });
+      setPesoRate(selectedRow?.peso_rate ?? 56);
+      setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
+      setStatus(selectedRow?.status ?? "pending");
+      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setReferenceNumber(selectedRow?.reference_number ?? "");
+      setRemarks(selectedRow?.remarks ?? "");
+
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${selectedRow?.supplier_id}`)
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow]);
+
+  useEffect(() => {
+    // Set POItems only after items exist for edit
+    if (selectedRow !== undefined && items.length > 0) {
+      getAllPOItems();
+    }
+  }, [items]);
+
+  useEffect(() => {
+    if (selectedSupplier !== null) {
+      // Fetch items for the selected supplier
+      axiosInstance
+        .get<Item[]>(`/api/items?supplier_id=${selectedSupplier.supplier_id}`)
+        .then((response) => {
+          setItems(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedSupplier]);
 
   const handleCreatePurchaseOrder = async (): Promise<void> => {
     if (selectedItems.length === 1) {
@@ -408,7 +408,7 @@ const PurchaseOrderForm = ({
     index: number,
   ): void => {
     if (value !== undefined) {
-      const item = { ...items.find((item) => item.id === value) };
+      const item = items.find((item) => item.id === value);
 
       if (item !== undefined) {
         // default to cost and 1 unit
@@ -548,6 +548,7 @@ const PurchaseOrderForm = ({
                         handleDiscountChange("supplier", index, e.target.value)
                       }
                       placeholder="Enter % or actual discount"
+                      disabled
                       required
                     />
                   </FormControl>
@@ -563,47 +564,12 @@ const PurchaseOrderForm = ({
                         )
                       }
                       placeholder="Enter % or actual discount"
+                      disabled
                       required
                     />
                   </FormControl>
                 </Stack>
               ))}
-            </Stack>
-            <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Currency Used</FormLabel>
-                <Select
-                  onChange={(event, value) => {
-                    if (value !== null) setCurrencyUsed(value);
-                  }}
-                  size="sm"
-                  placeholder="USD"
-                  value={currencyUsed}
-                >
-                  {AVAILABLE_CURRENCIES.map((currency) => (
-                    <Option key={currency} value={currency}>
-                      {currency}
-                    </Option>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Philippine Peso Rate</FormLabel>
-                <Input
-                  startDecorator="₱"
-                  type="number"
-                  size="sm"
-                  placeholder="56"
-                  value={pesoRate}
-                  onChange={(e) => setPesoRate(Number(e.target.value))}
-                  slotProps={{
-                    input: {
-                      min: 0,
-                    },
-                  }}
-                  required
-                />
-              </FormControl>
             </Stack>
           </div>
         </Card>
@@ -651,17 +617,15 @@ const PurchaseOrderForm = ({
                 placeholder="Search"
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 value={referenceNumber}
-                required
               />
             </FormControl>
             <FormControl size="sm" sx={{ mb: 3 }}>
               <FormLabel>Remarks</FormLabel>
               <Textarea
-                minRows={7}
+                minRows={4}
                 placeholder="Remarks"
                 onChange={(e) => setRemarks(e.target.value)}
                 value={remarks}
-                required
               />
             </FormControl>
           </div>
@@ -729,9 +693,16 @@ const PurchaseOrderForm = ({
               <th style={{ width: 300 }}>Stock Code</th>
               <th style={{ width: 300 }}>Name</th>
               <th style={{ width: 150 }}>Current Price</th>
-              <th style={{ width: 150 }}>Volume</th>
+              <th style={{ width: 150 }}>PO Volume</th>
               <th style={{ width: 150 }}>Price</th>
+              <th style={{ width: 150 }}>Unsrv. Quantity</th>
+              <th style={{ width: 150 }}>Srv. Quantity</th>
+              <th style={{ width: 150 }}>Supp. Disc</th>
+              <th style={{ width: 150 }}>Tran. Disc</th>
               <th style={{ width: 150 }}>Gross</th>
+              <th style={{ width: 150 }}>Currency</th>
+              <th style={{ width: 150 }}>Rate</th>
+
               <th
                 aria-label="last"
                 style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -740,7 +711,7 @@ const PurchaseOrderForm = ({
           </thead>
           <tbody>
             {selectedItems.map((selectedItem: Item, index: number) => (
-              <tr key={`${selectedItem.id}-${index}`}>
+              <tr key={`${selectedItem.id}-${selectedItem.volume}`}>
                 <td style={{ zIndex: 1 }}>
                   <Select
                     onChange={(event, value) => {
@@ -763,6 +734,7 @@ const PurchaseOrderForm = ({
                 <td>{selectedItem?.stock_code}</td>
                 <td>{selectedItem?.name}</td>
                 <td>{selectedItem?.acquisition_cost}</td>
+                <td>0</td>
                 <td style={{ zIndex: 2 }}>
                   {selectedItem?.id !== null && (
                     <Input
@@ -796,10 +768,16 @@ const PurchaseOrderForm = ({
                     />
                   )}
                 </td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
                 <td>
                   {selectedItem?.id !== null &&
                     Number(selectedItem?.price) * Number(selectedItem?.volume)}
                 </td>
+                <td>0</td>
+                <td>0</td>
+
                 <td>
                   {selectedItem?.id !== null && (
                     <Button
@@ -844,4 +822,4 @@ const PurchaseOrderForm = ({
   );
 };
 
-export default PurchaseOrderForm;
+export default DeliveryReceiptForm;
