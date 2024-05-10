@@ -709,9 +709,13 @@ const DeliveryReceiptForm = ({
               <th style={{ width: 300 }}>Stock Code</th>
               <th style={{ width: 300 }}>Name</th>
               <th style={{ width: 150 }}>Current Price</th>
-              <th style={{ width: 150 }}>PO Volume</th>
+              <th style={{ width: 150 }}>Volume</th>
               <th style={{ width: 150 }}>Price</th>
               <th style={{ width: 150 }}>Gross</th>
+              <th style={{ width: 150 }}>Supp. Disc</th>
+              <th style={{ width: 150 }}>Tran. Disc</th>
+              <th style={{ width: 150 }}>Currency</th>
+              <th style={{ width: 150 }}>Rate</th>
               <th
                 aria-label="last"
                 style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -780,6 +784,10 @@ const DeliveryReceiptForm = ({
                   {selectedItem?.id !== null &&
                     Number(selectedItem?.price) * Number(selectedItem?.volume)}
                 </td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
                 <td>
                   {selectedItem?.id !== null && (
                     <Button
@@ -859,12 +867,10 @@ const DeliveryReceiptForm = ({
               >
                 Selected Item
               </th>
-              <th style={{ width: 300 }}>Stock Code</th>
-              <th style={{ width: 300 }}>Name</th>
-              <th style={{ width: 150 }}>Current Price</th>
-              <th style={{ width: 150 }}>Volume</th>
-              <th style={{ width: 150 }}>Price</th>
-              <th style={{ width: 150 }}>Gross</th>
+              <th style={{ width: 300 }}>Expense</th>
+              <th style={{ width: 150 }}>Amount</th>
+              <th style={{ width: 150 }}>Currency</th>
+              <th style={{ width: 150 }}>Other Curr Expense</th>
               <th
                 aria-label="last"
                 style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -893,46 +899,9 @@ const DeliveryReceiptForm = ({
                     ))}
                   </Select>
                 </td>
-                <td>{selectedItem?.stock_code}</td>
-                <td>{selectedItem?.name}</td>
-                <td>{selectedItem?.acquisition_cost}</td>
-                <td style={{ zIndex: 2 }}>
-                  {selectedItem?.id !== null && (
-                    <Input
-                      type="number"
-                      onChange={(e) =>
-                        addItemVolume(Number(e.target.value), index)
-                      }
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={selectedItem.volume}
-                      required
-                    />
-                  )}
-                </td>
-                <td style={{ zIndex: 2 }}>
-                  {selectedItem?.id !== null && (
-                    <Input
-                      type="number"
-                      value={selectedItem.price}
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      onChange={(e) =>
-                        addItemPrice(Number(e.target.value), index)
-                      }
-                    />
-                  )}
-                </td>
-                <td>
-                  {selectedItem?.id !== null &&
-                    Number(selectedItem?.price) * Number(selectedItem?.volume)}
-                </td>
+                <td>500</td>
+                <td>USD</td>
+                <td>0</td>
                 <td>
                   {selectedItem?.id !== null && (
                     <Button
