@@ -647,7 +647,6 @@ const DeliveryReceiptForm = ({
         </Card>
       </Box>
 
-      <h5 className="mt-7 mb-3">Receiving Report Details</h5>
       <Sheet
         sx={{
           "--TableCell-height": "40px",
@@ -659,6 +658,7 @@ const DeliveryReceiptForm = ({
           "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
           "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
           overflow: "auto",
+          marginTop: 3,
           borderRadius: 8,
           background: (
             theme,
