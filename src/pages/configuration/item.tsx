@@ -25,7 +25,9 @@ const ItemForm = (): JSX.Element => {
     // Fetch items
     axiosInstance
       .get<Item[]>("/api/items/")
-      .then((response) => setItems(response.data))
+      .then((response) => {
+        setItems(response.data.items);
+      })
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
