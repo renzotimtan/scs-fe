@@ -7,45 +7,10 @@ import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
 import axiosInstance from "../../utils/axiosConfig";
-import type { User } from "../Login";
 import { toast } from "react-toastify";
+import type { User } from "../Login";
 import type { AxiosError } from "axios";
-
-export interface Item {
-  id: number;
-  stock_code: string;
-  name: string;
-  supplier_id: number;
-  status: string;
-  category: string;
-  brand: string;
-  acquisition_cost: number;
-  net_cost_before_tax: number;
-  currency: string;
-  last_sale_price: number;
-  srp: number;
-  rate: number;
-  total_on_stock: number;
-  total_available: number;
-  total_allocated: number;
-  total_purchased: number;
-  created_by: number;
-  modified_by: number;
-  creator: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  modifier: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  date_created: string;
-  date_modified: string;
-}
+import type { Item } from "../../interface";
 
 const ItemForm = (): JSX.Element => {
   const [items, setItems] = useState<Item[]>([]);
@@ -281,7 +246,7 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.total_available}</td>
                   <td>{item.total_allocated}</td>
                   <td>{item.total_purchased}</td>
-                  <td>{item.creator.full_name}</td>
+                  <td>{item?.creator?.full_name}</td>
                   <td>{item.date_created}</td>
                   <td>{item?.modifier?.full_name}</td>
                   <td>{item.date_modified}</td>

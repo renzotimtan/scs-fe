@@ -19,9 +19,9 @@ import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import Table from "@mui/joy/Table";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
-import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
-import { AVAILABLE_CURRENCIES } from "../../constants";
+
+import type { PurchaseOrder } from "../../interface";
 
 const INITIAL_DISCOUNTS = {
   supplier: ["0", "0", "0"],

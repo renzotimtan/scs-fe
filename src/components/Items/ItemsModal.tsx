@@ -1,7 +1,6 @@
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import type { Item } from "../../pages/configuration/item";
 import {
   FormControl,
   FormLabel,
@@ -17,24 +16,11 @@ import {
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { AVAILABLE_CURRENCIES } from "../../constants";
-
-interface Supplier {
-  supplier_id: number;
-  name: string;
-}
-
-interface PaginatedSuppliers {
-  total: number;
-  items: Supplier[];
-}
-
-interface ItemsModalProps {
-  open: boolean;
-  title: string;
-  setOpen: (isOpen: boolean) => void;
-  row?: Item;
-  onSave: (newItem: Item) => Promise<void>;
-}
+import type {
+  Item,
+  PaginatedSuppliers,
+  ItemsModalProps,
+} from "../../interface";
 
 const ItemsModal = ({
   open,

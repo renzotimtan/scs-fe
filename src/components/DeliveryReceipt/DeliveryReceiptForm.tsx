@@ -19,9 +19,14 @@ import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import Table from "@mui/joy/Table";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
-import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
-import { AVAILABLE_CURRENCIES } from "../../constants";
+import type {
+  Supplier,
+  Item,
+  DeliveryReceiptFormProps,
+  PaginatedSuppliers,
+  POItems,
+} from "../../interface";
 
 const INITIAL_DISCOUNTS = {
   supplier: ["0", "0", "0"],
@@ -29,60 +34,6 @@ const INITIAL_DISCOUNTS = {
 };
 
 type DiscountType = "supplier" | "transaction";
-
-interface Supplier {
-  supplier_id: number;
-  name: string;
-}
-
-interface Item {
-  id: number;
-  stock_code: string;
-  name: string;
-  category: string;
-  brand: string;
-  acquisition_cost: number;
-  currency: string;
-  rate: number;
-  total_on_stock: number;
-  total_available: number;
-  total_allocated: number;
-  total_purchased: number;
-  total_sold: number;
-  total_reorder_level: number;
-  total_unserved_cpo: number;
-  total_unserved_spo: number;
-  volume?: number;
-  price?: number;
-  creator: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  date_created: string;
-  modifier: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  date_modified: string;
-}
-
-interface DeliveryReceiptFormProps {
-  setOpen: (isOpen: boolean) => void;
-  openCreate: boolean;
-  openEdit: boolean;
-  selectedRow?: PurchaseOrder;
-  setSelectedRow?: (purchaseOrder: PurchaseOrder) => void;
-  title: string;
-}
-
-interface PaginatedSuppliers {
-  total: number;
-  items: Supplier[];
-}
 
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
@@ -92,7 +43,6 @@ const DeliveryReceiptForm = ({
   openCreate,
   openEdit,
   selectedRow,
-  setSelectedRow,
   title,
 }: DeliveryReceiptFormProps): JSX.Element => {
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
@@ -197,7 +147,7 @@ const DeliveryReceiptForm = ({
       return;
     }
 
-    const selectedItems = POItems?.map((item) => {
+    const selectedItems = POItems?.map((item: POItems) => {
       const id = item.item_id;
       const foundItem = items.find((i) => i.id === id);
 

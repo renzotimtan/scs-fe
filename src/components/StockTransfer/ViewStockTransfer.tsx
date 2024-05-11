@@ -4,16 +4,24 @@ import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
-import DeletePurchaseOrderModal from "./DeleteDeliveryReceiptModal";
-import type { ViewPurchaseOrderProps, PurchaseOrder } from "../../interface";
+import DeletePurchaseOrderModal from "./DeleteStockTransferModal";
 import { toast } from "react-toastify";
 
-const ViewPurchaseOrder = ({
+import type { PurchaseOrder } from "../../interface";
+
+interface ViewStockTransferProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: PurchaseOrder | undefined;
+  setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
+}
+
+const ViewStockTransfer = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewPurchaseOrderProps): JSX.Element => {
+}: ViewStockTransferProps): JSX.Element => {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [openDelete, setOpenDelete] = useState(false);
 
@@ -46,7 +54,7 @@ const ViewPurchaseOrder = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Supplier Delivery Receipt</h2>
+          <h2>Stock Transfer</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -54,7 +62,7 @@ const ViewPurchaseOrder = ({
               setOpenCreate(true);
             }}
           >
-            Add Delivery Receipt
+            Add Stock Transfer
           </Button>
         </Box>
         <Sheet
@@ -197,4 +205,4 @@ const ViewPurchaseOrder = ({
   );
 };
 
-export default ViewPurchaseOrder;
+export default ViewStockTransfer;

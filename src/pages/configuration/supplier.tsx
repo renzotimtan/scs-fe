@@ -8,55 +8,11 @@ import DeleteSuppliersModal from "../../components/Suppliers/DeleteSupplierModal
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
-
-export interface Supplier {
-  supplier_id: number;
-  code: string;
-  name: string;
-  building_address: string;
-  street_address: string;
-  city: string;
-  province: string;
-  country: string;
-  zip_code: string;
-  contact_person: string;
-  contact_number: string;
-  email: string;
-  fax_number: string;
-  currency: string;
-  discount_rate: number;
-  supplier_balance: number;
-  created_by: number;
-  creator: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  modifier: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
-  modified_by: number;
-  date_created: string;
-  date_modified: string;
-  notes: string;
-}
-
-interface PaginatedSuppliers {
-  total: number;
-  items: Supplier[];
-}
-
-interface SupplierQueryParams {
-  page?: number;
-  limit?: number;
-  sort_by?: string;
-  sort_order?: string;
-  search_term?: string;
-}
+import type {
+  Supplier,
+  SupplierQueryParams,
+  PaginatedSuppliers,
+} from "../../interface";
 
 const SupplierForm = (): JSX.Element => {
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
@@ -324,7 +280,7 @@ const SupplierForm = (): JSX.Element => {
                   <td>{supplier.currency}</td>
                   <td>{supplier.discount_rate}</td>
                   <td>{supplier.supplier_balance}</td>
-                  <td>{supplier.creator.full_name}</td>
+                  <td>{supplier?.creator?.full_name}</td>
                   <td>{supplier.date_created}</td>
                   <td>{supplier?.modifier?.full_name}</td>
                   <td>{supplier.date_modified}</td>

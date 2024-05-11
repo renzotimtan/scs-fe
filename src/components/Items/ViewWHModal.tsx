@@ -1,34 +1,11 @@
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import type { Item } from "../../pages/configuration/item";
 import { Card, Box, Table } from "@mui/joy";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
-import type { Warehouse } from "../../pages/configuration/warehouse";
 
-interface ViewWHModalProps {
-  open: boolean;
-  setOpen: (isOpen: boolean) => void;
-  row?: Item | Warehouse;
-  type: string;
-}
-
-interface WarehouseItem {
-  warehouse_id: number;
-  item_id: number;
-  on_stock: number;
-  available: number;
-  allocated: number;
-  purchased: number;
-  sold: number;
-  warehouse: Warehouse;
-  item: Item;
-  created_by: string;
-  modified_by: string;
-  date_created: string;
-  date_modified: string;
-}
+import type { ViewWHModalProps, WarehouseItem } from "../../interface";
 
 const ViewWHModal = ({
   open,

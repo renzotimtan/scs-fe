@@ -3,19 +3,14 @@ import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
 
-interface DeleteWarehouseModalProps {
-  open: boolean;
-  title: string;
-  setOpen: (isOpen: boolean) => void;
-  onDelete: () => Promise<void>;
-}
+import type { DeleteModalProps } from "../../interface";
 
 const DeleteWarehouseModal = ({
   open,
   title,
   setOpen,
   onDelete,
-}: DeleteWarehouseModalProps): JSX.Element => {
+}: DeleteModalProps): JSX.Element => {
   return (
     <Modal
       aria-labelledby="modal-title"

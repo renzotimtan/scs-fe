@@ -5,15 +5,9 @@ import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
 import DeletePurchaseOrderModal from "./DeleteReceivingReportModal";
-import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
 
-interface ViewReceivingReportProps {
-  setOpenCreate: (isOpen: boolean) => void;
-  setOpenEdit: (isOpen: boolean) => void;
-  selectedRow: PurchaseOrder | undefined;
-  setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
-}
+import type { PurchaseOrder, ViewReceivingReportProps } from "../../interface";
 
 const ViewReceivingReport = ({
   setOpenCreate,

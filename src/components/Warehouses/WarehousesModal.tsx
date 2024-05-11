@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import type { Warehouse } from "../../pages/configuration/warehouse";
 import {
   FormControl,
   FormLabel,
@@ -15,13 +14,7 @@ import {
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
 
-interface WarehousesModalProps {
-  open: boolean;
-  title: string;
-  setOpen: (isOpen: boolean) => void;
-  row?: Warehouse;
-  onSave: (newWarehouse: Warehouse) => Promise<void>;
-}
+import type { Warehouse, WarehousesModalProps } from "../../interface";
 
 const WarehousesModal = ({
   open,

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import type { Supplier } from "../../pages/configuration/supplier";
 import {
   FormControl,
   FormLabel,
@@ -17,13 +16,7 @@ import {
 } from "@mui/joy";
 import { AVAILABLE_CURRENCIES } from "../../constants";
 
-interface SuppliersModalProps {
-  open: boolean;
-  title: string;
-  setOpen: (isOpen: boolean) => void;
-  row?: Supplier;
-  onSave: (newSupplier: Supplier) => Promise<void>;
-}
+import type { SuppliersModalProps, Supplier } from "../../interface";
 
 const SuppliersModal = ({
   open,

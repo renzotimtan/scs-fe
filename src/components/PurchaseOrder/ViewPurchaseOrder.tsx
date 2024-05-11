@@ -5,15 +5,8 @@ import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
 import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
-import type { PurchaseOrder } from "../../pages/purchasing/purchase-order";
 import { toast } from "react-toastify";
-
-interface ViewPurchaseOrderProps {
-  setOpenCreate: (isOpen: boolean) => void;
-  setOpenEdit: (isOpen: boolean) => void;
-  selectedRow: PurchaseOrder | undefined;
-  setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
-}
+import type { PurchaseOrder, ViewPurchaseOrderProps } from "../../interface";
 
 const ViewPurchaseOrder = ({
   setOpenCreate,

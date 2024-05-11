@@ -9,16 +9,7 @@ import ViewWHModal from "../../components/Items/ViewWHModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
-export interface Warehouse {
-  id: number;
-  code: string;
-  name: string;
-  type: string;
-  created_by: number;
-  modified_by: number;
-  date_created: string;
-  date_modified: string;
-}
+import type { Warehouse } from "../../interface";
 
 const WarehouseForm = (): JSX.Element => {
   const [openWH, setOpenWH] = useState(false);
