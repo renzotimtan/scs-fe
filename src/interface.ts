@@ -113,8 +113,18 @@ export interface Warehouse {
   code: string;
   name: string;
   type: string;
-  created_by: number;
-  modified_by: number;
+  creator?: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  modifier?: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
   date_created: string;
   date_modified: string;
 }

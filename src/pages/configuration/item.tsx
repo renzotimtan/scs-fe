@@ -248,9 +248,9 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.total_available}</td>
                   <td>{item.total_allocated}</td>
                   <td>{item.total_purchased}</td>
-                  <td>{item?.creator?.full_name}</td>
+                  <td>{item?.creator?.username}</td>
                   <td>{item.date_created}</td>
-                  <td>{item?.modifier?.full_name}</td>
+                  <td>{item?.modifier?.username}</td>
                   <td>{item.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>

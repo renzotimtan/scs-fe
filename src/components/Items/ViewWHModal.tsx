@@ -19,12 +19,12 @@ const ViewWHModal = ({
     if (type === "warehouse") {
       axiosInstance
         .get<WarehouseItem[]>(`/api/warehouse_items?warehouse_id=${row?.id}`)
-        .then((response) => setWarehouseItems(response.data))
+        .then((response) => setWarehouseItems(response.data.items))
         .catch((error) => console.error("Error:", error));
     } else if (type === "item") {
       axiosInstance
         .get<WarehouseItem[]>(`/api/warehouse_items?item_id=${row?.id}`)
-        .then((response) => setWarehouseItems(response.data))
+        .then((response) => setWarehouseItems(response.data.items))
         .catch((error) => console.error("Error:", error));
     }
   }, [row]);

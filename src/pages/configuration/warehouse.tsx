@@ -24,7 +24,7 @@ const WarehouseForm = (): JSX.Element => {
     // Fetch warehouses
     axiosInstance
       .get<Warehouse[]>("/api/warehouses/")
-      .then((response) => setWarehouses(response.data))
+      .then((response) => setWarehouses(response.data.items))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
@@ -189,9 +189,9 @@ const WarehouseForm = (): JSX.Element => {
                   <td>{warehouse.code}</td>
                   <td>{warehouse.name}</td>
                   <td>{warehouse.type}</td>
-                  <td>{warehouse.created_by}</td>
+                  <td>{warehouse?.creator?.username}</td>
                   <td>{warehouse.date_created}</td>
-                  <td>{warehouse.modified_by}</td>
+                  <td>{warehouse?.modifier?.username}</td>
                   <td>{warehouse.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
