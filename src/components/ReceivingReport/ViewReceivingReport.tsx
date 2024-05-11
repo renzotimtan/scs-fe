@@ -115,7 +115,7 @@ const ViewReceivingReport = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  PO Number
+                  RR Number
                 </th>
                 <th style={{ width: 300 }}>Status</th>
                 <th style={{ width: 300 }}>Supplier</th>

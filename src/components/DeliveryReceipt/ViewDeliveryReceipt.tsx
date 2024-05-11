@@ -114,7 +114,7 @@ const ViewPurchaseOrder = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  PO Number
+                  SDR Number
                 </th>
                 <th style={{ width: 300 }}>Status</th>
                 <th style={{ width: 300 }}>Supplier</th>

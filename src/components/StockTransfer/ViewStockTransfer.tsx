@@ -122,17 +122,12 @@ const ViewStockTransfer = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  PO Number
+                  STR Number
                 </th>
                 <th style={{ width: 300 }}>Status</th>
-                <th style={{ width: 300 }}>Supplier</th>
+                <th style={{ width: 150 }}>RR No.</th>
+                <th style={{ width: 150 }}>RR Transfer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>Currency Used</th>
-                <th style={{ width: 150 }}>Peso Rate</th>
-                <th style={{ width: 150 }}>Net Amount</th>
-                <th style={{ width: 150 }}>FOB Total</th>
-                <th style={{ width: 150 }}>Landed Total</th>
-                <th style={{ width: 200 }}>Reference Number</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -150,13 +145,8 @@ const ViewStockTransfer = ({
                   <td>{purchaseOrder.id}</td>
                   <td className="capitalize">{purchaseOrder.status}</td>
                   <td>{purchaseOrder?.supplier?.name}</td>
+                  <td>{purchaseOrder?.supplier?.name}</td>
                   <td>{purchaseOrder.transaction_date}</td>
-                  <td>{purchaseOrder.currency_used}</td>
-                  <td>{purchaseOrder.peso_rate}</td>
-                  <td>{purchaseOrder.net_amount}</td>
-                  <td>{purchaseOrder.fob_total}</td>
-                  <td>{purchaseOrder.landed_total}</td>
-                  <td>{purchaseOrder.reference_number}</td>
                   <td>{purchaseOrder.remarks}</td>
                   <td>{purchaseOrder?.creator?.username}</td>
                   <td>{purchaseOrder?.modifier?.username}</td>

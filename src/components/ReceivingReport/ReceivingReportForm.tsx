@@ -902,6 +902,7 @@ const DeliveryReceiptForm = ({
                 <td>500</td>
                 <td>USD</td>
                 <td>0</td>
+                <td>0</td>
                 <td>
                   {selectedItem?.id !== null && (
                     <Button
