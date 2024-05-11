@@ -120,7 +120,7 @@ const PurchaseOrderForm = ({
       axiosInstance
         .get<Item[]>(`/api/items?supplier_id=${selectedSupplier.supplier_id}`)
         .then((response) => {
-          setItems(response.data);
+          setItems(response.data.items);
         })
         .catch((error) => console.error("Error:", error));
     }
