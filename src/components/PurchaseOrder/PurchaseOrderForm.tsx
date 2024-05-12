@@ -27,6 +27,7 @@ import type {
   Supplier,
   Item,
   PaginatedSuppliers,
+  PaginatedItems,
 } from "../../interface";
 
 const INITIAL_DISCOUNTS = {
@@ -118,7 +119,9 @@ const PurchaseOrderForm = ({
     if (selectedSupplier !== null) {
       // Fetch items for the selected supplier
       axiosInstance
-        .get<Item[]>(`/api/items?supplier_id=${selectedSupplier.supplier_id}`)
+        .get<PaginatedItems>(
+          `/api/items?supplier_id=${selectedSupplier.supplier_id}`,
+        )
         .then((response) => {
           setItems(response.data.items);
         })
