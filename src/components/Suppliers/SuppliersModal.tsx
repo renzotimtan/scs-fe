@@ -101,6 +101,7 @@ const SuppliersModal = ({
       open={open}
       onClose={(event, reason) => {
         if (reason === "backdropClick") return;
+        setSupplier(generateSupplier());
         setOpen(false);
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}

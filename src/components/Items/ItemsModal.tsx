@@ -122,6 +122,7 @@ const ItemsModal = ({
       open={open}
       onClose={(event, reason) => {
         if (reason === "backdropClick") return;
+        setItem(generateItem());
         setOpen(false);
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}

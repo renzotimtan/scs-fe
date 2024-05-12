@@ -83,6 +83,7 @@ const WarehousesModal = ({
       open={open}
       onClose={(event, reason) => {
         if (reason === "backdropClick") return;
+        setWarehouse(generateWarehouse());
         setOpen(false);
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
