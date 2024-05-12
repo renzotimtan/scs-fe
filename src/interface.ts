@@ -110,6 +110,11 @@ export interface PaginatedWarehouse {
   items: Warehouse[];
 }
 
+export interface PaginatedWarehouseItems {
+  total: number;
+  items: WarehouseItem[];
+}
+
 export interface PaginatedPO {
   total: number;
   items: PurchaseOrder[];

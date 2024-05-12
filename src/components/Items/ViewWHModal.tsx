@@ -5,7 +5,11 @@ import { Card, Box, Table } from "@mui/joy";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 
-import type { ViewWHModalProps, WarehouseItem } from "../../interface";
+import type {
+  ViewWHModalProps,
+  WarehouseItem,
+  PaginatedWarehouseItems,
+} from "../../interface";
 
 const ViewWHModal = ({
   open,
@@ -18,12 +22,14 @@ const ViewWHModal = ({
   useEffect(() => {
     if (type === "warehouse") {
       axiosInstance
-        .get<WarehouseItem[]>(`/api/warehouse_items?warehouse_id=${row?.id}`)
+        .get<PaginatedWarehouseItems>(
+          `/api/warehouse_items?warehouse_id=${row?.id}`,
+        )
         .then((response) => setWarehouseItems(response.data.items))
         .catch((error) => console.error("Error:", error));
     } else if (type === "item") {
       axiosInstance
-        .get<WarehouseItem[]>(`/api/warehouse_items?item_id=${row?.id}`)
+        .get<PaginatedWarehouseItems>(`/api/warehouse_items?item_id=${row?.id}`)
         .then((response) => setWarehouseItems(response.data.items))
         .catch((error) => console.error("Error:", error));
     }
