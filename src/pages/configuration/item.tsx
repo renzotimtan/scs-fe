@@ -10,10 +10,17 @@ import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import type { User } from "../Login";
 import type { AxiosError } from "axios";
-import type { Item } from "../../interface";
+import type { Item, PaginatedItems } from "../../interface";
+import { convertToQueryParams } from "../../helper";
+import { Pagination } from "@mui/material";
+
+const PAGE_LIMIT = 10;
 
 const ItemForm = (): JSX.Element => {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<PaginatedItems>({
+    total: 0,
+    items: [],
+  });
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openWH, setOpenWH] = useState(false);
@@ -21,13 +28,40 @@ const ItemForm = (): JSX.Element => {
   const [selectedRow, setSelectedRow] = useState<Item>();
   const [userId, setUserId] = useState<number | null>(null);
 
+  const [page, setPage] = useState(1);
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+
+    axiosInstance
+      .get<PaginatedItems>(
+        `/api/items/?${convertToQueryParams({
+          page: value,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setItems(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
+
   useEffect(() => {
     // Fetch items
     axiosInstance
-      .get<Item[]>("/api/items/")
-      .then((response) => {
-        setItems(response.data.items);
-      })
+      .get<PaginatedItems>(
+        `/api/items/?${convertToQueryParams({
+          page,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setItems(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
@@ -56,21 +90,16 @@ const ItemForm = (): JSX.Element => {
       srp: newItem.srp,
       modified_by: userId,
     };
-    try {
-      const response = await axiosInstance.put(url, payload);
 
-      setItems(
-        items.map((item) =>
-          item.id === response.data.id ? response.data : item,
-        ),
-      );
+    const response = await axiosInstance.put(url, payload);
+    setItems((prevItems) => ({
+      ...prevItems,
+      items: prevItems.items.map((item) =>
+        item.id === response.data.id ? response.data : item,
+      ),
+    }));
 
-      setOpenAdd(false);
-      setOpenEdit(false);
-      toast.success("Save successful!");
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    toast.success("Save successful!");
   };
 
   const handleCreateItem = async (newItem: Item): Promise<void> => {
@@ -90,15 +119,15 @@ const ItemForm = (): JSX.Element => {
       srp: newItem.srp,
       created_by: userId,
     };
-    try {
-      const response = await axiosInstance.post("/api/items/", payload);
+    const response = await axiosInstance.post("/api/items/", payload);
 
-      setItems([...items, response.data]);
-      setOpenAdd(false);
-      toast.success("Save successful!");
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    setItems((prevItems) => ({
+      ...prevItems,
+      items: [response.data, ...prevItems.items],
+      total: prevItems.total + 1,
+    }));
+
+    toast.success("Save successful!");
   };
 
   const handleDeleteItem = async (): Promise<void> => {
@@ -107,7 +136,11 @@ const ItemForm = (): JSX.Element => {
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setItems(items.filter((item) => item.id !== selectedRow.id));
+        setItems((prevItems) => ({
+          ...prevItems,
+          items: prevItems.items.filter((item) => item.id !== selectedRow.id),
+          total: prevItems.total - 1,
+        }));
       } catch (error) {
         console.error("Error:", error);
         if (isAxiosError(error)) {
@@ -231,7 +264,7 @@ const ItemForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {items.items.map((item) => (
                 <tr key={item.id}>
                   <td>{item.stock_code}</td>
                   <td>{item.status}</td>
@@ -296,6 +329,15 @@ const ItemForm = (): JSX.Element => {
             </tbody>
           </Table>
         </Sheet>
+      </Box>
+      <Box className="flex align-center justify-end">
+        <Pagination
+          count={Math.floor(items.total / PAGE_LIMIT) + 1}
+          page={page}
+          onChange={changePage}
+          shape="rounded"
+          className="mt-7 ml-auto"
+        />
       </Box>
       <ItemsModal
         open={openAdd}

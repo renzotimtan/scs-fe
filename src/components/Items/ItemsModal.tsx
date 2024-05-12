@@ -16,6 +16,7 @@ import {
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { AVAILABLE_CURRENCIES } from "../../constants";
+import { toast } from "react-toastify";
 import type {
   Item,
   PaginatedSuppliers,
@@ -52,9 +53,6 @@ const ItemsModal = ({
       modified_by: row?.modified_by ?? 0,
       date_created: row?.date_created ?? "",
       date_modified: row?.date_modified ?? "",
-      // item_modifier: row?.item_modifier ?? "", // Add default value for item_modifier
-      // unit: row?.unit ?? "", // Add default value for unit
-      // previous_cost: row?.previous_cost ?? 0, // Add default value for previous_cost
     };
   };
 
@@ -108,9 +106,13 @@ const ItemsModal = ({
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
-    await onSave(item);
-    setItem(generateItem());
-    setOpen(false);
+    try {
+      await onSave(item);
+      setItem(generateItem());
+      setOpen(false);
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
   };
 
   return (

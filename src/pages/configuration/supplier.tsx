@@ -8,11 +8,13 @@ import DeleteSuppliersModal from "../../components/Suppliers/DeleteSupplierModal
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
-import type {
-  Supplier,
-  SupplierQueryParams,
-  PaginatedSuppliers,
-} from "../../interface";
+import { Pagination } from "@mui/material";
+
+import type { Supplier, PaginatedSuppliers } from "../../interface";
+
+import { convertToQueryParams } from "../../helper";
+
+const PAGE_LIMIT = 10;
 
 const SupplierForm = (): JSX.Element => {
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
@@ -25,40 +27,39 @@ const SupplierForm = (): JSX.Element => {
   const [selectedRow, setSelectedRow] = useState<Supplier>();
   const [userId, setUserId] = useState<number | null>(null);
 
+  const [page, setPage] = useState(1);
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+
+    axiosInstance
+      .get<PaginatedSuppliers>(
+        `/api/suppliers/?${convertToQueryParams({
+          page: value,
+          limit: PAGE_LIMIT,
+          sort_by: "supplier_id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setSuppliers(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
+
   useEffect(() => {
-    // Query parameters
-    const queryParams: SupplierQueryParams = {
-      page: 1,
-      limit: 10,
-      sort_by: "supplier_id",
-      sort_order: "asc",
-      search_term: "",
-    };
-
-    // Convert the query parameters to a query string
-    const queryString = Object.entries(queryParams)
-      .filter(([_, value]) => value !== undefined)
-      .map(([key, value]) => {
-        if (
-          typeof value === "string" ||
-          typeof value === "number" ||
-          typeof value === "boolean"
-        ) {
-          return `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`;
-        } else {
-          console.error(
-            `Invalid query parameter value for key "${key}":`,
-            value,
-          );
-          return "";
-        }
-      })
-      .filter((param) => param !== "")
-      .join("&");
-
     // Fetch suppliers
     axiosInstance
-      .get<PaginatedSuppliers>(`/api/suppliers/?${queryString}`)
+      .get<PaginatedSuppliers>(
+        `/api/suppliers/?${convertToQueryParams({
+          page,
+          limit: PAGE_LIMIT,
+          sort_by: "supplier_id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
 
@@ -92,24 +93,18 @@ const SupplierForm = (): JSX.Element => {
       modified_by: userId,
       notes: newSupplier.notes,
     };
-    try {
-      const response = await axiosInstance.put(url, payload);
 
-      setSuppliers((prevSuppliers) => ({
-        ...prevSuppliers,
-        items: prevSuppliers.items.map((supplier) =>
-          supplier.supplier_id === response.data.supplier_id
-            ? response.data
-            : supplier,
-        ),
-      }));
+    const response = await axiosInstance.put(url, payload);
+    setSuppliers((prevSuppliers) => ({
+      ...prevSuppliers,
+      items: prevSuppliers.items.map((supplier) =>
+        supplier.supplier_id === response.data.supplier_id
+          ? response.data
+          : supplier,
+      ),
+    }));
 
-      setOpenAdd(false);
-      setOpenEdit(false);
-      toast.success("Save successful!");
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    toast.success("Save successful!");
   };
 
   const handleCreateSupplier = async (newSupplier: Supplier): Promise<void> => {
@@ -132,19 +127,15 @@ const SupplierForm = (): JSX.Element => {
       created_by: userId,
       notes: newSupplier.notes,
     };
-    try {
-      const response = await axiosInstance.post("/api/suppliers/", payload);
+    const response = await axiosInstance.post("/api/suppliers/", payload);
 
-      setSuppliers((prevSuppliers) => ({
-        ...prevSuppliers,
-        items: [...prevSuppliers.items, response.data],
-        total: prevSuppliers.total + 1,
-      }));
-      setOpenAdd(false);
-      toast.success("Save successful!");
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    setSuppliers((prevSuppliers) => ({
+      ...prevSuppliers,
+      items: [response.data, ...prevSuppliers.items],
+      total: prevSuppliers.total + 1,
+    }));
+
+    toast.success("Save successful!");
   };
 
   const handleDeleteSupplier = async (): Promise<void> => {
@@ -316,6 +307,15 @@ const SupplierForm = (): JSX.Element => {
             </tbody>
           </Table>
         </Sheet>
+      </Box>
+      <Box className="flex align-center justify-end">
+        <Pagination
+          count={Math.floor(suppliers.total / PAGE_LIMIT) + 1}
+          page={page}
+          onChange={changePage}
+          shape="rounded"
+          className="mt-7 ml-auto"
+        />
       </Box>
       <SuppliersModal
         open={openAdd}

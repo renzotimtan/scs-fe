@@ -29,7 +29,7 @@ const ViewStockTransfer = ({
     // Fetch purchase orders
     axiosInstance
       .get<PurchaseOrder[]>("/api/purchase_orders/")
-      .then((response) => setPurchaseOrders(response.data))
+      .then((response) => setPurchaseOrders(response.data.items))
       .catch((error) => console.error("Error:", error));
   }, []);
 

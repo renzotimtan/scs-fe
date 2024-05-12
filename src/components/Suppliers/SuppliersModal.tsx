@@ -15,6 +15,7 @@ import {
   Textarea,
 } from "@mui/joy";
 import { AVAILABLE_CURRENCIES } from "../../constants";
+import { toast } from "react-toastify";
 
 import type { SuppliersModalProps, Supplier } from "../../interface";
 
@@ -70,9 +71,14 @@ const SuppliersModal = ({
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
-    await onSave(supplier);
-    setSupplier(generateSupplier());
-    setOpen(false);
+
+    try {
+      await onSave(supplier);
+      setSupplier(generateSupplier());
+      setOpen(false);
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
   };
 
   const handleSelectChange = (

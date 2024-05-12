@@ -13,7 +13,7 @@ import {
 } from "@mui/joy";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
-
+import { toast } from "react-toastify";
 import type { Warehouse, WarehousesModalProps } from "../../interface";
 
 const WarehousesModal = ({
@@ -66,9 +66,14 @@ const WarehousesModal = ({
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
-    await onSave(warehouse);
-    setWarehouse(generateWarehouse());
-    setOpen(false);
+
+    try {
+      await onSave(warehouse);
+      setWarehouse(generateWarehouse());
+      setOpen(false);
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
   };
 
   return (

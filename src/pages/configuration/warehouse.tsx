@@ -9,22 +9,60 @@ import ViewWHModal from "../../components/Items/ViewWHModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
 import { toast } from "react-toastify";
-import type { Warehouse } from "../../interface";
+import { Pagination } from "@mui/material";
+
+import type { Warehouse, PaginatedWarehouse } from "../../interface";
+
+import { convertToQueryParams } from "../../helper";
+
+const PAGE_LIMIT = 10;
 
 const WarehouseForm = (): JSX.Element => {
   const [openWH, setOpenWH] = useState(false);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [warehouses, setWarehouses] = useState<PaginatedWarehouse>({
+    total: 0,
+    items: [],
+  });
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Warehouse>();
   const [userId, setUserId] = useState<number | null>(null);
 
+  const [page, setPage] = useState(1);
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+
+    axiosInstance
+      .get<PaginatedWarehouse>(
+        `/api/warehouses/?${convertToQueryParams({
+          page: value,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setWarehouses(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
+
   useEffect(() => {
     // Fetch warehouses
     axiosInstance
-      .get<Warehouse[]>("/api/warehouses/")
-      .then((response) => setWarehouses(response.data.items))
+      .get<PaginatedWarehouse>(
+        `/api/warehouses/?${convertToQueryParams({
+          page,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setWarehouses(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
@@ -46,21 +84,16 @@ const WarehouseForm = (): JSX.Element => {
       id: newWarehouse.id,
       code: newWarehouse.code,
     };
-    try {
-      const response = await axiosInstance.put(url, payload);
 
-      setWarehouses(
-        warehouses.map((warehouse) =>
-          warehouse.id === response.data.id ? response.data : warehouse,
-        ),
-      );
+    const response = await axiosInstance.put(url, payload);
+    setWarehouses((prevWarehouse) => ({
+      ...prevWarehouse,
+      items: prevWarehouse.items.map((warehouse) =>
+        warehouse.id === response.data.id ? response.data : warehouse,
+      ),
+    }));
 
-      setOpenAdd(false);
-      setOpenEdit(false);
-      toast.success("Save successful!");
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    toast.success("Save successful!");
   };
 
   const handleCreateWarehouse = async (
@@ -73,15 +106,16 @@ const WarehouseForm = (): JSX.Element => {
       created_by: userId,
       code: newWarehouse.code,
     };
-    try {
-      const response = await axiosInstance.post("/api/warehouses/", payload);
 
-      setWarehouses([...warehouses, response.data]);
-      setOpenAdd(false);
-      toast.success("Save successful!");
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    const response = await axiosInstance.post("/api/warehouses/", payload);
+
+    setWarehouses((prevWarehouse) => ({
+      ...prevWarehouse,
+      items: [response.data, ...prevWarehouse.items],
+      total: prevWarehouse.total + 1,
+    }));
+
+    toast.success("Save successful!");
   };
 
   const handleDeleteWarehouse = async (): Promise<void> => {
@@ -90,9 +124,13 @@ const WarehouseForm = (): JSX.Element => {
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setWarehouses(
-          warehouses.filter((warehouse) => warehouse.id !== selectedRow.id),
-        );
+        setWarehouses((prevWarehouse) => ({
+          ...prevWarehouse,
+          items: prevWarehouse.items.filter(
+            (warehouse) => warehouse.id !== selectedRow.id,
+          ),
+          total: prevWarehouse.total - 1,
+        }));
       } catch (error) {
         console.error("Error:", error);
       }
@@ -184,7 +222,7 @@ const WarehouseForm = (): JSX.Element => {
               </tr>
             </thead>
             <tbody>
-              {warehouses.map((warehouse) => (
+              {warehouses.items.map((warehouse) => (
                 <tr key={warehouse.id}>
                   <td>{warehouse.code}</td>
                   <td>{warehouse.name}</td>
@@ -237,6 +275,15 @@ const WarehouseForm = (): JSX.Element => {
             </tbody>
           </Table>
         </Sheet>
+      </Box>
+      <Box className="flex align-center justify-end">
+        <Pagination
+          count={Math.floor(warehouses.total / PAGE_LIMIT) + 1}
+          page={page}
+          onChange={changePage}
+          shape="rounded"
+          className="mt-7 ml-auto"
+        />
       </Box>
       <WarehousesModal
         open={openAdd}

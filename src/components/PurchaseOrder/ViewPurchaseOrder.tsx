@@ -6,7 +6,13 @@ import Sheet from "@mui/joy/Sheet";
 import axiosInstance from "../../utils/axiosConfig";
 import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
 import { toast } from "react-toastify";
-import type { PurchaseOrder, ViewPurchaseOrderProps } from "../../interface";
+import type { ViewPurchaseOrderProps, PaginatedPO } from "../../interface";
+
+import { Pagination } from "@mui/material";
+
+import { convertToQueryParams } from "../../helper";
+
+const PAGE_LIMIT = 10;
 
 const ViewPurchaseOrder = ({
   setOpenCreate,
@@ -14,14 +20,46 @@ const ViewPurchaseOrder = ({
   selectedRow,
   setSelectedRow,
 }: ViewPurchaseOrderProps): JSX.Element => {
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
+  const [purchaseOrders, setPurchaseOrders] = useState<PaginatedPO>({
+    total: 0,
+    items: [],
+  });
   const [openDelete, setOpenDelete] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+
+    axiosInstance
+      .get<PaginatedPO>(
+        `/api/purchase_orders/?${convertToQueryParams({
+          page: value,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setPurchaseOrders(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
 
   useEffect(() => {
     // Fetch purchase orders
     axiosInstance
-      .get<PurchaseOrder[]>("/api/purchase_orders/")
-      .then((response) => setPurchaseOrders(response.data.items))
+      .get<PaginatedPO>(
+        `/api/purchase_orders/?${convertToQueryParams({
+          page,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: "",
+        })}`,
+      )
+      .then((response) => setPurchaseOrders(response.data))
       .catch((error) => console.error("Error:", error));
   }, []);
 
@@ -31,11 +69,11 @@ const ViewPurchaseOrder = ({
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setPurchaseOrders(
-          purchaseOrders.filter(
-            (purchaseOrder) => purchaseOrder.id !== selectedRow.id,
-          ),
-        );
+        setPurchaseOrders((prevPO) => ({
+          ...prevPO,
+          items: prevPO.items.filter((PO) => PO.id !== selectedRow.id),
+          total: prevPO.total - 1,
+        }));
       } catch (error) {
         console.error("Error:", error);
       }
@@ -137,7 +175,7 @@ const ViewPurchaseOrder = ({
               </tr>
             </thead>
             <tbody>
-              {purchaseOrders.map((purchaseOrder) => (
+              {purchaseOrders.items.map((purchaseOrder) => (
                 <tr key={purchaseOrder.id}>
                   <td>{purchaseOrder.id}</td>
                   <td className="capitalize">{purchaseOrder.status}</td>
@@ -186,6 +224,15 @@ const ViewPurchaseOrder = ({
             </tbody>
           </Table>
         </Sheet>
+      </Box>
+      <Box className="flex align-center justify-end">
+        <Pagination
+          count={Math.floor(purchaseOrders.total / PAGE_LIMIT) + 1}
+          page={page}
+          onChange={changePage}
+          shape="rounded"
+          className="mt-7 ml-auto"
+        />
       </Box>
       <DeletePurchaseOrderModal
         open={openDelete}

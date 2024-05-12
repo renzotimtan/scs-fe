@@ -100,7 +100,22 @@ export interface PaginatedSuppliers {
   items: Supplier[];
 }
 
-export interface SupplierQueryParams {
+export interface PaginatedItems {
+  total: number;
+  items: Item[];
+}
+
+export interface PaginatedWarehouse {
+  total: number;
+  items: Warehouse[];
+}
+
+export interface PaginatedPO {
+  total: number;
+  items: PurchaseOrder[];
+}
+
+export interface PaginationQueryParams {
   page?: number;
   limit?: number;
   sort_by?: string;
@@ -125,6 +140,8 @@ export interface Warehouse {
     email: string;
     id: number;
   };
+  created_by: number;
+  modified_by: number;
   date_created: string;
   date_modified: string;
 }

@@ -273,10 +273,8 @@ const PurchaseOrderForm = ({
       setOpen(false);
       console.log("Response: ", response);
       // Handle the response, update state, etc.
-    } catch (error) {
-      console.error("Error:", error);
-      const errorMessage = (error.response.data as any)?.detail;
-      toast.error(`Input Error: ${errorMessage}`);
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 
@@ -347,10 +345,8 @@ const PurchaseOrderForm = ({
       toast.success("Save successful!");
       console.log("Response: ", response);
       // Handle the response, update state, etc.
-    } catch (error) {
-      console.error("Error:", error);
-      const errorMessage = (error.response.data as any)?.detail;
-      toast.error(`Input Error: ${errorMessage}`);
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 
