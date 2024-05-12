@@ -173,8 +173,10 @@ const PurchaseOrderForm = ({
     // Explicitly check for a valid number on id, and ensure price and volume are greater than zero.
     if (
       typeof item.id === "number" && // Check that id is a number.
+      item?.price !== undefined &&
       !isNaN(item.price) &&
       item.price > 0 &&
+      item?.volume !== undefined &&
       !isNaN(item.volume) &&
       item.volume > 0
     ) {
@@ -217,6 +219,7 @@ const PurchaseOrderForm = ({
     });
 
     if (selectedItems !== undefined) {
+      // @ts-expect-error (Used null instead of undefined.)
       selectedItems?.push({ id: null });
       setSelectedItems(selectedItems);
     }
