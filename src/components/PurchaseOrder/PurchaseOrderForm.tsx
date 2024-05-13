@@ -13,6 +13,7 @@ import {
   Autocomplete,
   Sheet,
 } from "@mui/joy";
+import ConfirmationModal from "./ConfirmationModal";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
@@ -67,6 +68,9 @@ const PurchaseOrderForm = ({
   const [transactionDate, setTransactionDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [indexOfModal, setIndexOfModal] = useState(0);
 
   useEffect(() => {
     // Fetch suppliers
@@ -413,6 +417,18 @@ const PurchaseOrderForm = ({
     setSelectedItems(newSelectedItems);
   };
 
+  const setAcquisitionCost = (value: number, index: number): void => {
+    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
+      if (i === index) {
+        return { ...item, acquisition_cost: value };
+      }
+
+      return item;
+    });
+
+    setSelectedItems(newSelectedItems);
+  };
+
   return (
     <form
       onSubmit={async (e) => {
@@ -695,6 +711,29 @@ const PurchaseOrderForm = ({
           <tbody>
             {selectedItems.map((selectedItem: Item, index: number) => (
               <tr key={`${selectedItem.id}-${index}`}>
+                {/* Modal for confirming price change */}
+                {indexOfModal === index && isConfirmOpen && (
+                  <ConfirmationModal
+                    open={isConfirmOpen}
+                    setOpen={setIsConfirmOpen}
+                    // Add function here that will change the price of acquisition cost
+                    onConfirm={() => {
+                      // Adjust selectedItem.acquisition_cost (for FE)
+                      if (selectedItem?.price !== undefined) {
+                        setAcquisitionCost(selectedItem.price, index);
+                      }
+
+                      // Change price of acquisition cost for Stock model
+                    }}
+                    // When cancelled, revert back original price
+                    onCancel={() =>
+                      addItemPrice(selectedItem.acquisition_cost, index)
+                    }
+                    newPrice={selectedItem.price}
+                    itemName={selectedItem.name}
+                  />
+                )}
+
                 <td style={{ zIndex: 1 }}>
                   <Select
                     onChange={(event, value) => {
@@ -747,6 +786,14 @@ const PurchaseOrderForm = ({
                       onChange={(e) =>
                         addItemPrice(Number(e.target.value), index)
                       }
+                      onBlur={(e) => {
+                        if (
+                          selectedItem.acquisition_cost !== selectedItem.price
+                        ) {
+                          setIndexOfModal(index);
+                          setIsConfirmOpen(true);
+                        }
+                      }}
                     />
                   )}
                 </td>
