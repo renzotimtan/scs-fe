@@ -105,7 +105,7 @@ const ViewWHModal = ({
                 <thead>
                   <tr>
                     <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                      Warehouse Name
+                      {type === "warehouse" ? "Stock Name" : "Warehouse Name"}
                     </th>
                     <th style={{ width: 100 }}>On Stock</th>
                     <th style={{ width: 100 }}>Allocated</th>
@@ -122,7 +122,11 @@ const ViewWHModal = ({
                     <tr
                       key={`${warehouseItem.warehouse_id}-${warehouseItem.item_id}`}
                     >
-                      <td>{warehouseItem.warehouse.name}</td>
+                      <td>
+                        {type === "warehouse"
+                          ? warehouseItem.item.name
+                          : warehouseItem.warehouse.name}
+                      </td>
                       <td>{warehouseItem.on_stock}</td>
                       <td>{warehouseItem.allocated}</td>
                       <td>{warehouseItem.purchased}</td>
