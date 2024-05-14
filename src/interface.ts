@@ -126,6 +126,7 @@ export interface PaginationQueryParams {
   sort_by?: string;
   sort_order?: string;
   search_term?: string;
+  status?: string;
 }
 
 export interface Warehouse {
@@ -375,4 +376,9 @@ export interface StockTransfer {
   };
   date_modified: string;
   items: POItems[];
+}
+
+export interface NewPriceInstance {
+  id: number;
+  newPrice: number;
 }

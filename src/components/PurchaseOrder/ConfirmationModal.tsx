@@ -8,14 +8,12 @@ const ConfirmationModal = ({
   setOpen,
   onConfirm,
   onCancel,
-  newPrice,
   itemName,
 }: {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
   onConfirm: () => void;
   onCancel: () => void;
-  newPrice: number | undefined;
   itemName: string;
 }): JSX.Element => {
   return (
@@ -45,8 +43,7 @@ const ConfirmationModal = ({
             <div className="mb-7">
               <p className="text-sm">
                 Are you sure you want to adjust the price of{" "}
-                <strong>{itemName}</strong>? This will modify the stock&apos;s
-                acquisition cost to <strong>{newPrice}</strong>.
+                <strong>{itemName}</strong>?
               </p>
             </div>
             <div className="flex justify-end mt-5">

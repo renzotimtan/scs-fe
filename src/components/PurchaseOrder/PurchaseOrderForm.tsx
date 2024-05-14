@@ -29,7 +29,10 @@ import type {
   Item,
   PaginatedSuppliers,
   PaginatedItems,
+  NewPriceInstance,
 } from "../../interface";
+
+import type { User } from "../../pages/Login";
 
 const INITIAL_DISCOUNTS = {
   supplier: ["0", "0", "0"],
@@ -68,9 +71,11 @@ const PurchaseOrderForm = ({
   const [transactionDate, setTransactionDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [userId, setUserId] = useState<number | null>(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [indexOfModal, setIndexOfModal] = useState(0);
+  const [newPrices, setNewPrices] = useState<NewPriceInstance[]>([]);
 
   useEffect(() => {
     // Fetch suppliers
@@ -78,6 +83,12 @@ const PurchaseOrderForm = ({
       .get<PaginatedSuppliers>("/api/suppliers/")
       .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
+
+    // Fetch user ID
+    axiosInstance
+      .get<User>("/users/me/")
+      .then((response) => setUserId(response.data.id))
+      .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
   useEffect(() => {
@@ -229,6 +240,80 @@ const PurchaseOrderForm = ({
     }
   };
 
+  const handlePriceChange = (selectedItem: Item, index: number): void => {
+    // Add to new price list (This will be sent to BE on SAVE)
+    if (selectedItem?.price !== undefined && selectedItem?.id !== undefined) {
+      setNewPrices([
+        ...newPrices,
+        {
+          id: selectedItem.id,
+          newPrice: selectedItem.price,
+        },
+      ]);
+    }
+  };
+
+  const sendPriceChangeRequests = async (
+    uniqueNewItemPrices: NewPriceInstance[],
+  ): Promise<void> => {
+    try {
+      const requests = uniqueNewItemPrices.map(async (newPriceInstance) => {
+        const itemInstance = items.find(
+          (item) => item.id === newPriceInstance.id,
+        );
+
+        if (itemInstance === undefined) {
+          throw new Error(
+            "There is an error with finding the item that requires a price change.",
+          );
+        }
+        const payload = {
+          id: itemInstance.id,
+          stock_code: itemInstance.stock_code,
+          name: itemInstance.name,
+          supplier_id: itemInstance.supplier_id,
+          status: itemInstance.status,
+          category: itemInstance.category,
+          brand: itemInstance.brand,
+          acquisition_cost: newPriceInstance.newPrice, // Change acquisition cost
+          net_cost_before_tax: itemInstance.net_cost_before_tax,
+          currency: itemInstance.currency,
+          rate: itemInstance.rate,
+          last_sale_price: itemInstance.last_sale_price,
+          srp: itemInstance.srp,
+          modified_by: userId,
+        };
+
+        const response = await axiosInstance.put(
+          `/api/items/${newPriceInstance.id}`,
+          payload,
+        );
+        console.log("Response: ", response);
+      });
+
+      await Promise.all(requests);
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
+  };
+
+  const modifyCostOnPriceChange = async (): Promise<void> => {
+    const uniqueItems: Record<number, NewPriceInstance> = {};
+
+    // Get the biggest value if there is a duplicate
+    newPrices.forEach((item: NewPriceInstance) => {
+      if (
+        uniqueItems[item.id] === undefined ||
+        item.newPrice > uniqueItems[item.id].newPrice
+      ) {
+        uniqueItems[item.id] = item;
+      }
+    });
+
+    const uniqueNewItemPrices = Object.values(uniqueItems);
+    await sendPriceChangeRequests(uniqueNewItemPrices);
+  };
+
   const handleCreatePurchaseOrder = async (): Promise<void> => {
     if (selectedItems.length === 1) {
       toast.error("Error: No Items Selected");
@@ -242,11 +327,16 @@ const PurchaseOrderForm = ({
       return;
     }
 
+    if (newPrices.length > 0) {
+      await modifyCostOnPriceChange();
+    }
+
     const itemPayload = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
         volume: item.volume,
+        unserved_spo: item.volume,
         price: item.price,
         total_price: Number(item.volume) * Number(item.price),
       }));
@@ -315,12 +405,17 @@ const PurchaseOrderForm = ({
       return;
     }
 
+    if (newPrices.length > 0) {
+      await modifyCostOnPriceChange();
+    }
+
     const itemPayload = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
         volume: item.volume,
         price: item.price,
+        unserved_spo: item.volume,
         total_price: Number(item.volume) * Number(item.price),
       }));
 
@@ -417,24 +512,17 @@ const PurchaseOrderForm = ({
     setSelectedItems(newSelectedItems);
   };
 
-  const setAcquisitionCost = (value: number, index: number): void => {
-    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
-      if (i === index) {
-        return { ...item, acquisition_cost: value };
-      }
-
-      return item;
-    });
-
-    setSelectedItems(newSelectedItems);
-  };
-
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreatePurchaseOrder();
         if (openEdit) await handleEditPurchaseOrder();
+      }}
+      onKeyDown={(e): void => {
+        if (isConfirmOpen && e.key === "Enter") {
+          e.preventDefault();
+        }
       }}
     >
       <div className="flex justify-between">
@@ -717,19 +805,11 @@ const PurchaseOrderForm = ({
                     open={isConfirmOpen}
                     setOpen={setIsConfirmOpen}
                     // Add function here that will change the price of acquisition cost
-                    onConfirm={() => {
-                      // Adjust selectedItem.acquisition_cost (for FE)
-                      if (selectedItem?.price !== undefined) {
-                        setAcquisitionCost(selectedItem.price, index);
-                      }
-
-                      // Change price of acquisition cost for Stock model
-                    }}
+                    onConfirm={() => handlePriceChange(selectedItem, index)}
                     // When cancelled, revert back original price
                     onCancel={() =>
                       addItemPrice(selectedItem.acquisition_cost, index)
                     }
-                    newPrice={selectedItem.price}
                     itemName={selectedItem.name}
                   />
                 )}

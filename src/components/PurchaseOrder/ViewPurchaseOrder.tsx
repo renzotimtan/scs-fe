@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/joy/Box";
-import Button from "@mui/joy/Button";
-import Table from "@mui/joy/Table";
-import Sheet from "@mui/joy/Sheet";
+import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
 import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
 import { toast } from "react-toastify";
-import type { ViewPurchaseOrderProps, PaginatedPO } from "../../interface";
+import type {
+  ViewPurchaseOrderProps,
+  PaginatedPO,
+  PaginationQueryParams,
+} from "../../interface";
 
 import { Pagination } from "@mui/material";
 
@@ -25,14 +26,36 @@ const ViewPurchaseOrder = ({
     items: [],
   });
   const [openDelete, setOpenDelete] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
+
+  const getAllPO = (): void => {
+    const payload: PaginationQueryParams = {
+      page,
+      limit: PAGE_LIMIT,
+      sort_by: "id",
+      sort_order: "desc",
+      search_term: searchTerm,
+    };
+
+    if (status !== "all") {
+      payload.status = status;
+    }
+
+    axiosInstance
+      .get<PaginatedPO>(
+        `/api/purchase_orders/?${convertToQueryParams(payload)}`,
+      )
+      .then((response) => setPurchaseOrders(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
+
   const changePage = (
     event: React.ChangeEvent<unknown>,
     value: number,
   ): void => {
     setPage(value);
-
     axiosInstance
       .get<PaginatedPO>(
         `/api/purchase_orders/?${convertToQueryParams({
@@ -40,7 +63,7 @@ const ViewPurchaseOrder = ({
           limit: PAGE_LIMIT,
           sort_by: "id",
           sort_order: "desc",
-          search_term: "",
+          search_term: searchTerm,
         })}`,
       )
       .then((response) => setPurchaseOrders(response.data))
@@ -49,18 +72,7 @@ const ViewPurchaseOrder = ({
 
   useEffect(() => {
     // Fetch purchase orders
-    axiosInstance
-      .get<PaginatedPO>(
-        `/api/purchase_orders/?${convertToQueryParams({
-          page,
-          limit: PAGE_LIMIT,
-          sort_by: "id",
-          sort_order: "desc",
-          search_term: "",
-        })}`,
-      )
-      .then((response) => setPurchaseOrders(response.data))
-      .catch((error) => console.error("Error:", error));
+    getAllPO();
   }, []);
 
   const handleDeletePurchaseOrder = async (): Promise<void> => {
@@ -95,6 +107,36 @@ const ViewPurchaseOrder = ({
             Add Purchase Order
           </Button>
         </Box>
+        <Box className="flex items-center mb-6">
+          <Input
+            size="sm"
+            placeholder="Reference No."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Select
+            className="ml-4 w-[130px]"
+            onChange={(event, value) => {
+              if (value !== null) setStatus(value);
+            }}
+            size="sm"
+            value={status}
+          >
+            <Option value="all">All</Option>
+            <Option value="pending">Pending</Option>
+            <Option value="completed">Completed</Option>
+            <Option value="cancelled">Cancelled</Option>
+            <Option value="draft">Draft</Option>
+          </Select>
+          <Button
+            onClick={getAllPO}
+            className="ml-4 w-[80px] bg-button-primary"
+            size="sm"
+          >
+            Search
+          </Button>
+        </Box>
+
         <Sheet
           sx={{
             "--TableCell-height": "40px",
@@ -154,6 +196,7 @@ const ViewPurchaseOrder = ({
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   PO Number
                 </th>
+                <th style={{ width: 200 }}>Reference Number</th>
                 <th style={{ width: 300 }}>Status</th>
                 <th style={{ width: 300 }}>Supplier</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
@@ -162,7 +205,6 @@ const ViewPurchaseOrder = ({
                 <th style={{ width: 150 }}>Net Amount</th>
                 <th style={{ width: 150 }}>FOB Total</th>
                 <th style={{ width: 150 }}>Landed Total</th>
-                <th style={{ width: 200 }}>Reference Number</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -178,6 +220,7 @@ const ViewPurchaseOrder = ({
               {purchaseOrders.items.map((purchaseOrder) => (
                 <tr key={purchaseOrder.id}>
                   <td>{purchaseOrder.id}</td>
+                  <td>{purchaseOrder.reference_number}</td>
                   <td className="capitalize">{purchaseOrder.status}</td>
                   <td>{purchaseOrder?.supplier?.name}</td>
                   <td>{purchaseOrder.transaction_date}</td>
@@ -186,7 +229,6 @@ const ViewPurchaseOrder = ({
                   <td>{purchaseOrder.net_amount}</td>
                   <td>{purchaseOrder.fob_total}</td>
                   <td>{purchaseOrder.landed_total}</td>
-                  <td>{purchaseOrder.reference_number}</td>
                   <td>{purchaseOrder.remarks}</td>
                   <td>{purchaseOrder?.creator?.username}</td>
                   <td>{purchaseOrder?.modifier?.username}</td>
@@ -227,7 +269,7 @@ const ViewPurchaseOrder = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.floor(purchaseOrders.total / PAGE_LIMIT) + 1}
+          count={Math.ceil(purchaseOrders.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
