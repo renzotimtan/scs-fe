@@ -1,45 +1,25 @@
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  Card,
-  Stack,
-  Button,
-  Select,
-  Option,
-  Box,
-  Divider,
-  Autocomplete,
-  Sheet,
-} from "@mui/joy";
-import ConfirmationModal from "./ConfirmationModal";
-import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import POFormDetails from "./POFormDetails";
+import POFormTable from "./POFormTable";
+import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
-import Table from "@mui/joy/Table";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
-import { AVAILABLE_CURRENCIES } from "../../constants";
-
+import type { POPayload, POItemValues, NewPriceInstance } from "./interface";
+import type { User } from "../../pages/Login";
 import type {
   PurchaseOrderFormProps,
   Supplier,
   Item,
   PaginatedSuppliers,
   PaginatedItems,
-  NewPriceInstance,
 } from "../../interface";
-
-import type { User } from "../../pages/Login";
 
 const INITIAL_DISCOUNTS = {
   supplier: ["0", "0", "0"],
   transaction: ["0", "0", "0"],
 };
-
-type DiscountType = "supplier" | "transaction";
 
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
@@ -49,7 +29,6 @@ const PurchaseOrderForm = ({
   openCreate,
   openEdit,
   selectedRow,
-  setSelectedRow,
   title,
 }: PurchaseOrderFormProps): JSX.Element => {
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
@@ -144,14 +123,38 @@ const PurchaseOrderForm = ({
     }
   }, [selectedSupplier]);
 
-  const handleDiscountChange = (
-    type: DiscountType,
-    index: number,
-    value: string,
-  ): void => {
-    const newDiscounts = { ...discounts };
-    newDiscounts[type][index] = value;
-    setDiscounts(newDiscounts);
+  const createPayload = (
+    itemPayload: POItemValues[],
+    isEdit: boolean,
+  ): POPayload => {
+    const payload: POPayload = {
+      purchase_order_number: purchaseOrderNumber,
+      status,
+      transaction_date: transactionDate,
+      supplier_id: selectedSupplier?.supplier_id ?? 0,
+      fob_total: fobTotal,
+      currency_used: currencyUsed,
+      supplier_discount_1: discounts.supplier[0],
+      supplier_discount_2: discounts.supplier[1],
+      supplier_discount_3: discounts.supplier[2],
+      transaction_discount_1: discounts.transaction[0],
+      transaction_discount_2: discounts.transaction[1],
+      transaction_discount_3: discounts.transaction[2],
+      peso_rate: pesoRate,
+      net_amount: netAmount,
+      reference_number: referenceNumber,
+      landed_total: landedTotal,
+      remarks,
+      items: itemPayload,
+    };
+
+    if (isEdit) {
+      payload.modified_by = 1;
+    } else {
+      payload.created_by = 1;
+    }
+
+    return payload;
   };
 
   const areDiscountsValid = (): boolean => {
@@ -240,19 +243,6 @@ const PurchaseOrderForm = ({
     }
   };
 
-  const handlePriceChange = (selectedItem: Item, index: number): void => {
-    // Add to new price list (This will be sent to BE on SAVE)
-    if (selectedItem?.price !== undefined && selectedItem?.id !== undefined) {
-      setNewPrices([
-        ...newPrices,
-        {
-          id: selectedItem.id,
-          newPrice: selectedItem.price,
-        },
-      ]);
-    }
-  };
-
   const sendPriceChangeRequests = async (
     uniqueNewItemPrices: NewPriceInstance[],
   ): Promise<void> => {
@@ -284,11 +274,7 @@ const PurchaseOrderForm = ({
           modified_by: userId,
         };
 
-        const response = await axiosInstance.put(
-          `/api/items/${newPriceInstance.id}`,
-          payload,
-        );
-        console.log("Response: ", response);
+        await axiosInstance.put(`/api/items/${newPriceInstance.id}`, payload);
       });
 
       await Promise.all(requests);
@@ -331,7 +317,7 @@ const PurchaseOrderForm = ({
       await modifyCostOnPriceChange();
     }
 
-    const itemPayload = selectedItems
+    const itemPayload: POItemValues[] = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
@@ -341,37 +327,12 @@ const PurchaseOrderForm = ({
         total_price: Number(item.volume) * Number(item.price),
       }));
 
-    const payload = {
-      purchase_order_number: purchaseOrderNumber,
-      status,
-      transaction_date: transactionDate,
-      supplier_id: selectedSupplier?.supplier_id ?? 0,
-      fob_total: fobTotal,
-      currency_used: currencyUsed,
-      supplier_discount_1: discounts.supplier[0],
-      supplier_discount_2: discounts.supplier[1],
-      supplier_discount_3: discounts.supplier[2],
-      transaction_discount_1: discounts.transaction[0],
-      transaction_discount_2: discounts.transaction[1],
-      transaction_discount_3: discounts.transaction[2],
-      peso_rate: pesoRate,
-      net_amount: netAmount,
-      reference_number: referenceNumber,
-      landed_total: landedTotal,
-      remarks,
-      created_by: 1, // Set this based on the logged-in user
-      items: itemPayload,
-    };
+    const payload = createPayload(itemPayload, false);
     try {
-      console.log("payload: ", payload);
-      const response = await axiosInstance.post(
-        "/api/purchase_orders/",
-        payload,
-      );
+      await axiosInstance.post("/api/purchase_orders/", payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);
-      console.log("Response: ", response);
       // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
@@ -409,7 +370,7 @@ const PurchaseOrderForm = ({
       await modifyCostOnPriceChange();
     }
 
-    const itemPayload = selectedItems
+    const itemPayload: POItemValues[] = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
@@ -419,97 +380,18 @@ const PurchaseOrderForm = ({
         total_price: Number(item.volume) * Number(item.price),
       }));
 
-    const payload = {
-      purchase_order_number: purchaseOrderNumber,
-      status,
-      transaction_date: transactionDate,
-      supplier_id: selectedSupplier?.supplier_id ?? 0,
-      fob_total: fobTotal,
-      currency_used: currencyUsed,
-      supplier_discount_1: discounts.supplier[0],
-      supplier_discount_2: discounts.supplier[1],
-      supplier_discount_3: discounts.supplier[2],
-      transaction_discount_1: discounts.transaction[0],
-      transaction_discount_2: discounts.transaction[1],
-      transaction_discount_3: discounts.transaction[2],
-      peso_rate: pesoRate,
-      net_amount: netAmount,
-      reference_number: referenceNumber,
-      landed_total: landedTotal,
-      remarks,
-      modified_by: 1, // Set this based on the logged-in user
-      items: itemPayload,
-    };
+    const payload = createPayload(itemPayload, true);
     try {
-      console.log("payload: ", payload);
-      const response = await axiosInstance.put(
+      await axiosInstance.put(
         `/api/purchase_orders/${selectedRow?.id}`,
         payload,
       );
       setOpen(false);
       toast.success("Save successful!");
-      console.log("Response: ", response);
       // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
-  };
-
-  const fetchSelectedItem = (
-    event: any,
-    value: number,
-    index: number,
-  ): void => {
-    if (value !== undefined) {
-      const item = { ...items.find((item) => item.id === value) };
-
-      if (item !== undefined) {
-        // default to cost and 1 unit
-        item.price = item?.acquisition_cost;
-        item.volume = 1;
-      }
-
-      // We need to add the new item before the null item
-      const newSelectedItems = selectedItems.filter(
-        (selectedItem: Item) => selectedItem.id !== null,
-      );
-      newSelectedItems[index] = item;
-      newSelectedItems.push({ id: null });
-
-      setSelectedItems(newSelectedItems);
-    }
-  };
-
-  const handleRemoveItem = (index: number): void => {
-    if (selectedItems[index].id !== null) {
-      setSelectedItems(
-        selectedItems.filter((_: Item, i: number) => i !== index),
-      );
-    }
-  };
-
-  const addItemVolume = (value: number, index: number): void => {
-    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
-      if (i === index) {
-        return { ...item, volume: value };
-      }
-
-      return item;
-    });
-
-    setSelectedItems(newSelectedItems);
-  };
-
-  const addItemPrice = (value: number, index: number): void => {
-    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
-      if (i === index) {
-        return { ...item, price: value };
-      }
-
-      return item;
-    });
-
-    setSelectedItems(newSelectedItems);
   };
 
   return (
@@ -528,377 +410,44 @@ const PurchaseOrderForm = ({
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
       </div>
-      <Box sx={{ display: "flex" }}>
-        <Card className="w-[60%] mr-7">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              {openEdit && (
-                <div>
-                  <h4>PO No. {selectedRow?.id}</h4>
-                </div>
-              )}
-              <Button
-                className="w-[130px] h-[35px] bg-button-neutral"
-                size="sm"
-                color="neutral"
-              >
-                <LocalPrintshopIcon className="mr-2" />
-                Print
-              </Button>
-            </div>
-            <Divider />
-            <FormControl size="sm" sx={{ mb: 1, mt: 2 }}>
-              <FormLabel>Supplier</FormLabel>
-              <div className="flex">
-                <Autocomplete
-                  options={suppliers.items}
-                  getOptionLabel={(option) => option.name}
-                  value={selectedSupplier}
-                  onChange={(event, newValue) => {
-                    setSelectedSupplier(newValue);
-                    setSelectedItems(INITIAL_SELECTED_ITEMS);
-                  }}
-                  size="sm"
-                  className="w-[100%]"
-                  placeholder="Select Supplier"
-                  required
-                />
-              </div>
-            </FormControl>
-            <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Status</FormLabel>
-                <Select
-                  onChange={(event, value) => {
-                    if (value !== null) setStatus(value);
-                  }}
-                  size="sm"
-                  value={status}
-                >
-                  <Option value="pending">Pending</Option>
-                  <Option value="completed">Completed</Option>
-                  <Option value="cancelled">Cancelled</Option>
-                  <Option value="draft">Draft</Option>
-                </Select>
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Transaction Date</FormLabel>
-                <Input
-                  type="date"
-                  value={transactionDate}
-                  onChange={(e) => setTransactionDate(e.target.value)}
-                  required
-                />
-              </FormControl>
-            </Stack>
-            <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
-              {discounts.supplier.map((discount, index) => (
-                <Stack
-                  key={`discount-row-${index}`}
-                  direction="row"
-                  spacing={2}
-                >
-                  <FormControl size="sm" sx={{ width: "48%" }}>
-                    <FormLabel>{`Supplier Discount ${index + 1}`}</FormLabel>
-                    <Input
-                      value={discount}
-                      onChange={(e) =>
-                        handleDiscountChange("supplier", index, e.target.value)
-                      }
-                      placeholder="Enter % or actual discount"
-                      required
-                    />
-                  </FormControl>
-                  <FormControl size="sm" sx={{ width: "48%" }}>
-                    <FormLabel>{`Transaction Discount ${index + 1}`}</FormLabel>
-                    <Input
-                      value={discounts.transaction[index]}
-                      onChange={(e) =>
-                        handleDiscountChange(
-                          "transaction",
-                          index,
-                          e.target.value,
-                        )
-                      }
-                      placeholder="Enter % or actual discount"
-                      required
-                    />
-                  </FormControl>
-                </Stack>
-              ))}
-            </Stack>
-            <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Currency Used</FormLabel>
-                <Select
-                  onChange={(event, value) => {
-                    if (value !== null) setCurrencyUsed(value);
-                  }}
-                  size="sm"
-                  placeholder="USD"
-                  value={currencyUsed}
-                >
-                  {AVAILABLE_CURRENCIES.map((currency) => (
-                    <Option key={currency} value={currency}>
-                      {currency}
-                    </Option>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Philippine Peso Rate</FormLabel>
-                <Input
-                  startDecorator="₱"
-                  type="number"
-                  size="sm"
-                  placeholder="56"
-                  value={pesoRate}
-                  onChange={(e) => setPesoRate(Number(e.target.value))}
-                  slotProps={{
-                    input: {
-                      min: 0,
-                    },
-                  }}
-                  required
-                />
-              </FormControl>
-            </Stack>
-          </div>
-        </Card>
-        <Card className="w-[40%]">
-          <div>
-            <div className="flex justify-around">
-              <FormControl size="sm" sx={{ mb: 1 }}>
-                <FormLabel>FOB Total</FormLabel>
-                <h5>₱{fobTotal.toFixed(2)}</h5>{" "}
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1 }}>
-                <FormLabel>NET Amount</FormLabel>
-                <h5>₱{netAmount.toFixed(2)}</h5>
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1 }}>
-                <FormLabel>LANDED Total</FormLabel>
-                <h5>₱{landedTotal.toFixed(2)}</h5>
-              </FormControl>
-            </div>
-            <Divider />
-            <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Created by</FormLabel>
-                <p className="text-sm">Renzo Tan</p>
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Date Created</FormLabel>
-                <p className="text-sm">01/29/2024 11:55 AM</p>
-              </FormControl>
-            </Stack>
-            <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Modified by</FormLabel>
-                <p className="text-sm">Renzo Tan</p>
-              </FormControl>
-              <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                <FormLabel>Date Modified</FormLabel>
-                <p className="text-sm">01/29/2024 11:55 AM</p>
-              </FormControl>
-            </Stack>
-            <FormControl size="sm" sx={{ mb: 1, mt: 2.5 }}>
-              <FormLabel>Reference No.</FormLabel>
-              <Input
-                size="sm"
-                placeholder="Search"
-                onChange={(e) => setReferenceNumber(e.target.value)}
-                value={referenceNumber}
-                required
-              />
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 3 }}>
-              <FormLabel>Remarks</FormLabel>
-              <Textarea
-                minRows={7}
-                placeholder="Remarks"
-                onChange={(e) => setRemarks(e.target.value)}
-                value={remarks}
-                required
-              />
-            </FormControl>
-          </div>
-        </Card>
-      </Box>
-      <Sheet
-        sx={{
-          "--TableCell-height": "40px",
-          // the number is the amount of the header rows.
-          "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-          "--Table-firstColumnWidth": "150px",
-          "--Table-lastColumnWidth": "86px",
-          // background needs to have transparency to show the scrolling shadows
-          "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
-          "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
-          overflow: "auto",
-          borderRadius: 8,
-          marginTop: 3,
-          background: (
-            theme,
-          ) => `linear-gradient(to right, ${theme.vars.palette.background.surface} 30%, rgba(255, 255, 255, 0)),
-              linear-gradient(to right, rgba(255, 255, 255, 0), ${theme.vars.palette.background.surface} 70%) 0 100%,
-              radial-gradient(
-                farthest-side at 0 50%,
-                rgba(0, 0, 0, 0.12),
-                rgba(0, 0, 0, 0)
-              ),
-                0 100%`,
-          backgroundSize:
-            "40px calc(100% - var(--TableCell-height)), 40px calc(100% - var(--TableCell-height)), 14px calc(100% - var(--TableCell-height)), 14px calc(100% - var(--TableCell-height))",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "local, local, scroll, scroll",
-          backgroundPosition:
-            "var(--Table-firstColumnWidth) var(--TableCell-height), calc(100% - var(--Table-lastColumnWidth)) var(--TableCell-height), var(--Table-firstColumnWidth) var(--TableCell-height), calc(100% - var(--Table-lastColumnWidth)) var(--TableCell-height)",
-          backgroundColor: "background.surface",
-          maxHeight: "600px",
-        }}
-      >
-        <Table
-          className="h-5"
-          sx={{
-            "& tr > *:first-child": {
-              position: "sticky",
-              left: 0,
-              boxShadow: "1px 0 var(--TableCell-borderColor)",
-              bgcolor: "background.surface",
-            },
-            "& tr > *:last-child": {
-              position: "sticky",
-              right: 0,
-              bgcolor: "var(--TableCell-headBackground)",
-            },
-          }}
-          borderAxis="both"
-        >
-          <thead>
-            <tr>
-              <th
-                style={{
-                  width: "var(--Table-firstColumnWidth)",
-                }}
-              >
-                Selected Item
-              </th>
-              <th style={{ width: 300 }}>Stock Code</th>
-              <th style={{ width: 300 }}>Name</th>
-              <th style={{ width: 150 }}>Current Price</th>
-              <th style={{ width: 150 }}>Volume</th>
-              <th style={{ width: 150 }}>Price</th>
-              <th style={{ width: 150 }}>Gross</th>
-              <th
-                aria-label="last"
-                style={{ width: "var(--Table-lastColumnWidth)" }}
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {selectedItems.map((selectedItem: Item, index: number) => (
-              <tr key={`${selectedItem.id}-${index}`}>
-                {/* Modal for confirming price change */}
-                {indexOfModal === index && isConfirmOpen && (
-                  <ConfirmationModal
-                    open={isConfirmOpen}
-                    setOpen={setIsConfirmOpen}
-                    // Add function here that will change the price of acquisition cost
-                    onConfirm={() => handlePriceChange(selectedItem, index)}
-                    // When cancelled, revert back original price
-                    onCancel={() =>
-                      addItemPrice(selectedItem.acquisition_cost, index)
-                    }
-                    itemName={selectedItem.name}
-                  />
-                )}
-
-                <td style={{ zIndex: 1 }}>
-                  <Select
-                    onChange={(event, value) => {
-                      if (value !== null) {
-                        fetchSelectedItem(event, value, index);
-                      }
-                    }}
-                    className="mt-1 border-0"
-                    size="sm"
-                    placeholder="Select Item"
-                    value={selectedItem.id}
-                  >
-                    {items.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </td>
-                <td>{selectedItem?.stock_code}</td>
-                <td>{selectedItem?.name}</td>
-                <td>{selectedItem?.acquisition_cost}</td>
-                <td style={{ zIndex: 2 }}>
-                  {selectedItem?.id !== null && (
-                    <Input
-                      type="number"
-                      onChange={(e) =>
-                        addItemVolume(Number(e.target.value), index)
-                      }
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      value={selectedItem.volume}
-                      required
-                    />
-                  )}
-                </td>
-                <td style={{ zIndex: 2 }}>
-                  {selectedItem?.id !== null && (
-                    <Input
-                      type="number"
-                      value={selectedItem.price}
-                      slotProps={{
-                        input: {
-                          min: 0,
-                        },
-                      }}
-                      onChange={(e) =>
-                        addItemPrice(Number(e.target.value), index)
-                      }
-                      onBlur={(e) => {
-                        if (
-                          selectedItem.acquisition_cost !== selectedItem.price
-                        ) {
-                          setIndexOfModal(index);
-                          setIsConfirmOpen(true);
-                        }
-                      }}
-                    />
-                  )}
-                </td>
-                <td>
-                  {selectedItem?.id !== null &&
-                    Number(selectedItem?.price) * Number(selectedItem?.volume)}
-                </td>
-                <td>
-                  {selectedItem?.id !== null && (
-                    <Button
-                      size="sm"
-                      variant="soft"
-                      color="danger"
-                      className="bg-delete-red"
-                      onClick={() => handleRemoveItem(index)}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Sheet>
+      <POFormDetails
+        openEdit={openEdit}
+        selectedRow={selectedRow}
+        suppliers={suppliers}
+        // Fields
+        selectedSupplier={selectedSupplier}
+        setSelectedSupplier={setSelectedSupplier}
+        setSelectedItems={setSelectedItems}
+        status={status}
+        setStatus={setStatus}
+        transactionDate={transactionDate}
+        setTransactionDate={setTransactionDate}
+        discounts={discounts}
+        setDiscounts={setDiscounts}
+        remarks={remarks}
+        setRemarks={setRemarks}
+        referenceNumber={referenceNumber}
+        setReferenceNumber={setReferenceNumber}
+        currencyUsed={currencyUsed}
+        setCurrencyUsed={setCurrencyUsed}
+        pesoRate={pesoRate}
+        setPesoRate={setPesoRate}
+        // Summary Amounts
+        fobTotal={fobTotal}
+        netAmount={netAmount}
+        landedTotal={landedTotal}
+      />
+      <POFormTable
+        items={items}
+        selectedItems={selectedItems}
+        setSelectedItems={setSelectedItems}
+        indexOfModal={indexOfModal}
+        setIndexOfModal={setIndexOfModal}
+        newPrices={newPrices}
+        setNewPrices={setNewPrices}
+        isConfirmOpen={isConfirmOpen}
+        setIsConfirmOpen={setIsConfirmOpen}
+      />
       <Divider />
       <div className="flex justify-end mt-4">
         <Button

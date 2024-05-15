@@ -25,7 +25,6 @@ const PurchaseOrderMenu = (): JSX.Element => {
           openCreate={openCreate}
           openEdit={openEdit}
           selectedRow={selectedRow}
-          setSelectedRow={setSelectedRow}
           title="Edit Purchase Order"
         />
       )}

@@ -227,7 +227,6 @@ export interface PurchaseOrderFormProps {
   openCreate: boolean;
   openEdit: boolean;
   selectedRow?: PurchaseOrder;
-  setSelectedRow?: (purchaseOrder: PurchaseOrder) => void;
   title: string;
 }
 
@@ -376,9 +375,4 @@ export interface StockTransfer {
   };
   date_modified: string;
   items: POItems[];
-}
-
-export interface NewPriceInstance {
-  id: number;
-  newPrice: number;
 }
