@@ -38,6 +38,9 @@ const POFormTable = ({
         ...foundItem,
         price: foundItem.acquisition_cost ?? 0,
         volume: 1,
+        on_stock: 0,
+        allocated: 0,
+        available: 0,
       };
 
       // We need to add the new item before the null item

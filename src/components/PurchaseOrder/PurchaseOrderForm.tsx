@@ -206,8 +206,6 @@ const PurchaseOrderForm = ({
         ...foundItem,
         price: item.price,
         volume: item.volume,
-
-        // Fields for edit
         on_stock: item.on_stock,
         allocated: item.allocated,
         available: item.available,
