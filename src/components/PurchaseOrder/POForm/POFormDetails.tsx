@@ -13,8 +13,8 @@ import {
   Autocomplete,
 } from "@mui/joy";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
-import { AVAILABLE_CURRENCIES } from "../../constants";
-import type { POFormProps } from "./interface";
+import { AVAILABLE_CURRENCIES } from "../../../constants";
+import type { POFormProps } from "../interface";
 
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 

@@ -1,9 +1,9 @@
 import { Input, Button, Select, Option, Sheet } from "@mui/joy";
-import ConfirmationModal from "./ConfirmationModal";
+import ConfirmationModal from "../ConfirmationModal";
 import Table from "@mui/joy/Table";
 
-import type { Item } from "../../interface";
-import type { POFormTableProps } from "./interface";
+import type { Item } from "../../../interface";
+import type { POFormTableProps } from "../interface";
 
 const POFormTable = ({
   items,

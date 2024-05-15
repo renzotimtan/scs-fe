@@ -1,5 +1,5 @@
-import POFormDetails from "./POFormDetails";
-import POFormTable from "./POFormTable";
+import POFormDetails from "./POForm/POFormDetails";
+import POFormTable from "./POForm/POFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
@@ -8,6 +8,10 @@ import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import type { POPayload, POItemValues, NewPriceInstance } from "./interface";
 import type { User } from "../../pages/Login";
+import {
+  areDiscountsValid,
+  calculateTotalWithDiscounts,
+} from "./POForm/helpers";
 import type {
   PurchaseOrderFormProps,
   Supplier,
@@ -51,7 +55,6 @@ const PurchaseOrderForm = ({
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
-
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [indexOfModal, setIndexOfModal] = useState(0);
   const [newPrices, setNewPrices] = useState<NewPriceInstance[]>([]);
@@ -93,6 +96,7 @@ const PurchaseOrderForm = ({
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
 
+      // Get Supplier for Edit
       axiosInstance
         .get<Supplier>(`/api/suppliers/${selectedRow?.supplier_id}`)
         .then((response) => {
@@ -157,36 +161,6 @@ const PurchaseOrderForm = ({
     return payload;
   };
 
-  const areDiscountsValid = (): boolean => {
-    const isSupplierValid = discounts.supplier.every((str) =>
-      /^(\d+|\d+%?)$/.test(str),
-    );
-    const isTransactionValid = discounts.transaction.every((str) =>
-      /^(\d+|\d+%?)$/.test(str),
-    );
-
-    return isSupplierValid && isTransactionValid;
-  };
-
-  const calculateDiscount = (discountStr: string, total: number): number => {
-    if (discountStr.trim() === "") return 0;
-    if (discountStr.includes("%")) {
-      const percentage = parseFloat(discountStr.replace("%", ""));
-      return (percentage / 100) * total;
-    }
-    return parseFloat(discountStr);
-  };
-
-  const calculateTotalWithDiscounts = (
-    discountArray: string[],
-    initialTotal: number,
-  ): number => {
-    return discountArray.reduce(
-      (subtotal, discount) => subtotal - calculateDiscount(discount, subtotal),
-      initialTotal,
-    );
-  };
-
   const fobTotal: number = selectedItems.reduce((acc: number, item: Item) => {
     // Explicitly check for a valid number on id, and ensure price and volume are greater than zero.
     if (
@@ -215,6 +189,7 @@ const PurchaseOrderForm = ({
 
   const getAllPOItems = (): void => {
     const POItems = selectedRow?.items;
+    if (POItems === undefined) return;
 
     // If selected supplier is different from the selected row supplier (i.e. user edited supplier)
     // make PO blank
@@ -223,7 +198,7 @@ const PurchaseOrderForm = ({
       return;
     }
 
-    const selectedItems = POItems?.map((item) => {
+    const selectedItems = POItems.map((item) => {
       const id = item.item_id;
       const foundItem = items.find((i) => i.id === id);
 
@@ -236,11 +211,9 @@ const PurchaseOrderForm = ({
       return modifiedItem;
     });
 
-    if (selectedItems !== undefined) {
-      // @ts-expect-error (Used null instead of undefined.)
-      selectedItems?.push({ id: null });
-      setSelectedItems(selectedItems);
-    }
+    // @ts-expect-error (Used null instead of undefined.)
+    selectedItems?.push({ id: null });
+    setSelectedItems(selectedItems);
   };
 
   const sendPriceChangeRequests = async (
@@ -283,7 +256,7 @@ const PurchaseOrderForm = ({
     }
   };
 
-  const modifyCostOnPriceChange = async (): Promise<void> => {
+  const modifyItemCostOnPriceChange = async (): Promise<void> => {
     const uniqueItems: Record<number, NewPriceInstance> = {};
 
     // Get the biggest value if there is a duplicate
@@ -306,7 +279,7 @@ const PurchaseOrderForm = ({
       return;
     }
 
-    if (!areDiscountsValid()) {
+    if (!areDiscountsValid(discounts)) {
       toast.error(
         "Error: Discounts must be a positive number with or without %",
       );
@@ -314,7 +287,7 @@ const PurchaseOrderForm = ({
     }
 
     if (newPrices.length > 0) {
-      await modifyCostOnPriceChange();
+      await modifyItemCostOnPriceChange();
     }
 
     const itemPayload: POItemValues[] = selectedItems
@@ -339,27 +312,13 @@ const PurchaseOrderForm = ({
     }
   };
 
-  const resetForm = (): void => {
-    setSelectedSupplier(null);
-    setItems([]);
-    setSelectedItems(INITIAL_SELECTED_ITEMS);
-    setCurrencyUsed("USD");
-    setDiscounts(INITIAL_DISCOUNTS);
-    setPesoRate(56);
-    setPurchaseOrderNumber(0);
-    setStatus("pending");
-    setTransactionDate("");
-    setReferenceNumber("");
-    setRemarks("");
-  };
-
   const handleEditPurchaseOrder = async (): Promise<void> => {
     if (selectedItems.length === 1) {
       toast.error("Error: No Items Selected");
       return;
     }
 
-    if (!areDiscountsValid()) {
+    if (!areDiscountsValid(discounts)) {
       toast.error(
         "Error: Discounts must be a positive number with or without %",
       );
@@ -367,7 +326,7 @@ const PurchaseOrderForm = ({
     }
 
     if (newPrices.length > 0) {
-      await modifyCostOnPriceChange();
+      await modifyItemCostOnPriceChange();
     }
 
     const itemPayload: POItemValues[] = selectedItems
@@ -392,6 +351,20 @@ const PurchaseOrderForm = ({
     } catch (error: any) {
       toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
+  };
+
+  const resetForm = (): void => {
+    setSelectedSupplier(null);
+    setItems([]);
+    setSelectedItems(INITIAL_SELECTED_ITEMS);
+    setCurrencyUsed("USD");
+    setDiscounts(INITIAL_DISCOUNTS);
+    setPesoRate(56);
+    setPurchaseOrderNumber(0);
+    setStatus("pending");
+    setTransactionDate("");
+    setReferenceNumber("");
+    setRemarks("");
   };
 
   return (
