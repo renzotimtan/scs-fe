@@ -206,6 +206,11 @@ const PurchaseOrderForm = ({
         ...foundItem,
         price: item.price,
         volume: item.volume,
+
+        // Fields for edit
+        on_stock: item.on_stock,
+        allocated: item.allocated,
+        available: item.available,
       };
 
       return modifiedItem;
@@ -337,6 +342,11 @@ const PurchaseOrderForm = ({
         price: item.price,
         unserved_spo: item.volume,
         total_price: Number(item.volume) * Number(item.price),
+
+        // Fields needed only for edit
+        on_stock: item.on_stock,
+        allocated: item.allocated,
+        available: item.available,
       }));
 
     const payload = createPayload(itemPayload, true);

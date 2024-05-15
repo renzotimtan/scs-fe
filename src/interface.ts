@@ -32,8 +32,13 @@ export interface Item {
     email: string;
     id: number;
   };
+
+  // Fields for PO Functionality only
   volume?: number;
   price?: number;
+  on_stock?: number;
+  available?: number;
+  allocated?: number;
 }
 
 export interface DeleteModalProps {
@@ -241,7 +246,10 @@ export interface POItems {
   item_id: number;
   volume: number;
   price: number;
-  total_amount: number;
+  total_price: number;
+  on_stock: number;
+  available: number;
+  allocated: number;
 }
 
 export interface DeliveryReceipt {
