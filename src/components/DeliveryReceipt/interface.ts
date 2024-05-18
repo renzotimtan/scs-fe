@@ -6,11 +6,11 @@ import type {
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
-export interface POFormProps {
+export interface SDRFormDetailsProps {
   openEdit: boolean;
   selectedRow: PurchaseOrder | undefined;
   suppliers: PaginatedSuppliers;
-  setSelectedItems: Dispatch<SetStateAction<Item[]>>;
+  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
 
   // Fields
   selectedSupplier: Supplier | null;
@@ -19,19 +19,10 @@ export interface POFormProps {
   setStatus: Dispatch<SetStateAction<string>>;
   transactionDate: string;
   setTransactionDate: Dispatch<SetStateAction<string>>;
-  discounts: {
-    supplier: string[];
-    transaction: string[];
-  };
-  setDiscounts: Dispatch<SetStateAction<any>>;
   remarks: string;
   setRemarks: Dispatch<SetStateAction<string>>;
   referenceNumber: string;
   setReferenceNumber: Dispatch<SetStateAction<string>>;
-  currencyUsed: string;
-  setCurrencyUsed: Dispatch<SetStateAction<string>>;
-  pesoRate: number;
-  setPesoRate: Dispatch<SetStateAction<number>>;
 
   fobTotal: number;
   netAmount: number;
@@ -44,15 +35,15 @@ export interface NewPriceInstance {
 }
 
 export interface POFormTableProps {
-  items: Item[];
-  selectedItems: Item[];
-  setSelectedItems: Dispatch<SetStateAction<Item[]>>;
-  indexOfModal: number;
-  setIndexOfModal: Dispatch<SetStateAction<number>>;
-  newPrices: NewPriceInstance[];
-  setNewPrices: Dispatch<SetStateAction<NewPriceInstance[]>>;
-  isConfirmOpen: boolean;
-  setIsConfirmOpen: Dispatch<SetStateAction<boolean>>;
+  // items: Item[];
+  selectedPOs: PurchaseOrder[];
+  // setSelectedPOItems: Dispatch<SetStateAction<POItems[]>>;
+  // indexOfModal: number;
+  // setIndexOfModal: Dispatch<SetStateAction<number>>;
+  // newPrices: NewPriceInstance[];
+  // setNewPrices: Dispatch<SetStateAction<NewPriceInstance[]>>;
+  // isConfirmOpen: boolean;
+  // setIsConfirmOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface POPayload {
@@ -74,13 +65,7 @@ export interface POPayload {
   remarks: string;
   created_by?: number;
   modified_by?: number;
-  items: Array<{
-    item_id: number;
-    volume: number;
-    unserved_spo: number;
-    price: number;
-    total_price: number;
-  }>;
+  items: Item[];
 }
 
 export interface POItemValues {

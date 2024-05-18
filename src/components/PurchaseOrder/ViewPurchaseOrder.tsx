@@ -194,9 +194,9 @@ const ViewPurchaseOrder = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  PO Number
+                  PO No.
                 </th>
-                <th style={{ width: 200 }}>Reference Number</th>
+                <th style={{ width: 200 }}>Reference No.</th>
                 <th style={{ width: 300 }}>Status</th>
                 <th style={{ width: 300 }}>Supplier</th>
                 <th style={{ width: 250 }}>Transaction Date</th>

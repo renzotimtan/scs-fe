@@ -4,7 +4,7 @@ import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
 import type { DeleteModalProps } from "../../interface";
 
-const DeletePurchaseOrderModal = ({
+const DeleteDeliveryReceiptModal = ({
   open,
   title,
   setOpen,
@@ -67,4 +67,4 @@ const DeletePurchaseOrderModal = ({
   );
 };
 
-export default DeletePurchaseOrderModal;
+export default DeleteDeliveryReceiptModal;

@@ -125,6 +125,11 @@ export interface PaginatedPO {
   items: PurchaseOrder[];
 }
 
+export interface PaginatedSDR {
+  total: number;
+  items: DeliveryReceipt[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -190,7 +195,6 @@ export interface WarehouseItem {
 
 export interface PurchaseOrder {
   id: number;
-  purchase_order_number: number;
   supplier_id: number;
   status: string;
   transaction_date: string;
@@ -241,35 +245,40 @@ export interface ViewPurchaseOrderProps {
   selectedRow: PurchaseOrder | undefined;
   setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
 }
+export interface ViewDeliveryReceiptProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: DeliveryReceipt | undefined;
+  setSelectedRow: (deliveryReceipt: DeliveryReceipt) => void;
+}
 
 export interface POItems {
+  // Discrepancy between item_id, id
   item_id: number;
+  id: number;
+
+  purchase_order_id: number;
   volume: number;
   price: number;
   total_price: number;
   on_stock: number;
   available: number;
   allocated: number;
+  unserved_spo: number;
+  item: Item;
 }
 
 export interface DeliveryReceipt {
   id: number;
-  purchase_order_number: number;
   supplier_id: number;
-  status: string;
   transaction_date: string;
-  supplier_discount_1: string;
-  transaction_discount_1: string;
-  supplier_discount_2: string;
-  transaction_discount_2: string;
-  supplier_discount_3: string;
-  transaction_discount_3: string;
-  currency_used: string;
-  peso_rate: number;
+  status: string;
+  supplier_discount_amount: number;
+  transaction_discount_amount: number;
   net_amount: number;
   fob_total: number;
   landed_total: number;
-  reference_number: string;
+  reference_no: string;
   remarks: string;
   supplier: Supplier;
   created_by: number;
@@ -288,7 +297,7 @@ export interface DeliveryReceipt {
     id: number;
   };
   date_modified: string;
-  items: POItems[];
+  purchase_order_items: POItems[];
 }
 
 export interface DeliveryReceiptFormProps {

@@ -49,7 +49,6 @@ const PurchaseOrderForm = ({
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [discounts, setDiscounts] = useState(INITIAL_DISCOUNTS);
   const [pesoRate, setPesoRate] = useState<number>(56);
-  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<number>(0);
   const [status, setStatus] = useState("pending");
   const [transactionDate, setTransactionDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -90,7 +89,6 @@ const PurchaseOrderForm = ({
         ],
       });
       setPesoRate(selectedRow?.peso_rate ?? 56);
-      setPurchaseOrderNumber(selectedRow?.purchase_order_number ?? 0);
       setStatus(selectedRow?.status ?? "pending");
       setTransactionDate(selectedRow?.transaction_date ?? "");
       setReferenceNumber(selectedRow?.reference_number ?? "");
@@ -132,7 +130,6 @@ const PurchaseOrderForm = ({
     isEdit: boolean,
   ): POPayload => {
     const payload: POPayload = {
-      purchase_order_number: purchaseOrderNumber,
       status,
       transaction_date: transactionDate,
       supplier_id: selectedSupplier?.supplier_id ?? 0,
@@ -368,7 +365,6 @@ const PurchaseOrderForm = ({
     setCurrencyUsed("USD");
     setDiscounts(INITIAL_DISCOUNTS);
     setPesoRate(56);
-    setPurchaseOrderNumber(0);
     setStatus("pending");
     setTransactionDate("");
     setReferenceNumber("");
