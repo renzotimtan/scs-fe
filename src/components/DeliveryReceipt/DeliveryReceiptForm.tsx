@@ -33,9 +33,15 @@ const PurchaseOrderForm = ({
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
-  const fobTotal = 0;
-  const netAmount = 0;
-  const landedTotal = 0;
+
+  const [totalGross, setTotalGross] = useState(0);
+  const [totalNet, setTotalNet] = useState(0);
+  const [amountDiscount, setAmountDiscount] = useState(0);
+
+  const pesoRate = selectedPOs.length > 0 ? selectedPOs[0].peso_rate : 0;
+  const fobTotal = totalGross;
+  const netAmount = totalNet - amountDiscount;
+  const landedTotal = netAmount * pesoRate;
 
   useEffect(() => {
     // Fetch suppliers
@@ -67,6 +73,7 @@ const PurchaseOrderForm = ({
         // Fields
         selectedSupplier={selectedSupplier}
         setSelectedSupplier={setSelectedSupplier}
+        selectedPOs={selectedPOs}
         setSelectedPOs={setSelectedPOs}
         status={status}
         setStatus={setStatus}
@@ -80,8 +87,16 @@ const PurchaseOrderForm = ({
         fobTotal={fobTotal}
         netAmount={netAmount}
         landedTotal={landedTotal}
+        amountDiscount={amountDiscount}
+        setAmountDiscount={setAmountDiscount}
       />
-      <POFormTable selectedPOs={selectedPOs} />
+      <POFormTable
+        selectedPOs={selectedPOs}
+        setSelectedPOs={setSelectedPOs}
+        totalNet={totalNet}
+        setTotalNet={setTotalNet}
+        setTotalGross={setTotalGross}
+      />
       <Divider />
       <div className="flex justify-end mt-4">
         <Button

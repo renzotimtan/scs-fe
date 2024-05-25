@@ -86,6 +86,8 @@ const SelectPOModal = ({
                       />
                     </ListItem>
                   ))}
+                {(unservedPOs === undefined || unservedPOs.length === 0) &&
+                  "No Purchase Orders with Unserved Quantities"}
               </List>
             </div>
             <div className="flex justify-end mt-5">

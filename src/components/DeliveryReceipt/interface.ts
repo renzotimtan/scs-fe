@@ -10,6 +10,7 @@ export interface SDRFormDetailsProps {
   openEdit: boolean;
   selectedRow: PurchaseOrder | undefined;
   suppliers: PaginatedSuppliers;
+  selectedPOs: PurchaseOrder[];
   setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
 
   // Fields
@@ -27,6 +28,8 @@ export interface SDRFormDetailsProps {
   fobTotal: number;
   netAmount: number;
   landedTotal: number;
+  amountDiscount: number;
+  setAmountDiscount: Dispatch<SetStateAction<number>>;
 }
 
 export interface NewPriceInstance {
@@ -35,15 +38,16 @@ export interface NewPriceInstance {
 }
 
 export interface POFormTableProps {
-  // items: Item[];
   selectedPOs: PurchaseOrder[];
-  // setSelectedPOItems: Dispatch<SetStateAction<POItems[]>>;
-  // indexOfModal: number;
-  // setIndexOfModal: Dispatch<SetStateAction<number>>;
-  // newPrices: NewPriceInstance[];
-  // setNewPrices: Dispatch<SetStateAction<NewPriceInstance[]>>;
-  // isConfirmOpen: boolean;
-  // setIsConfirmOpen: Dispatch<SetStateAction<boolean>>;
+  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
+}
+
+export interface SDRFormTableProps {
+  selectedPOs: PurchaseOrder[];
+  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
+  totalNet: number;
+  setTotalNet: Dispatch<SetStateAction<number>>;
+  setTotalGross: Dispatch<SetStateAction<number>>;
 }
 
 export interface POPayload {

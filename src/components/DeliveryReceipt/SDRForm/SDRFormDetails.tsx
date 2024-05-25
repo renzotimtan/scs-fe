@@ -23,6 +23,7 @@ const SDRFormDetails = ({
   openEdit,
   selectedRow,
   suppliers,
+  selectedPOs,
   setSelectedPOs,
 
   // Fields
@@ -41,9 +42,51 @@ const SDRFormDetails = ({
   fobTotal,
   netAmount,
   landedTotal,
+  amountDiscount,
+  setAmountDiscount,
 }: SDRFormDetailsProps): JSX.Element => {
   const [unservedPOs, setUnservedPOs] = useState<PurchaseOrder[]>([]);
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
+
+  const isAmtDiscountAlreadyApplied = (PO: PurchaseOrder): boolean => {
+    for (const POItem of PO.items) {
+      // If on stock increased, meaning this PO has already been handled before
+      if (POItem.on_stock > 0) return true;
+    }
+    return false;
+  };
+
+  const getFixedAmtDiscounts = (): void => {
+    let total = 0;
+
+    for (const PO of selectedPOs) {
+      // Check if this is not the first SDR with this PO
+      // to apply the amount discount
+      if (isAmtDiscountAlreadyApplied(PO)) {
+        continue;
+      }
+
+      if (!PO.supplier_discount_1.includes("%"))
+        total += Number(PO.supplier_discount_1);
+
+      if (!PO.supplier_discount_2.includes("%"))
+        total += Number(PO.supplier_discount_2);
+
+      if (!PO.supplier_discount_3.includes("%"))
+        total += Number(PO.supplier_discount_3);
+
+      if (!PO.transaction_discount_1.includes("%"))
+        total += Number(PO.transaction_discount_1);
+
+      if (!PO.transaction_discount_2.includes("%"))
+        total += Number(PO.transaction_discount_2);
+
+      if (!PO.transaction_discount_3.includes("%"))
+        total += Number(PO.transaction_discount_3);
+    }
+
+    setAmountDiscount(total);
+  };
 
   useEffect(() => {
     if (selectedSupplier !== null && selectedSupplier !== undefined) {
@@ -55,6 +98,10 @@ const SDRFormDetails = ({
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedSupplier]);
+
+  useEffect(() => {
+    getFixedAmtDiscounts();
+  }, [selectedPOs]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -129,26 +176,8 @@ const SDRFormDetails = ({
           <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
             <Stack direction="row" spacing={2}>
               <FormControl size="sm" sx={{ width: "48%" }}>
-                <FormLabel>Supplier Discount</FormLabel>
-                <Input
-                  // value={discount}
-                  // onChange={(e) =>
-                  //   handleDiscountChange("supplier", index, e.target.value)
-                  // }
-                  value={0}
-                  disabled
-                />
-              </FormControl>
-              <FormControl size="sm" sx={{ width: "48%" }}>
-                <FormLabel>Transaction Discount</FormLabel>
-                <Input
-                  // value={discounts.transaction[index]}
-                  // onChange={(e) =>
-                  //   handleDiscountChange("transaction", index, e.target.value)
-                  // }
-                  value={0}
-                  disabled
-                />
+                <FormLabel>Amount Discounts Total</FormLabel>
+                <Textarea value={amountDiscount} disabled />
               </FormControl>
             </Stack>
           </Stack>
@@ -214,7 +243,7 @@ const SDRFormDetails = ({
           <FormControl size="sm" sx={{ mb: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
-              minRows={4}
+              minRows={3}
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}

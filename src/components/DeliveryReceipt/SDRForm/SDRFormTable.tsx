@@ -1,9 +1,127 @@
-import { Sheet } from "@mui/joy";
+import { Sheet, Input } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
-import type { POFormTableProps } from "../interface";
+import type { SDRFormTableProps } from "../interface";
+import { useEffect, useState } from "react";
+import type { POItems, PurchaseOrder } from "../../../interface";
 
-const POFormTable = ({ selectedPOs }: POFormTableProps): JSX.Element => {
+const SDRFormTable = ({
+  selectedPOs,
+  setSelectedPOs,
+  totalNet,
+  setTotalNet,
+  setTotalGross,
+}: SDRFormTableProps): JSX.Element => {
+  const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
+  const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
+  const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    // Setup default served amounts
+    const defaultServe: Record<string, number> = {};
+    selectedPOs.forEach((PO, index1) => {
+      PO.items.forEach((POItem, index2) => {
+        defaultServe[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
+      });
+    });
+    setServedAmt(defaultServe);
+
+    // Setup default gross per row
+    const defaultTotalPerRow: Record<string, number> = {};
+    selectedPOs.forEach((PO, index1) => {
+      PO.items.forEach((POItem, index2) => {
+        defaultTotalPerRow[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
+      });
+    });
+    setNetPerRow(defaultTotalPerRow);
+    setGrossPerRow(defaultTotalPerRow);
+  }, [selectedPOs]);
+
+  useEffect(() => {
+    const total = Object.values(netPerRow).reduce((acc, curr) => acc + curr, 0);
+    setTotalNet(total);
+  }, [netPerRow]);
+
+  useEffect(() => {
+    const total = Object.values(grossPerRow).reduce(
+      (acc, curr) => acc + curr,
+      0,
+    );
+    setTotalGross(total);
+  }, [grossPerRow]);
+
+  const calculateNetForRow = (
+    newValue: number,
+    POItem: POItems,
+    PO: PurchaseOrder,
+  ): number => {
+    let result = newValue * POItem.price;
+
+    if (PO.supplier_discount_1.includes("%")) {
+      const sd1 = PO.supplier_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(sd1) / 100);
+    }
+
+    if (PO.supplier_discount_2.includes("%")) {
+      const sd2 = PO.supplier_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(sd2) / 100);
+    }
+
+    if (PO.supplier_discount_3.includes("%")) {
+      const sd3 = PO.supplier_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(sd3) / 100);
+    }
+
+    if (PO.transaction_discount_1.includes("%")) {
+      const td1 = PO.transaction_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(td1) / 100);
+    }
+
+    if (PO.transaction_discount_2.includes("%")) {
+      const td2 = PO.transaction_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(td2) / 100);
+    }
+
+    if (PO.transaction_discount_3.includes("%")) {
+      const td3 = PO.transaction_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(td3) / 100);
+    }
+
+    if (isNaN(result)) return 0;
+
+    return result;
+  };
+
+  const calculateGrossPerRow = (newValue: number, POItem: POItems): number => {
+    const result = newValue * POItem.price;
+    if (isNaN(result)) return 0;
+    return result;
+  };
+
+  const handleServedInputChange = (
+    event: any,
+    key: string,
+    index1: number,
+    index2: number,
+    PO: PurchaseOrder,
+    POItem: POItems,
+  ): void => {
+    const newValue = Number(event.target.value);
+
+    // Set served amount to get gross
+    setServedAmt({
+      ...servedAmt,
+      [key]: newValue,
+    });
+
+    // Calculate net for that row
+    const newNet = calculateNetForRow(newValue, POItem, PO);
+    setNetPerRow({ ...netPerRow, [key]: newNet });
+
+    const newGross = calculateGrossPerRow(newValue, POItem);
+    setGrossPerRow({ ...grossPerRow, [key]: newGross });
+  };
+
   return (
     <Sheet
       sx={{
@@ -47,11 +165,6 @@ const POFormTable = ({ selectedPOs }: POFormTableProps): JSX.Element => {
             boxShadow: "1px 0 var(--TableCell-borderColor)",
             bgcolor: "background.surface",
           },
-          // "& tr > *:last-child": {
-          //   position: "sticky",
-          //   right: 0,
-          //   bgcolor: "var(--TableCell-headBackground)",
-          // },
         }}
         borderAxis="both"
       >
@@ -69,67 +182,96 @@ const POFormTable = ({ selectedPOs }: POFormTableProps): JSX.Element => {
             <th style={{ width: 150 }}>PO Qty.</th>
             <th style={{ width: 150 }}>Unserved Qty.</th>
             <th style={{ width: 150 }}>Price</th>
-            <th style={{ width: 150 }}>Srv. Qty.</th>
-            <th style={{ width: 150 }}>Supp. Disc. 1</th>
-            <th style={{ width: 150 }}>Supp. Disc. 2</th>
-            <th style={{ width: 150 }}>Supp. Disc. 3</th>
-            <th style={{ width: 150 }}>Tran. Disc. 1</th>
-            <th style={{ width: 150 }}>Tran. Disc. 2</th>
-            <th style={{ width: 150 }}>Tran. Disc. 3</th>
+            <th style={{ width: 150 }}>Served Qty.</th>
             <th style={{ width: 150 }}>Gross</th>
+            <th style={{ width: 150 }}>Supp. Disc. 1 (%)</th>
+            <th style={{ width: 150 }}>Supp. Disc. 2 (%)</th>
+            <th style={{ width: 150 }}>Supp. Disc. 3 (%)</th>
+            <th style={{ width: 150 }}>Tran. Disc. 1 (%)</th>
+            <th style={{ width: 150 }}>Tran. Disc. 2 (%)</th>
+            <th style={{ width: 150 }}>Tran. Disc. 3 (%)</th>
+            <th style={{ width: 150 }}>NET</th>
             <th style={{ width: 150 }}>Currency</th>
             <th style={{ width: 150 }}>Peso Rate</th>
-            {/* <th
-              aria-label="last"
-              style={{ width: "var(--Table-lastColumnWidth)" }}
-            /> */}
           </tr>
         </thead>
         <tbody>
           {selectedPOs.map((PO, index1) => {
             return PO.items.map((POItem, index2) => {
+              const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
               return (
-                <tr key={`${POItem.id}-${index1}-${index2}`}>
-                  <td>{PO.id}</td>
+                <tr key={key}>
+                  <td style={{ zIndex: 1 }}>{PO.id}</td>
                   <td>{POItem?.item.stock_code}</td>
                   <td>{POItem?.item.name}</td>
                   <td>{POItem.volume}</td>
                   <td>{POItem?.unserved_spo}</td>
                   <td>{POItem?.price}</td>
-                  <td>served quantity</td>
-                  <td>{PO.supplier_discount_1}</td>
-                  <td>{PO.supplier_discount_2}</td>
-                  <td>{PO.supplier_discount_3}</td>
-                  <td>{PO.transaction_discount_1}</td>
-                  <td>{PO.transaction_discount_2}</td>
-                  <td>{PO.transaction_discount_3}</td>
-                  <td>Gross</td>
+                  <td>
+                    <Input
+                      type="number"
+                      onChange={(event) =>
+                        handleServedInputChange(
+                          event,
+                          key,
+                          index1,
+                          index2,
+                          PO,
+                          POItem,
+                        )
+                      }
+                      slotProps={{
+                        input: {
+                          min: 0,
+                          max: POItem.unserved_spo,
+                        },
+                      }}
+                      value={servedAmt[key]}
+                      required
+                    />
+                  </td>
+                  <td>{grossPerRow[key]}</td>
+                  <td>
+                    {PO.supplier_discount_1.includes("%")
+                      ? PO.supplier_discount_1
+                      : 0}
+                  </td>
+                  <td>
+                    {PO.supplier_discount_2.includes("%")
+                      ? PO.supplier_discount_2
+                      : 0}
+                  </td>
+                  <td>
+                    {PO.supplier_discount_3.includes("%")
+                      ? PO.supplier_discount_3
+                      : 0}
+                  </td>
+                  <td>
+                    {PO.transaction_discount_1.includes("%")
+                      ? PO.transaction_discount_1
+                      : 0}
+                  </td>
+                  <td>
+                    {PO.transaction_discount_2.includes("%")
+                      ? PO.transaction_discount_2
+                      : 0}
+                  </td>
+                  <td>
+                    {PO.transaction_discount_3.includes("%")
+                      ? PO.transaction_discount_3
+                      : 0}
+                  </td>
+                  <td>{netPerRow[key]}</td>
                   <td>{PO.currency_used}</td>
                   <td>{PO.peso_rate}</td>
                 </tr>
               );
             });
           })}
-          {/* {selectedPOItems.map((selectedPOItem: POItems, index: number) => (
-            <tr key={`${selectedPOItem.id}-${index}`}>
-              <td>{selectedPOItem.purchase_order_id}</td>
-              <td>{selectedPOItem?.item.stock_code}</td>
-              <td>{selectedPOItem?.item.name}</td>
-              <td>PO Qty.</td>
-              <td>{selectedPOItem?.unserved_spo}</td>
-              <td>{selectedPOItem?.price}</td>
-              <td>Served Quantity</td>
-              <td>Supp Disc</td>
-              <td>Tran Disc</td>
-              <td>Gross</td>
-              <td>Currency</td>
-              <td>Peso Rate</td>
-            </tr>
-          ))} */}
         </tbody>
       </Table>
     </Sheet>
   );
 };
 
-export default POFormTable;
+export default SDRFormTable;
