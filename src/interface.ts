@@ -239,6 +239,14 @@ export interface PurchaseOrderFormProps {
   title: string;
 }
 
+export interface SDRFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: DeliveryReceipt;
+  title: string;
+}
+
 export interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;

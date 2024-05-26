@@ -123,10 +123,9 @@ const ViewDeliveryReceipt = ({
             value={status}
           >
             <Option value="all">All</Option>
-            <Option value="pending">Pending</Option>
-            <Option value="completed">Completed</Option>
-            <Option value="cancelled">Cancelled</Option>
-            <Option value="draft">Draft</Option>
+            <Option value="unposted">Unposted</Option>
+            <Option value="posted">Posted</Option>
+            <Option value="archived">Archived</Option>
           </Select>
           <Button
             onClick={getAllSDR}

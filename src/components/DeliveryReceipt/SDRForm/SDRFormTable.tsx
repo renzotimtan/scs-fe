@@ -9,32 +9,25 @@ const SDRFormTable = ({
   selectedPOs,
   setSelectedPOs,
   totalNet,
+  servedAmt,
+  setServedAmt,
   setTotalNet,
   setTotalGross,
 }: SDRFormTableProps): JSX.Element => {
-  const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
   const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    // Setup default served amounts
-    const defaultServe: Record<string, number> = {};
+    // Instantiate state per row
+    const defaultPerRow: Record<string, number> = {};
     selectedPOs.forEach((PO, index1) => {
       PO.items.forEach((POItem, index2) => {
-        defaultServe[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
+        defaultPerRow[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
       });
     });
-    setServedAmt(defaultServe);
-
-    // Setup default gross per row
-    const defaultTotalPerRow: Record<string, number> = {};
-    selectedPOs.forEach((PO, index1) => {
-      PO.items.forEach((POItem, index2) => {
-        defaultTotalPerRow[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
-      });
-    });
-    setNetPerRow(defaultTotalPerRow);
-    setGrossPerRow(defaultTotalPerRow);
+    setNetPerRow(defaultPerRow);
+    setGrossPerRow(defaultPerRow);
+    setServedAmt(defaultPerRow);
   }, [selectedPOs]);
 
   useEffect(() => {
@@ -101,8 +94,6 @@ const SDRFormTable = ({
   const handleServedInputChange = (
     event: any,
     key: string,
-    index1: number,
-    index2: number,
     PO: PurchaseOrder,
     POItem: POItems,
   ): void => {
@@ -183,14 +174,14 @@ const SDRFormTable = ({
             <th style={{ width: 150 }}>Unserved Qty.</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Served Qty.</th>
-            <th style={{ width: 150 }}>Gross</th>
+            <th style={{ width: 150 }}>Gross Amount</th>
             <th style={{ width: 150 }}>Supp. Disc. 1 (%)</th>
             <th style={{ width: 150 }}>Supp. Disc. 2 (%)</th>
             <th style={{ width: 150 }}>Supp. Disc. 3 (%)</th>
             <th style={{ width: 150 }}>Tran. Disc. 1 (%)</th>
             <th style={{ width: 150 }}>Tran. Disc. 2 (%)</th>
             <th style={{ width: 150 }}>Tran. Disc. 3 (%)</th>
-            <th style={{ width: 150 }}>NET</th>
+            <th style={{ width: 150 }}>NET Amount</th>
             <th style={{ width: 150 }}>Currency</th>
             <th style={{ width: 150 }}>Peso Rate</th>
           </tr>
@@ -211,14 +202,7 @@ const SDRFormTable = ({
                     <Input
                       type="number"
                       onChange={(event) =>
-                        handleServedInputChange(
-                          event,
-                          key,
-                          index1,
-                          index2,
-                          PO,
-                          POItem,
-                        )
+                        handleServedInputChange(event, key, PO, POItem)
                       }
                       slotProps={{
                         input: {

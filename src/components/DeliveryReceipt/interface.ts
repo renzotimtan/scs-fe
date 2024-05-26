@@ -3,12 +3,13 @@ import type {
   Supplier,
   PaginatedSuppliers,
   Item,
+  DeliveryReceipt,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
 export interface SDRFormDetailsProps {
   openEdit: boolean;
-  selectedRow: PurchaseOrder | undefined;
+  selectedRow: DeliveryReceipt | undefined;
   suppliers: PaginatedSuppliers;
   selectedPOs: PurchaseOrder[];
   setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
@@ -46,6 +47,8 @@ export interface SDRFormTableProps {
   selectedPOs: PurchaseOrder[];
   setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
   totalNet: number;
+  servedAmt: Record<string, number>;
+  setServedAmt: Dispatch<SetStateAction<Record<string, number>>>;
   setTotalNet: Dispatch<SetStateAction<number>>;
   setTotalGross: Dispatch<SetStateAction<number>>;
 }

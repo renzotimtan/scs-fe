@@ -1,25 +1,26 @@
 import SDRFormDetails from "./SDRForm/SDRFormDetails";
-import POFormTable from "./SDRForm/SDRFormTable";
+import SDRFormTable from "./SDRForm/SDRFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
+import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
 import type {
-  PurchaseOrderFormProps,
+  SDRFormProps,
   Supplier,
   PaginatedSuppliers,
   PurchaseOrder,
 } from "../../interface";
 
-const PurchaseOrderForm = ({
+const DeliveryReceiptForm = ({
   setOpen,
   openCreate,
   openEdit,
   selectedRow,
   title,
-}: PurchaseOrderFormProps): JSX.Element => {
+}: SDRFormProps): JSX.Element => {
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -28,7 +29,7 @@ const PurchaseOrderForm = ({
     null,
   );
   const [selectedPOs, setSelectedPOs] = useState<PurchaseOrder[]>([]);
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -37,7 +38,7 @@ const PurchaseOrderForm = ({
   const [totalGross, setTotalGross] = useState(0);
   const [totalNet, setTotalNet] = useState(0);
   const [amountDiscount, setAmountDiscount] = useState(0);
-
+  const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
   const pesoRate = selectedPOs.length > 0 ? selectedPOs[0].peso_rate : 0;
   const fobTotal = totalGross;
   const netAmount = totalNet - amountDiscount;
@@ -57,10 +58,69 @@ const PurchaseOrderForm = ({
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
+  const resetForm = (): void => {
+    setSelectedSupplier(null);
+    setSelectedPOs([]);
+    setStatus("unposted");
+    setTransactionDate("");
+    setReferenceNumber("");
+    setRemarks("");
+  };
+
+  const handleCreateDeliveryReceipt = async (): Promise<void> => {
+    const payload = {
+      sdr_data: {
+        status,
+        transaction_date: transactionDate,
+        fob_total: fobTotal,
+        net_amount: netAmount,
+        landed_total: landedTotal,
+        reference_number: referenceNumber,
+        remarks,
+        date_created: new Date().toISOString(),
+        created_by: userId,
+      },
+      items_data: selectedPOs.flatMap((PO, index1) =>
+        PO.items.map((POItem, index2) => {
+          const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+          return {
+            purchase_order_id: PO.id,
+            item_id: POItem.item_id,
+            volume: POItem.volume,
+            price: POItem.price,
+            total_price: POItem.total_price,
+            id: POItem.id,
+            unserved_spo:
+              status === "posted"
+                ? POItem.unserved_spo - servedAmt[key]
+                : POItem.unserved_spo,
+            on_stock:
+              status === "posted"
+                ? POItem.on_stock + servedAmt[key]
+                : POItem.on_stock,
+            available: POItem.available,
+            allocated: POItem.allocated,
+          };
+        }),
+      ),
+    };
+
+    try {
+      await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
+  };
+
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
+        if (openCreate) await handleCreateDeliveryReceipt();
       }}
     >
       <div className="flex justify-between">
@@ -90,10 +150,12 @@ const PurchaseOrderForm = ({
         amountDiscount={amountDiscount}
         setAmountDiscount={setAmountDiscount}
       />
-      <POFormTable
+      <SDRFormTable
         selectedPOs={selectedPOs}
         setSelectedPOs={setSelectedPOs}
         totalNet={totalNet}
+        servedAmt={servedAmt}
+        setServedAmt={setServedAmt}
         setTotalNet={setTotalNet}
         setTotalGross={setTotalGross}
       />
@@ -123,4 +185,4 @@ const PurchaseOrderForm = ({
   );
 };
 
-export default PurchaseOrderForm;
+export default DeliveryReceiptForm;

@@ -16,7 +16,7 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import type { SDRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
-import type { PurchaseOrder } from "../../../interface";
+import type { PurchaseOrder, Supplier } from "../../../interface";
 import SelectPOModal from "./SelectPOModal";
 
 const SDRFormDetails = ({
@@ -51,7 +51,8 @@ const SDRFormDetails = ({
   const isAmtDiscountAlreadyApplied = (PO: PurchaseOrder): boolean => {
     for (const POItem of PO.items) {
       // If on stock increased, meaning this PO has already been handled before
-      if (POItem.on_stock > 0) return true;
+      if (POItem.on_stock > 0 || POItem.allocated > 0 || POItem.available > 0)
+        return true;
     }
     return false;
   };
@@ -98,6 +99,26 @@ const SDRFormDetails = ({
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedSupplier]);
+
+  useEffect(() => {
+    // Set fields for Edit
+    const supplierID = selectedRow?.purchase_order_items[0].item.supplier_id;
+
+    if (selectedRow !== null && supplierID !== undefined) {
+      setStatus(selectedRow?.status ?? "unposted");
+      setTransactionDate(selectedRow?.transaction_date.slice(0, 10) ?? "");
+      setReferenceNumber(selectedRow?.reference_no ?? "");
+      setRemarks(selectedRow?.remarks ?? "");
+
+      // Get Supplier for Edit
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${supplierID}`)
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow]);
 
   useEffect(() => {
     getFixedAmtDiscounts();
@@ -157,10 +178,8 @@ const SDRFormDetails = ({
                 size="sm"
                 value={status}
               >
-                <Option value="pending">Pending</Option>
-                <Option value="completed">Completed</Option>
-                <Option value="cancelled">Cancelled</Option>
-                <Option value="draft">Draft</Option>
+                <Option value="posted">Posted</Option>
+                <Option value="unposted">Unposted</Option>
               </Select>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -243,7 +262,7 @@ const SDRFormDetails = ({
           <FormControl size="sm" sx={{ mb: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
-              minRows={3}
+              minRows={5}
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
