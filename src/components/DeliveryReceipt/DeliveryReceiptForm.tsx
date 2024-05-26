@@ -64,7 +64,7 @@ const DeliveryReceiptForm = ({
 
     if (selectedRow !== null) {
       setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date.slice(0, 10) ?? "");
+      setTransactionDate(selectedRow?.transaction_date ?? "");
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
 
@@ -99,9 +99,9 @@ const DeliveryReceiptForm = ({
         fob_total: fobTotal,
         net_amount: netAmount,
         landed_total: landedTotal,
+        discount_amount: amountDiscount,
         reference_number: referenceNumber,
         remarks,
-        date_created: new Date().toISOString(),
         created_by: userId,
       },
       items_data: selectedPOs.flatMap((PO, index1) =>
@@ -114,14 +114,8 @@ const DeliveryReceiptForm = ({
             price: POItem.price,
             total_price: POItem.total_price,
             id: POItem.id,
-            unserved_spo:
-              status === "posted"
-                ? POItem.unserved_spo - servedAmt[key]
-                : POItem.unserved_spo,
-            on_stock:
-              status === "posted"
-                ? POItem.on_stock + servedAmt[key]
-                : POItem.on_stock,
+            unserved_spo: POItem.unserved_spo - servedAmt[key],
+            on_stock: POItem.on_stock + servedAmt[key],
             available: POItem.available,
             allocated: POItem.allocated,
           };

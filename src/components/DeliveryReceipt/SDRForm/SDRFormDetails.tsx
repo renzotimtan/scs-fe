@@ -107,7 +107,7 @@ const SDRFormDetails = ({
 
     if (selectedRow !== null && supplierID !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date.slice(0, 10) ?? "");
+      setTransactionDate(selectedRow?.transaction_date ?? "");
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
 
