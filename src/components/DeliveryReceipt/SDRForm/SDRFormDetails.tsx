@@ -102,7 +102,8 @@ const SDRFormDetails = ({
 
   useEffect(() => {
     // Set fields for Edit
-    const supplierID = selectedRow?.purchase_order_items[0].item.supplier_id;
+    const supplierID =
+      selectedRow?.purchase_orders?.[0]?.items?.[0]?.item?.supplier_id;
 
     if (selectedRow !== null && supplierID !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
