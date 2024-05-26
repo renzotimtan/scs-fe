@@ -58,6 +58,30 @@ const DeliveryReceiptForm = ({
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
+  useEffect(() => {
+    // Set fields for Edit
+    const supplierID = selectedRow?.purchase_orders[0].supplier_id;
+
+    if (selectedRow !== null) {
+      setStatus(selectedRow?.status ?? "unposted");
+      setTransactionDate(selectedRow?.transaction_date.slice(0, 10) ?? "");
+      setReferenceNumber(selectedRow?.reference_number ?? "");
+      setRemarks(selectedRow?.remarks ?? "");
+
+      if (selectedRow !== undefined) {
+        setSelectedPOs(selectedRow?.purchase_orders);
+      }
+
+      // Get Supplier for Edit
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${supplierID}`)
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow]);
+
   const resetForm = (): void => {
     setSelectedSupplier(null);
     setSelectedPOs([]);

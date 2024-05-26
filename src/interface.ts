@@ -305,7 +305,7 @@ export interface DeliveryReceipt {
     id: number;
   };
   date_modified: string;
-  purchase_orders: POItems[];
+  purchase_orders: PurchaseOrder[];
 }
 
 export interface DeliveryReceiptFormProps {
