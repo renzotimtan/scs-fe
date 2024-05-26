@@ -217,7 +217,7 @@ const ViewDeliveryReceipt = ({
               {deliveryReceipts.items.map((deliveryReceipt) => (
                 <tr key={deliveryReceipt.id}>
                   <td>{deliveryReceipt.id}</td>
-                  <td>{deliveryReceipt.reference_no}</td>
+                  <td>{deliveryReceipt.reference_number}</td>
                   <td className="capitalize">{deliveryReceipt.status}</td>
                   <td>{deliveryReceipt.transaction_date}</td>
                   <td>{deliveryReceipt.net_amount}</td>

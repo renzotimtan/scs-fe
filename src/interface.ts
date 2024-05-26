@@ -286,7 +286,7 @@ export interface DeliveryReceipt {
   net_amount: number;
   fob_total: number;
   landed_total: number;
-  reference_no: string;
+  reference_number: string;
   remarks: string;
   supplier: Supplier;
   created_by: number;
