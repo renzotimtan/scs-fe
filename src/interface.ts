@@ -281,8 +281,7 @@ export interface DeliveryReceipt {
   supplier_id: number;
   transaction_date: string;
   status: string;
-  supplier_discount_amount: number;
-  transaction_discount_amount: number;
+  discount_amount: number;
   net_amount: number;
   fob_total: number;
   landed_total: number;

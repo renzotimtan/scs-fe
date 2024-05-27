@@ -122,7 +122,7 @@ const SDRFormDetails = ({
   }, [selectedRow]);
 
   useEffect(() => {
-    getFixedAmtDiscounts();
+    if (!openEdit) getFixedAmtDiscounts();
   }, [selectedPOs]);
 
   return (
@@ -201,16 +201,18 @@ const SDRFormDetails = ({
               </FormControl>
             </Stack>
           </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-            <Button
-              className="ml-4 bg-button-primary"
-              size="sm"
-              onClick={() => setIsSelectModalOpen(true)}
-              disabled={selectedSupplier === null}
-            >
-              Fill Up PO Item Table
-            </Button>
-          </Stack>
+          {!openEdit && (
+            <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
+              <Button
+                className="ml-4 bg-button-primary"
+                size="sm"
+                onClick={() => setIsSelectModalOpen(true)}
+                disabled={selectedSupplier === null}
+              >
+                Fill Up PO Item Table
+              </Button>
+            </Stack>
+          )}
         </div>
       </Card>
       <Card className="w-[40%]">

@@ -51,6 +51,7 @@ export interface SDRFormTableProps {
   setServedAmt: Dispatch<SetStateAction<Record<string, number>>>;
   setTotalNet: Dispatch<SetStateAction<number>>;
   setTotalGross: Dispatch<SetStateAction<number>>;
+  openEdit: boolean;
 }
 
 export interface POPayload {

@@ -13,21 +13,18 @@ const SDRFormTable = ({
   setServedAmt,
   setTotalNet,
   setTotalGross,
+  openEdit,
 }: SDRFormTableProps): JSX.Element => {
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
   const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
 
   useEffect(() => {
     // Instantiate state per row
-    const defaultPerRow: Record<string, number> = {};
-    selectedPOs.forEach((PO, index1) => {
-      PO.items.forEach((POItem, index2) => {
-        defaultPerRow[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
-      });
-    });
-    setNetPerRow(defaultPerRow);
-    setGrossPerRow(defaultPerRow);
-    setServedAmt(defaultPerRow);
+    if (!openEdit) {
+      provideDefaultCreateTableValues();
+    } else {
+      provideDefaultEditTableValues();
+    }
   }, [selectedPOs]);
 
   useEffect(() => {
@@ -42,6 +39,43 @@ const SDRFormTable = ({
     );
     setTotalGross(total);
   }, [grossPerRow]);
+
+  const provideDefaultCreateTableValues = (): void => {
+    const defaultPerRow: Record<string, number> = {};
+    selectedPOs.forEach((PO, index1) => {
+      PO.items.forEach((POItem, index2) => {
+        defaultPerRow[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
+      });
+    });
+    setNetPerRow(defaultPerRow);
+    setGrossPerRow(defaultPerRow);
+    setServedAmt(defaultPerRow);
+  };
+
+  const provideDefaultEditTableValues = (): void => {
+    const servedPerRow: Record<string, number> = {};
+    const netPerRow: Record<string, number> = {};
+    const grossPerRow: Record<string, number> = {};
+
+    selectedPOs.forEach((PO, index1) => {
+      PO.items.forEach((POItem, index2) => {
+        const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+        const onStock = POItem.on_stock;
+
+        servedPerRow[key] = onStock;
+
+        const newNet = calculateNetForRow(onStock, POItem, PO);
+        netPerRow[key] = newNet;
+
+        const newGross = calculateGrossPerRow(onStock, POItem);
+        grossPerRow[key] = newGross;
+      });
+    });
+
+    setServedAmt(servedPerRow);
+    setNetPerRow(netPerRow);
+    setGrossPerRow(grossPerRow);
+  };
 
   const calculateNetForRow = (
     newValue: number,
@@ -196,7 +230,11 @@ const SDRFormTable = ({
                   <td>{POItem?.item.stock_code}</td>
                   <td>{POItem?.item.name}</td>
                   <td>{POItem.volume}</td>
-                  <td>{POItem?.unserved_spo}</td>
+                  <td>
+                    {!openEdit
+                      ? POItem.unserved_spo
+                      : POItem.unserved_spo + POItem.on_stock}
+                  </td>
                   <td>{POItem?.price}</td>
                   <td>
                     <Input
@@ -207,7 +245,9 @@ const SDRFormTable = ({
                       slotProps={{
                         input: {
                           min: 0,
-                          max: POItem.unserved_spo,
+                          max: !openEdit
+                            ? POItem.unserved_spo
+                            : POItem.unserved_spo + POItem.on_stock,
                         },
                       }}
                       value={servedAmt[key]}

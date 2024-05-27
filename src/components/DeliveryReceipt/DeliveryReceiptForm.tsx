@@ -62,15 +62,13 @@ const DeliveryReceiptForm = ({
     // Set fields for Edit
     const supplierID = selectedRow?.purchase_orders[0].supplier_id;
 
-    if (selectedRow !== null) {
+    if (selectedRow !== null && selectedRow !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? "");
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
-
-      if (selectedRow !== undefined) {
-        setSelectedPOs(selectedRow?.purchase_orders);
-      }
+      setAmountDiscount(selectedRow?.discount_amount ?? 0);
+      setSelectedPOs(selectedRow?.purchase_orders);
 
       // Get Supplier for Edit
       axiosInstance
@@ -89,6 +87,7 @@ const DeliveryReceiptForm = ({
     setTransactionDate("");
     setReferenceNumber("");
     setRemarks("");
+    setAmountDiscount(0);
   };
 
   const handleCreateDeliveryReceipt = async (): Promise<void> => {
@@ -115,7 +114,52 @@ const DeliveryReceiptForm = ({
             total_price: POItem.total_price,
             id: POItem.id,
             unserved_spo: POItem.unserved_spo - servedAmt[key],
-            on_stock: POItem.on_stock + servedAmt[key],
+            on_stock: servedAmt[key],
+            available: POItem.available,
+            allocated: POItem.allocated,
+          };
+        }),
+      ),
+    };
+
+    try {
+      await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
+  };
+
+  const handleEditDeliveryReceipt = async (): Promise<void> => {
+    const payload = {
+      sdr_data: {
+        status,
+        transaction_date: transactionDate,
+        fob_total: fobTotal,
+        net_amount: netAmount,
+        landed_total: landedTotal,
+        discount_amount: amountDiscount,
+        reference_number: referenceNumber,
+        remarks,
+        modified_by: userId,
+      },
+      items_data: selectedPOs.flatMap((PO, index1) =>
+        PO.items.map((POItem, index2) => {
+          const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+          return {
+            purchase_order_id: PO.id,
+            item_id: POItem.item_id,
+            volume: POItem.volume,
+            price: POItem.price,
+            total_price: POItem.total_price,
+            id: POItem.id,
+            unserved_spo:
+              // ORIGINAL unserved - served
+              POItem.unserved_spo + POItem.on_stock - servedAmt[key],
+            on_stock: servedAmt[key],
             available: POItem.available,
             allocated: POItem.allocated,
           };
@@ -176,6 +220,7 @@ const DeliveryReceiptForm = ({
         setServedAmt={setServedAmt}
         setTotalNet={setTotalNet}
         setTotalGross={setTotalGross}
+        openEdit={openEdit}
       />
       <Divider />
       <div className="flex justify-end mt-4">
