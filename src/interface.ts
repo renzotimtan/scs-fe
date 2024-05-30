@@ -130,6 +130,11 @@ export interface PaginatedSDR {
   items: DeliveryReceipt[];
 }
 
+export interface PaginatedRR {
+  total: number;
+  items: ReceivingReport[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -247,6 +252,14 @@ export interface SDRFormProps {
   title: string;
 }
 
+export interface RRFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: ReceivingReport;
+  title: string;
+}
+
 export interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
@@ -258,6 +271,13 @@ export interface ViewDeliveryReceiptProps {
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: DeliveryReceipt | undefined;
   setSelectedRow: (deliveryReceipt: DeliveryReceipt) => void;
+}
+
+export interface ViewReceivingReportProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: ReceivingReport | undefined;
+  setSelectedRow: (receivingReport: ReceivingReport) => void;
 }
 
 export interface POItems {
@@ -318,26 +338,19 @@ export interface DeliveryReceiptFormProps {
 
 export interface ReceivingReport {
   id: number;
-  purchase_order_number: number;
-  supplier_id: number;
   status: string;
   transaction_date: string;
-  supplier_discount_1: string;
-  transaction_discount_1: string;
-  supplier_discount_2: string;
-  transaction_discount_2: string;
-  supplier_discount_3: string;
-  transaction_discount_3: string;
-  currency_used: string;
-  peso_rate: number;
-  net_amount: number;
-  fob_total: number;
-  landed_total: number;
+  supplier_id: number;
+  currency: string;
+  rate: number;
+  total_expense: number;
   reference_number: string;
+  pct_net_cost: number;
   remarks: string;
-  supplier: Supplier;
-  created_by: number;
-  modified_by: number;
+  fob_total: number;
+  net_amount: number;
+  landed_total: number;
+  sdrs: DeliveryReceipt[];
   creator: {
     full_name: string;
     username: string;
@@ -352,14 +365,6 @@ export interface ReceivingReport {
     id: number;
   };
   date_modified: string;
-  items: POItems[];
-}
-
-export interface ViewReceivingReportProps {
-  setOpenCreate: (isOpen: boolean) => void;
-  setOpenEdit: (isOpen: boolean) => void;
-  selectedRow: PurchaseOrder | undefined;
-  setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
 }
 
 export interface StockTransfer {

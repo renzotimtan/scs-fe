@@ -1,4 +1,4 @@
- import POFormDetails from "./POForm/POFormDetails";
+import POFormDetails from "./POForm/POFormDetails";
 import POFormTable from "./POForm/POFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";

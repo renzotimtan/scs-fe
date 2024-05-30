@@ -13,16 +13,19 @@ import {
   Autocomplete,
 } from "@mui/joy";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import type { RRFormDetailsProps } from "../interface";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../../utils/axiosConfig";
+import type { DeliveryReceipt, Supplier } from "../../../interface";
+import SelectPOModal from "./SelectSDRModal";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
-import type { POFormProps } from "../interface";
 
-const INITIAL_SELECTED_ITEMS = [{ id: null }];
-
-const POFormDetails = ({
+const RRFormDetails = ({
   openEdit,
   selectedRow,
   suppliers,
-  setSelectedItems,
+  selectedSDRs,
+  setSelectedSDRs,
 
   // Fields
   selectedSupplier,
@@ -31,40 +34,68 @@ const POFormDetails = ({
   setStatus,
   transactionDate,
   setTransactionDate,
-  discounts,
-  setDiscounts,
+  pesoRate,
+  setPesoRate,
+  currencyUsed,
+  setCurrencyUsed,
   remarks,
   setRemarks,
   referenceNumber,
   setReferenceNumber,
-  currencyUsed,
-  setCurrencyUsed,
-  pesoRate,
-  setPesoRate,
 
   // Summary Amounts
   fobTotal,
   netAmount,
   landedTotal,
-}: POFormProps): JSX.Element => {
-  const handleDiscountChange = (
-    type: "supplier" | "transaction",
-    index: number,
-    value: string,
-  ): void => {
-    const newDiscounts = { ...discounts };
-    newDiscounts[type][index] = value;
-    setDiscounts(newDiscounts);
-  };
+}: RRFormDetailsProps): JSX.Element => {
+  const [unservedSDRs, setUnservedSDRs] = useState<DeliveryReceipt[]>([]);
+  const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedSupplier !== null && selectedSupplier !== undefined) {
+      axiosInstance
+        .get<DeliveryReceipt[]>(
+          `/api/supplier-delivery-receipts/${selectedSupplier.supplier_id}`,
+        )
+        .then((response) => setUnservedSDRs(response.data))
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedSupplier]);
+
+  useEffect(() => {
+    // Set fields for Edit
+    const supplierID = selectedRow?.supplier_id;
+
+    if (selectedRow !== null && supplierID !== undefined) {
+      setStatus(selectedRow?.status ?? "unposted");
+      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setReferenceNumber(selectedRow?.reference_number ?? "");
+      setRemarks(selectedRow?.remarks ?? "");
+
+      // Get Supplier for Edit
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${supplierID}`)
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow]);
 
   return (
     <Box sx={{ display: "flex" }}>
+      <SelectPOModal
+        open={isSelectModalOpen}
+        setOpen={setIsSelectModalOpen}
+        unservedSDRs={unservedSDRs}
+        setSelectedSDRs={setSelectedSDRs}
+      />
       <Card className="w-[60%] mr-7">
         <div>
           <div className="flex justify-between items-center mb-2">
             {openEdit && (
               <div>
-                <h4>PO No. {selectedRow?.id}</h4>
+                <h4>SDR No. {selectedRow?.id}</h4>
               </div>
             )}
             <Button
@@ -86,8 +117,7 @@ const POFormDetails = ({
                 value={selectedSupplier}
                 onChange={(event, newValue) => {
                   setSelectedSupplier(newValue);
-                  // @ts-expect-error (Item object, unless its using the empty object)
-                  setSelectedItems(INITIAL_SELECTED_ITEMS);
+                  setSelectedSDRs([]);
                 }}
                 size="sm"
                 className="w-[100%]"
@@ -106,9 +136,8 @@ const POFormDetails = ({
                 size="sm"
                 value={status}
               >
-                <Option value="unposted">Unposted</Option>
                 <Option value="posted">Posted</Option>
-                <Option value="completed">Completed</Option>
+                <Option value="unposted">Unposted</Option>
               </Select>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -120,34 +149,6 @@ const POFormDetails = ({
                 required
               />
             </FormControl>
-          </Stack>
-          <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
-            {discounts.supplier.map((discount: string, index: number) => (
-              <Stack key={`discount-row-${index}`} direction="row" spacing={2}>
-                <FormControl size="sm" sx={{ width: "48%" }}>
-                  <FormLabel>{`Supplier Discount ${index + 1}`}</FormLabel>
-                  <Input
-                    value={discount}
-                    onChange={(e) =>
-                      handleDiscountChange("supplier", index, e.target.value)
-                    }
-                    placeholder="Enter % or actual discount"
-                    required
-                  />
-                </FormControl>
-                <FormControl size="sm" sx={{ width: "48%" }}>
-                  <FormLabel>{`Transaction Discount ${index + 1}`}</FormLabel>
-                  <Input
-                    value={discounts.transaction[index]}
-                    onChange={(e) =>
-                      handleDiscountChange("transaction", index, e.target.value)
-                    }
-                    placeholder="Enter % or actual discount"
-                    required
-                  />
-                </FormControl>
-              </Stack>
-            ))}
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
@@ -185,6 +186,18 @@ const POFormDetails = ({
               />
             </FormControl>
           </Stack>
+          {!openEdit && (
+            <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
+              <Button
+                className="ml-4 bg-button-primary"
+                size="sm"
+                onClick={() => setIsSelectModalOpen(true)}
+                disabled={selectedSupplier === null}
+              >
+                Fill Up PO Item Table
+              </Button>
+            </Stack>
+          )}
         </div>
       </Card>
       <Card className="w-[40%]">
@@ -237,7 +250,7 @@ const POFormDetails = ({
           <FormControl size="sm" sx={{ mb: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
-              minRows={7}
+              minRows={5}
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
@@ -250,4 +263,4 @@ const POFormDetails = ({
   );
 };
 
-export default POFormDetails;
+export default RRFormDetails;

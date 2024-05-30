@@ -25,7 +25,6 @@ const ReceivingReportMenu = (): JSX.Element => {
           openCreate={openCreate}
           openEdit={openEdit}
           selectedRow={selectedRow}
-          setSelectedRow={setSelectedRow}
           title="Edit Receiving Report"
         />
       )}
