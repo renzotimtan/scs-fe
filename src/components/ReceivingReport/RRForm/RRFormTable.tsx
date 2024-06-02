@@ -17,11 +17,7 @@ const RRFormTable = ({
 
   useEffect(() => {
     // Instantiate state per row
-    if (!openEdit) {
-      provideDefaultCreateTableValues();
-    } else {
-      provideDefaultEditTableValues();
-    }
+    provideDefaultTableValues();
   }, [selectedSDRs]);
 
   useEffect(() => {
@@ -37,31 +33,15 @@ const RRFormTable = ({
     setTotalGross(total);
   }, [grossPerRow]);
 
-  const provideDefaultCreateTableValues = (): void => {
-    const defaultPerRow: Record<string, number> = {};
-    selectedSDRs.forEach((SDR, index1) => {
-      SDR.purchase_orders.forEach((PO, index2) => {
-        PO.items.forEach((POItem, index3) => {
-          defaultPerRow[
-            `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`
-          ] = 0;
-        });
-      });
-    });
-    setNetPerRow(defaultPerRow);
-    setGrossPerRow(defaultPerRow);
-    setServedAmt(defaultPerRow);
-  };
-
-  const provideDefaultEditTableValues = (): void => {
+  const provideDefaultTableValues = (): void => {
     const servedPerRow: Record<string, number> = {};
     const netPerRow: Record<string, number> = {};
     const grossPerRow: Record<string, number> = {};
 
     selectedSDRs.forEach((SDR, index1) => {
-      SDR.purchase_orders.forEach((PO, index1) => {
-        PO.items.forEach((POItem, index2) => {
-          const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+      SDR.purchase_orders.forEach((PO, index2) => {
+        PO.items.forEach((POItem, index3) => {
+          const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
           const onStock = POItem.on_stock;
 
           servedPerRow[key] = onStock;
@@ -74,7 +54,6 @@ const RRFormTable = ({
         });
       });
     });
-
     setServedAmt(servedPerRow);
     setNetPerRow(netPerRow);
     setGrossPerRow(grossPerRow);
@@ -213,14 +192,38 @@ const RRFormTable = ({
                     <td>{POItem?.item.name}</td>
                     <td>{POItem.on_stock}</td>
                     <td>{POItem.price}</td>
-                    <td>Gross</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
+                    <td>{grossPerRow[key]}</td>
+                    <td>
+                      {PO.supplier_discount_1.includes("%")
+                        ? PO.supplier_discount_1
+                        : 0}
+                    </td>
+                    <td>
+                      {PO.supplier_discount_2.includes("%")
+                        ? PO.supplier_discount_2
+                        : 0}
+                    </td>
+                    <td>
+                      {PO.supplier_discount_3.includes("%")
+                        ? PO.supplier_discount_3
+                        : 0}
+                    </td>
+                    <td>
+                      {PO.transaction_discount_1.includes("%")
+                        ? PO.transaction_discount_1
+                        : 0}
+                    </td>
+                    <td>
+                      {PO.transaction_discount_2.includes("%")
+                        ? PO.transaction_discount_2
+                        : 0}
+                    </td>
+                    <td>
+                      {PO.transaction_discount_3.includes("%")
+                        ? PO.transaction_discount_3
+                        : 0}
+                    </td>
+                    <td>{netPerRow[key]}</td>
                     <td>{PO.currency_used}</td>
                     <td>{PO.peso_rate}</td>
                   </tr>

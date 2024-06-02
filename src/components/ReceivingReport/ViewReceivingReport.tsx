@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeleteDeliveryReceiptModal from "./DeleteDeliveryReceiptModal";
+import DeleteDeliveryReceiptModal from "./DeleteRRModal";
 import { toast } from "react-toastify";
 import type {
   PaginatedRR,
@@ -104,7 +104,7 @@ const ViewReceivingReport = ({
               setOpenCreate(true);
             }}
           >
-            Add Delivery Receipt
+            Add Receiving Report
           </Button>
         </Box>
         <Box className="flex items-center mb-6">

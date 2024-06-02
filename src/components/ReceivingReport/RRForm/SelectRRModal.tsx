@@ -3,7 +3,7 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box, ListItem, List, Checkbox } from "@mui/joy";
-import type { DeliveryReceipt } from "../../../interface";
+import type { DeliveryReceipt, PaginatedSDR } from "../../../interface";
 
 const SelectSDRModal = ({
   open,
@@ -13,16 +13,17 @@ const SelectSDRModal = ({
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  unservedSDRs: DeliveryReceipt[];
+  unservedSDRs: PaginatedSDR | undefined;
   setSelectedSDRs: Dispatch<SetStateAction<DeliveryReceipt[]>>;
 }): JSX.Element => {
   const [checkedSDRs, setCheckedSDRs] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const options: Record<string, boolean> = {};
-    unservedSDRs.forEach((SDR) => {
-      options[SDR.reference_number] = false;
-    });
+    if (unservedSDRs?.items !== undefined)
+      unservedSDRs.items.forEach((SDR) => {
+        options[SDR.reference_number] = false;
+      });
     setCheckedSDRs(options);
   }, [unservedSDRs]);
 
@@ -33,17 +34,19 @@ const SelectSDRModal = ({
     }));
   };
 
-  const selectCheckedPOs = (): void => {
-    const selectedRefNos = Object.keys(checkedSDRs).filter(
-      (refNo) => checkedSDRs[refNo],
-    );
+  const selectCheckedSDRs = (): void => {
+    if (unservedSDRs?.items !== undefined) {
+      const selectedRefNos = Object.keys(checkedSDRs).filter(
+        (refNo) => checkedSDRs[refNo],
+      );
 
-    const selectedPOs = unservedSDRs.filter((SDR) =>
-      selectedRefNos.includes(SDR.reference_number),
-    );
+      const selectedSDRs = unservedSDRs.items.filter((SDR) =>
+        selectedRefNos.includes(SDR.reference_number),
+      );
 
-    setSelectedSDRs(selectedPOs);
-    setOpen(false);
+      setSelectedSDRs(selectedSDRs);
+      setOpen(false);
+    }
   };
 
   return (
@@ -72,10 +75,10 @@ const SelectSDRModal = ({
             <h4 className="mb-6">Select Purchase Orders</h4>
 
             <div>
-              <List size="sm">
-                {unservedSDRs !== undefined &&
-                  unservedSDRs.length > 0 &&
-                  unservedSDRs.map((SDR) => (
+              <List size="sm" className="h-[250px] overflow-y-scroll">
+                {unservedSDRs?.items !== undefined &&
+                  unservedSDRs.items.length > 0 &&
+                  unservedSDRs.items.map((SDR) => (
                     <ListItem key={SDR.id}>
                       <Checkbox
                         checked={!!checkedSDRs[SDR.reference_number]}
@@ -86,7 +89,8 @@ const SelectSDRModal = ({
                       />
                     </ListItem>
                   ))}
-                {(unservedSDRs === undefined || unservedSDRs.length === 0) &&
+                {(unservedSDRs?.items === undefined ||
+                  unservedSDRs.items.length === 0) &&
                   "No Supplier Delivery Receipts"}
               </List>
             </div>
@@ -103,7 +107,7 @@ const SelectSDRModal = ({
                 className="ml-4 w-[130px] bg-button-primary"
                 color="primary"
                 size="sm"
-                onClick={selectCheckedPOs}
+                onClick={selectCheckedSDRs}
               >
                 Confirm
               </Button>

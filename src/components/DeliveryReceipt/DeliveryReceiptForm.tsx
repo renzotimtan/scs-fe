@@ -133,50 +133,50 @@ const DeliveryReceiptForm = ({
     }
   };
 
-  const handleEditDeliveryReceipt = async (): Promise<void> => {
-    const payload = {
-      sdr_data: {
-        status,
-        transaction_date: transactionDate,
-        fob_total: fobTotal,
-        net_amount: netAmount,
-        landed_total: landedTotal,
-        discount_amount: amountDiscount,
-        reference_number: referenceNumber,
-        remarks,
-        modified_by: userId,
-      },
-      items_data: selectedPOs.flatMap((PO, index1) =>
-        PO.items.map((POItem, index2) => {
-          const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-          return {
-            purchase_order_id: PO.id,
-            item_id: POItem.item_id,
-            volume: POItem.volume,
-            price: POItem.price,
-            total_price: POItem.total_price,
-            id: POItem.id,
-            unserved_spo:
-              // ORIGINAL unserved - served
-              POItem.unserved_spo + POItem.on_stock - servedAmt[key],
-            on_stock: servedAmt[key],
-            available: POItem.available,
-            allocated: POItem.allocated,
-          };
-        }),
-      ),
-    };
+  // const handleEditDeliveryReceipt = async (): Promise<void> => {
+  //   const payload = {
+  //     sdr_data: {
+  //       status,
+  //       transaction_date: transactionDate,
+  //       fob_total: fobTotal,
+  //       net_amount: netAmount,
+  //       landed_total: landedTotal,
+  //       discount_amount: amountDiscount,
+  //       reference_number: referenceNumber,
+  //       remarks,
+  //       modified_by: userId,
+  //     },
+  //     items_data: selectedPOs.flatMap((PO, index1) =>
+  //       PO.items.map((POItem, index2) => {
+  //         const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+  //         return {
+  //           purchase_order_id: PO.id,
+  //           item_id: POItem.item_id,
+  //           volume: POItem.volume,
+  //           price: POItem.price,
+  //           total_price: POItem.total_price,
+  //           id: POItem.id,
+  //           unserved_spo:
+  //             // ORIGINAL unserved - served
+  //             POItem.unserved_spo + POItem.on_stock - servedAmt[key],
+  //           on_stock: servedAmt[key],
+  //           available: POItem.available,
+  //           allocated: POItem.allocated,
+  //         };
+  //       }),
+  //     ),
+  //   };
 
-    try {
-      await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
-      toast.success("Save successful!");
-      resetForm();
-      setOpen(false);
-      // Handle the response, update state, etc.
-    } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
-    }
-  };
+  //   try {
+  //     await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
+  //     toast.success("Save successful!");
+  //     resetForm();
+  //     setOpen(false);
+  //     // Handle the response, update state, etc.
+  //   } catch (error: any) {
+  //     toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+  //   }
+  // };
 
   return (
     <form

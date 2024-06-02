@@ -72,7 +72,7 @@ const SelectPOModal = ({
             <h4 className="mb-6">Select Purchase Orders</h4>
 
             <div>
-              <List size="sm">
+              <List size="sm" className="h-[250px] overflow-y-scroll">
                 {unservedPOs !== undefined &&
                   unservedPOs.length > 0 &&
                   unservedPOs.map((PO) => (

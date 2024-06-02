@@ -16,8 +16,8 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import type { RRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
-import type { DeliveryReceipt, Supplier } from "../../../interface";
-import SelectPOModal from "./SelectSDRModal";
+import type { PaginatedSDR } from "../../../interface";
+import SelectPOModal from "./SelectRRModal";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
 
 const RRFormDetails = ({
@@ -42,45 +42,40 @@ const RRFormDetails = ({
   setRemarks,
   referenceNumber,
   setReferenceNumber,
+  amountDiscount,
+  setAmountDiscount,
 
   // Summary Amounts
   fobTotal,
   netAmount,
   landedTotal,
+  totalExpense,
+  percentNetCost,
 }: RRFormDetailsProps): JSX.Element => {
-  const [unservedSDRs, setUnservedSDRs] = useState<DeliveryReceipt[]>([]);
+  const [unservedSDRs, setUnservedSDRs] = useState<PaginatedSDR | undefined>();
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
 
   useEffect(() => {
     if (selectedSupplier !== null && selectedSupplier !== undefined) {
       axiosInstance
-        .get<DeliveryReceipt[]>(
-          `/api/supplier-delivery-receipts/${selectedSupplier.supplier_id}`,
-        )
+        .get<PaginatedSDR>(`/api/supplier-delivery-receipts/`)
         .then((response) => setUnservedSDRs(response.data))
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedSupplier]);
 
+  const getFixedAmtDiscounts = (): void => {
+    let total = 0;
+    selectedSDRs.forEach((SDR) => {
+      total += SDR.discount_amount;
+    });
+
+    setAmountDiscount(total);
+  };
+
   useEffect(() => {
-    // Set fields for Edit
-    const supplierID = selectedRow?.supplier_id;
-
-    if (selectedRow !== null && supplierID !== undefined) {
-      setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
-      setReferenceNumber(selectedRow?.reference_number ?? "");
-      setRemarks(selectedRow?.remarks ?? "");
-
-      // Get Supplier for Edit
-      axiosInstance
-        .get<Supplier>(`/api/suppliers/${supplierID}`)
-        .then((response) => {
-          setSelectedSupplier(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedRow]);
+    if (!openEdit) getFixedAmtDiscounts();
+  }, [selectedSDRs]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -186,6 +181,14 @@ const RRFormDetails = ({
               />
             </FormControl>
           </Stack>
+          <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
+            <Stack direction="row" spacing={2}>
+              <FormControl size="sm" sx={{ width: "48%" }}>
+                <FormLabel>Amount Discounts Total</FormLabel>
+                <Textarea value={amountDiscount} disabled />
+              </FormControl>
+            </Stack>
+          </Stack>
           {!openEdit && (
             <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
               <Button
@@ -202,7 +205,7 @@ const RRFormDetails = ({
       </Card>
       <Card className="w-[40%]">
         <div>
-          <div className="flex justify-around">
+          <div className="ml-5 grid grid-cols-3">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
               <h5>₱{fobTotal.toFixed(2)}</h5>{" "}
@@ -214,6 +217,14 @@ const RRFormDetails = ({
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
               <h5>₱{landedTotal.toFixed(2)}</h5>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1 }}>
+              <FormLabel>% NET Cost</FormLabel>
+              <h5>{percentNetCost.toFixed(4)}</h5>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1 }}>
+              <FormLabel>Total Expense</FormLabel>
+              <h5>₱{totalExpense.toFixed(2)}</h5>{" "}
             </FormControl>
           </div>
           <Divider />
@@ -250,7 +261,7 @@ const RRFormDetails = ({
           <FormControl size="sm" sx={{ mb: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
-              minRows={5}
+              minRows={3}
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}

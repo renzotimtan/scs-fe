@@ -1,11 +1,12 @@
 import RRFormDetails from "./RRForm/RRFormDetails";
-import RRFormTable from "./RRForm/SDRFormTable";
+import RRFormTable from "./RRForm/RRFormTable";
+import RRFormExpenses from "./RRForm/RRFormExpenses";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
 import type {
   Supplier,
@@ -36,12 +37,18 @@ const ReceivingReportForm = ({
   const [userId, setUserId] = useState<number | null>(null);
   const [pesoRate, setPesoRate] = useState<number>(56);
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
+  const [amountDiscount, setAmountDiscount] = useState(0);
   const [totalGross, setTotalGross] = useState(0);
   const [totalNet, setTotalNet] = useState(0);
   const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
+  const [totalExpense, setTotalExpense] = useState(0);
+
   const fobTotal = totalGross;
   const netAmount = totalNet;
   const landedTotal = netAmount * pesoRate;
+  const percentNetCost = isNaN(totalExpense / landedTotal)
+    ? 0
+    : totalExpense / landedTotal;
 
   useEffect(() => {
     // Fetch suppliers
@@ -68,6 +75,13 @@ const ReceivingReportForm = ({
       setRemarks(selectedRow?.remarks ?? "");
       setSelectedSDRs(selectedRow?.sdrs);
 
+      // Get Fixed Discounts and sum them
+      const totalDiscount = 0;
+      selectedRow.sdrs.forEach((sdr) => {
+        sdr.discount_amount += totalDiscount;
+      });
+      setAmountDiscount(totalDiscount);
+
       // Get Supplier for Edit
       axiosInstance
         .get<Supplier>(`/api/suppliers/${supplierID}`)
@@ -78,16 +92,17 @@ const ReceivingReportForm = ({
     }
   }, [selectedRow]);
 
-  const resetForm = (): void => {
-    setSelectedSupplier(null);
-    setSelectedSDRs([]);
-    setStatus("unposted");
-    setPesoRate(56);
-    setCurrencyUsed("USD");
-    setTransactionDate("");
-    setReferenceNumber("");
-    setRemarks("");
-  };
+  // const resetForm = (): void => {
+  //   setSelectedSupplier(null);
+  //   setSelectedSDRs([]);
+  //   setStatus("unposted");
+  //   setPesoRate(56);
+  //   setCurrencyUsed("USD");
+  //   setTransactionDate("");
+  //   setReferenceNumber("");
+  //   setRemarks("");
+  //   setAmountDiscount(0);
+  // };
 
   // const handleCreateDeliveryReceipt = async (): Promise<void> => {
   //   const payload = {
@@ -162,10 +177,14 @@ const ReceivingReportForm = ({
         setRemarks={setRemarks}
         referenceNumber={referenceNumber}
         setReferenceNumber={setReferenceNumber}
+        amountDiscount={amountDiscount}
+        setAmountDiscount={setAmountDiscount}
         // Summary Amounts
         fobTotal={fobTotal}
         netAmount={netAmount}
         landedTotal={landedTotal}
+        totalExpense={totalExpense}
+        percentNetCost={percentNetCost}
       />
       <RRFormTable
         selectedSDRs={selectedSDRs}
@@ -178,6 +197,10 @@ const ReceivingReportForm = ({
         openEdit={openEdit}
       />
       <Divider />
+      <RRFormExpenses
+        selectedSDRs={selectedSDRs}
+        setTotalExpense={setTotalExpense}
+      />
       <div className="flex justify-end mt-4">
         <Button
           className="ml-4 w-[130px]"

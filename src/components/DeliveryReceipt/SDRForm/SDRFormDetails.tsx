@@ -16,7 +16,7 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import type { SDRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
-import type { PurchaseOrder, Supplier } from "../../../interface";
+import type { PurchaseOrder } from "../../../interface";
 import SelectPOModal from "./SelectPOModal";
 
 const SDRFormDetails = ({
@@ -99,27 +99,6 @@ const SDRFormDetails = ({
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedSupplier]);
-
-  useEffect(() => {
-    // Set fields for Edit
-    const supplierID =
-      selectedRow?.purchase_orders?.[0]?.items?.[0]?.item?.supplier_id;
-
-    if (selectedRow !== null && supplierID !== undefined) {
-      setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
-      setReferenceNumber(selectedRow?.reference_number ?? "");
-      setRemarks(selectedRow?.remarks ?? "");
-
-      // Get Supplier for Edit
-      axiosInstance
-        .get<Supplier>(`/api/suppliers/${supplierID}`)
-        .then((response) => {
-          setSelectedSupplier(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedRow]);
 
   useEffect(() => {
     if (!openEdit) getFixedAmtDiscounts();

@@ -60,6 +60,11 @@ export interface RRFormDetailsProps {
   fobTotal: number;
   netAmount: number;
   landedTotal: number;
+  totalExpense: number;
+  percentNetCost: number;
+
+  amountDiscount: number;
+  setAmountDiscount: Dispatch<SetStateAction<number>>;
 }
 
 export interface NewPriceInstance {
