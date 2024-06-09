@@ -1,3 +1,5 @@
+import type { Expense } from "./components/ReceivingReport/interface";
+
 export interface Item {
   id: number;
   stock_code: string;
@@ -351,6 +353,7 @@ export interface ReceivingReport {
   net_amount: number;
   landed_total: number;
   sdrs: DeliveryReceipt[];
+  expenses: Expense[];
   creator: {
     full_name: string;
     username: string;

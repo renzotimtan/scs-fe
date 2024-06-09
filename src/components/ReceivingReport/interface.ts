@@ -128,3 +128,10 @@ export interface POItemValues {
   price: number;
   total_price: number;
 }
+
+export interface Expense {
+  id: string;
+  expense: string;
+  amount: number;
+  other_currency_expense: number;
+}

@@ -1,22 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Sheet, Table, Select, Option, Input, Button } from "@mui/joy";
 import type { DeliveryReceipt } from "../../../interface";
+import type { Expense } from "../interface";
 import type { Dispatch, SetStateAction } from "react";
 import { v4 as uuid } from "uuid";
 
 const RRFormExpenses = ({
   selectedSDRs,
   setTotalExpense,
+  expenses,
+  setExpenses,
 }: {
   selectedSDRs: DeliveryReceipt[];
   setTotalExpense: Dispatch<SetStateAction<number>>;
+  expenses: Expense[];
+  setExpenses: Dispatch<SetStateAction<Expense[]>>;
 }): JSX.Element => {
-  const initialExpense = { id: uuid(), type: "", amount: 0, otherExpense: 0 };
-  const [expenses, setExpenses] = useState([initialExpense]);
-
   useEffect(() => {
     const totalExpense = expenses.reduce(
-      (acc, expense) => acc + expense.amount + expense.otherExpense,
+      (acc, expense) => acc + expense.amount + expense.other_currency_expense,
       0,
     );
     setTotalExpense(totalExpense);
@@ -104,7 +106,7 @@ const RRFormExpenses = ({
                     className="mt-1 border-0"
                     size="sm"
                     placeholder="Select Expense"
-                    value={expense.type}
+                    value={expense.expense}
                     required
                   >
                     <Option value="brokerage">Brokerage</Option>
@@ -123,6 +125,7 @@ const RRFormExpenses = ({
                       )
                     }
                     value={expense.amount}
+                    required
                   />
                 </td>
                 <td>
@@ -132,11 +135,11 @@ const RRFormExpenses = ({
                     onChange={(event) =>
                       handleInputChange(
                         expense.id,
-                        "otherExpense",
+                        "other_expense",
                         Number(event.target.value),
                       )
                     }
-                    value={expense.otherExpense}
+                    value={expense.other_currency_expense}
                   />
                 </td>
                 <td>
@@ -149,6 +152,7 @@ const RRFormExpenses = ({
                       onClick={() =>
                         setExpenses(expenses.filter((e) => e.id !== expense.id))
                       }
+                      disabled={expenses.length === 1}
                     >
                       Delete
                     </Button>
@@ -166,7 +170,7 @@ const RRFormExpenses = ({
           onClick={() =>
             setExpenses([
               ...expenses,
-              { id: uuid(), type: "", amount: 0, otherExpense: 0 },
+              { id: uuid(), expense: "", amount: 0, other_currency_expense: 0 },
             ])
           }
         >

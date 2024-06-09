@@ -5,8 +5,9 @@ import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
 import axiosInstance from "../../utils/axiosConfig";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
 import type {
   Supplier,
@@ -22,6 +23,12 @@ const ReceivingReportForm = ({
   selectedRow,
   title,
 }: RRFormProps): JSX.Element => {
+  const initialExpense = {
+    id: uuid(),
+    expense: "",
+    amount: 0,
+    other_currency_expense: 0,
+  };
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -41,6 +48,7 @@ const ReceivingReportForm = ({
   const [totalGross, setTotalGross] = useState(0);
   const [totalNet, setTotalNet] = useState(0);
   const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
+  const [expenses, setExpenses] = useState([initialExpense]);
   const [totalExpense, setTotalExpense] = useState(0);
 
   const fobTotal = totalGross;
@@ -48,7 +56,7 @@ const ReceivingReportForm = ({
   const landedTotal = netAmount * pesoRate;
   const percentNetCost = isNaN(totalExpense / landedTotal)
     ? 0
-    : totalExpense / landedTotal;
+    : (totalExpense / landedTotal) * 100;
 
   useEffect(() => {
     // Fetch suppliers
@@ -76,11 +84,23 @@ const ReceivingReportForm = ({
       setSelectedSDRs(selectedRow?.sdrs);
 
       // Get Fixed Discounts and sum them
-      const totalDiscount = 0;
+      let totalDiscount = 0;
       selectedRow.sdrs.forEach((sdr) => {
-        sdr.discount_amount += totalDiscount;
+        totalDiscount += sdr.discount_amount;
       });
       setAmountDiscount(totalDiscount);
+
+      // Set expenses
+      setExpenses(
+        selectedRow.expenses.map((expense) => {
+          return {
+            id: expense.id,
+            expense: expense.expense,
+            amount: expense.amount,
+            other_currency_expense: expense.other_currency_expense,
+          };
+        }),
+      );
 
       // Get Supplier for Edit
       axiosInstance
@@ -92,65 +112,62 @@ const ReceivingReportForm = ({
     }
   }, [selectedRow]);
 
-  // const resetForm = (): void => {
-  //   setSelectedSupplier(null);
-  //   setSelectedSDRs([]);
-  //   setStatus("unposted");
-  //   setPesoRate(56);
-  //   setCurrencyUsed("USD");
-  //   setTransactionDate("");
-  //   setReferenceNumber("");
-  //   setRemarks("");
-  //   setAmountDiscount(0);
-  // };
+  const resetForm = (): void => {
+    setSelectedSupplier(null);
+    setSelectedSDRs([]);
+    setStatus("unposted");
+    setPesoRate(56);
+    setCurrencyUsed("USD");
+    setTransactionDate("");
+    setReferenceNumber("");
+    setRemarks("");
+    setAmountDiscount(0);
+    setExpenses([initialExpense]);
+  };
 
-  // const handleCreateDeliveryReceipt = async (): Promise<void> => {
-  //   const payload = {
-  //     sdr_data: {
-  //       status,
-  //       transaction_date: transactionDate,
-  //       fob_total: fobTotal,
-  //       net_amount: netAmount,
-  //       landed_total: landedTotal,
-  //       reference_number: referenceNumber,
-  //       remarks,
-  //       created_by: userId,
-  //     },
-  //     items_data: selectedPOs.flatMap((PO, index1) =>
-  //       PO.items.map((POItem, index2) => {
-  //         const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-  //         return {
-  //           purchase_order_id: PO.id,
-  //           item_id: POItem.item_id,
-  //           volume: POItem.volume,
-  //           price: POItem.price,
-  //           total_price: POItem.total_price,
-  //           id: POItem.id,
-  //           unserved_spo: POItem.unserved_spo - servedAmt[key],
-  //           on_stock: servedAmt[key],
-  //           available: POItem.available,
-  //           allocated: POItem.allocated,
-  //         };
-  //       }),
-  //     ),
-  //   };
+  const handleCreateReceivingReport = async (): Promise<void> => {
+    const payload = {
+      status,
+      transaction_date: transactionDate,
+      supplier_id: selectedSupplier?.supplier_id,
+      currency: currencyUsed,
+      rate: pesoRate,
+      total_expense: totalExpense,
+      reference_number: referenceNumber,
+      pct_net_cost: percentNetCost,
+      remarks,
+      fob_total: fobTotal,
+      net_amount: netAmount,
+      landed_total: landedTotal,
+      created_by: userId,
+      sdr_ids: selectedSDRs.map((SDR) => SDR.id),
+      expenses: expenses.map((expense) => {
+        return {
+          expense: expense.expense,
+          amount: expense.amount,
+          currency: "",
+          other_currency_expense: expense.other_currency_expense,
+          created_by: userId,
+        };
+      }),
+    };
 
-  //   try {
-  //     await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
-  //     toast.success("Save successful!");
-  //     resetForm();
-  //     setOpen(false);
-  //     // Handle the response, update state, etc.
-  //   } catch (error: any) {
-  //     toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
-  //   }
-  // };
+    try {
+      await axiosInstance.post("/api/receiving-reports/", payload);
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
+  };
 
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        // if (openCreate) await handleCreateDeliveryReceipt();
+        if (openCreate) await handleCreateReceivingReport();
       }}
     >
       <div className="flex justify-between">
@@ -199,6 +216,8 @@ const ReceivingReportForm = ({
       <Divider />
       <RRFormExpenses
         selectedSDRs={selectedSDRs}
+        expenses={expenses}
+        setExpenses={setExpenses}
         setTotalExpense={setTotalExpense}
       />
       <div className="flex justify-end mt-4">

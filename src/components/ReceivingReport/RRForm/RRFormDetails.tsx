@@ -58,7 +58,9 @@ const RRFormDetails = ({
   useEffect(() => {
     if (selectedSupplier !== null && selectedSupplier !== undefined) {
       axiosInstance
-        .get<PaginatedSDR>(`/api/supplier-delivery-receipts/`)
+        .get<PaginatedSDR>(
+          `/api/supplier-delivery-receipts/?supplier_id=${selectedSupplier.supplier_id}`,
+        )
         .then((response) => setUnservedSDRs(response.data))
         .catch((error) => console.error("Error:", error));
     }
@@ -90,7 +92,7 @@ const RRFormDetails = ({
           <div className="flex justify-between items-center mb-2">
             {openEdit && (
               <div>
-                <h4>SDR No. {selectedRow?.id}</h4>
+                <h4>RR No. {selectedRow?.id}</h4>
               </div>
             )}
             <Button
