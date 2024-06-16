@@ -4,7 +4,7 @@ import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
 import type { DeleteModalProps } from "../../interface";
 
-const DeleteDeliveryReceiptModal = ({
+const DeleteReceivingReportModal = ({
   open,
   title,
   setOpen,
@@ -36,7 +36,7 @@ const DeleteDeliveryReceiptModal = ({
             <h4 className="mb-6">{title}</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to delete this Delivery Receipt?
+                Are you sure you want to delete this Receiving Report?
               </p>
             </div>
             <div className="flex justify-end mt-5">
@@ -67,4 +67,4 @@ const DeleteDeliveryReceiptModal = ({
   );
 };
 
-export default DeleteDeliveryReceiptModal;
+export default DeleteReceivingReportModal;

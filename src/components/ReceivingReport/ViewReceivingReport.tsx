@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeleteDeliveryReceiptModal from "./DeleteRRModal";
+import DeleteReceivingReportModal from "./DeleteRRModal";
 import { toast } from "react-toastify";
 import type {
   PaginatedRR,
@@ -75,9 +75,9 @@ const ViewReceivingReport = ({
     getAllRR();
   }, []);
 
-  const handleDeleteDeliveryReceipt = async (): Promise<void> => {
+  const handleDeleteRR = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/supplier-delivery-receipts/${selectedRow.id}`;
+      const url = `/api/receiving-reports/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
@@ -274,11 +274,11 @@ const ViewReceivingReport = ({
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteDeliveryReceiptModal
+      <DeleteReceivingReportModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Delete Delivery Receipt"
-        onDelete={handleDeleteDeliveryReceipt}
+        onDelete={handleDeleteRR}
       />
     </>
   );

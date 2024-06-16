@@ -3,7 +3,7 @@ import StockTransferForm from "../../components/StockTransfer/StockTransferForm"
 import ViewStockTransfer from "../../components/StockTransfer/ViewStockTransfer";
 import type { StockTransfer } from "../../interface";
 
-const StockTransferMenu = (): JSX.Element => {
+const ReceivingReportMenu = (): JSX.Element => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedRow, setSelectedRow] = useState<StockTransfer | undefined>();
@@ -25,7 +25,6 @@ const StockTransferMenu = (): JSX.Element => {
           openCreate={openCreate}
           openEdit={openEdit}
           selectedRow={selectedRow}
-          setSelectedRow={setSelectedRow}
           title="Edit Stock Transfer"
         />
       )}
@@ -42,4 +41,4 @@ const StockTransferMenu = (): JSX.Element => {
   );
 };
 
-export default StockTransferMenu;
+export default ReceivingReportMenu;

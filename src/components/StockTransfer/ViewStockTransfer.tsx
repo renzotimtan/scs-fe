@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/joy/Box";
-import Button from "@mui/joy/Button";
-import Table from "@mui/joy/Table";
-import Sheet from "@mui/joy/Sheet";
+import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeletePurchaseOrderModal from "./DeleteStockTransferModal";
+import DeleteSTModal from "./DeleteSTModal";
 import { toast } from "react-toastify";
+import type {
+  PaginatedST,
+  PaginationQueryParams,
+  ViewStockTransferProps,
+} from "../../interface";
 
-import type { PurchaseOrder } from "../../interface";
+import { Pagination } from "@mui/material";
 
-interface ViewStockTransferProps {
-  setOpenCreate: (isOpen: boolean) => void;
-  setOpenEdit: (isOpen: boolean) => void;
-  selectedRow: PurchaseOrder | undefined;
-  setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
-}
+import { convertToQueryParams } from "../../helper";
+
+const PAGE_LIMIT = 10;
 
 const ViewStockTransfer = ({
   setOpenCreate,
@@ -22,28 +21,71 @@ const ViewStockTransfer = ({
   selectedRow,
   setSelectedRow,
 }: ViewStockTransferProps): JSX.Element => {
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
+  const [stockTransfers, setStockTransfers] = useState<PaginatedST>({
+    total: 0,
+    items: [],
+  });
   const [openDelete, setOpenDelete] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [status, setStatus] = useState("all");
+  const [page, setPage] = useState(1);
+
+  const getAllST = (): void => {
+    const payload: PaginationQueryParams = {
+      page,
+      limit: PAGE_LIMIT,
+      sort_by: "id",
+      sort_order: "desc",
+      search_term: searchTerm,
+    };
+
+    if (status !== "all") {
+      payload.status = status;
+    }
+
+    axiosInstance
+      .get<PaginatedST>(
+        `/api/stock-transfers/?${convertToQueryParams(payload)}`,
+      )
+      .then((response) => setStockTransfers(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
+
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+    axiosInstance
+      .get<PaginatedST>(
+        `/api/receiving-reports/?${convertToQueryParams({
+          page: value,
+          limit: PAGE_LIMIT,
+          sort_by: "id",
+          sort_order: "desc",
+          search_term: searchTerm,
+        })}`,
+      )
+      .then((response) => setStockTransfers(response.data))
+      .catch((error) => console.error("Error:", error));
+  };
 
   useEffect(() => {
-    // Fetch purchase orders
-    axiosInstance
-      .get<PurchaseOrder[]>("/api/purchase_orders/")
-      .then((response) => setPurchaseOrders(response.data.items))
-      .catch((error) => console.error("Error:", error));
+    // Fetch STs
+    getAllST();
   }, []);
 
-  const handleDeletePurchaseOrder = async (): Promise<void> => {
+  const handleDeleteST = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/purchase_orders/${selectedRow.id}`;
+      const url = `/api/stock-transfers/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setPurchaseOrders(
-          purchaseOrders.filter(
-            (purchaseOrder) => purchaseOrder.id !== selectedRow.id,
-          ),
-        );
+        setStockTransfers((prevST) => ({
+          ...prevST,
+          items: prevST.items.filter((ST) => ST.id !== selectedRow.id),
+          total: prevST.total - 1,
+        }));
       } catch (error) {
         console.error("Error:", error);
       }
@@ -65,6 +107,35 @@ const ViewStockTransfer = ({
             Add Stock Transfer
           </Button>
         </Box>
+        <Box className="flex items-center mb-6">
+          <Input
+            size="sm"
+            placeholder="Reference No."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Select
+            className="ml-4 w-[130px]"
+            onChange={(event, value) => {
+              if (value !== null) setStatus(value);
+            }}
+            size="sm"
+            value={status}
+          >
+            <Option value="all">All</Option>
+            <Option value="unposted">Unposted</Option>
+            <Option value="posted">Posted</Option>
+            <Option value="archived">Archived</Option>
+          </Select>
+          <Button
+            onClick={getAllST}
+            className="ml-4 w-[80px] bg-button-primary"
+            size="sm"
+          >
+            Search
+          </Button>
+        </Box>
+
         <Sheet
           sx={{
             "--TableCell-height": "40px",
@@ -122,12 +193,12 @@ const ViewStockTransfer = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  STR Number
+                  STR No.
                 </th>
                 <th style={{ width: 300 }}>Status</th>
-                <th style={{ width: 150 }}>RR No.</th>
-                <th style={{ width: 150 }}>RR Transfer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
+                <th style={{ width: 150 }}>RR Transfer</th>
+                <th style={{ width: 150 }}>RR No.</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -140,18 +211,18 @@ const ViewStockTransfer = ({
               </tr>
             </thead>
             <tbody>
-              {purchaseOrders.map((purchaseOrder) => (
-                <tr key={purchaseOrder.id}>
-                  <td>{purchaseOrder.id}</td>
-                  <td className="capitalize">{purchaseOrder.status}</td>
-                  <td>{purchaseOrder?.supplier?.name}</td>
-                  <td>{purchaseOrder?.supplier?.name}</td>
-                  <td>{purchaseOrder.transaction_date}</td>
-                  <td>{purchaseOrder.remarks}</td>
-                  <td>{purchaseOrder?.creator?.username}</td>
-                  <td>{purchaseOrder?.modifier?.username}</td>
-                  <td>{purchaseOrder.date_created}</td>
-                  <td>{purchaseOrder.date_modified}</td>
+              {stockTransfers.items.map((stockTransfer) => (
+                <tr key={stockTransfer.id}>
+                  <td>{stockTransfer.id}</td>
+                  <td className="capitalize">{stockTransfer.status}</td>
+                  <td>{stockTransfer.transaction_date}</td>
+                  <td>{stockTransfer.rr_transfer}</td>
+                  <td>{0}</td>
+                  <td>{stockTransfer.remarks}</td>
+                  <td>{stockTransfer?.creator?.username}</td>
+                  <td>{stockTransfer?.modifier?.username}</td>
+                  <td>{stockTransfer.date_created}</td>
+                  <td>{stockTransfer.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -160,7 +231,7 @@ const ViewStockTransfer = ({
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(purchaseOrder);
+                          setSelectedRow(stockTransfer);
                         }}
                       >
                         Edit
@@ -172,7 +243,7 @@ const ViewStockTransfer = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(purchaseOrder);
+                          setSelectedRow(stockTransfer);
                         }}
                       >
                         Delete
@@ -185,11 +256,20 @@ const ViewStockTransfer = ({
           </Table>
         </Sheet>
       </Box>
-      <DeletePurchaseOrderModal
+      <Box className="flex align-center justify-end">
+        <Pagination
+          count={Math.ceil(stockTransfers.total / PAGE_LIMIT)}
+          page={page}
+          onChange={changePage}
+          shape="rounded"
+          className="mt-7 ml-auto"
+        />
+      </Box>
+      <DeleteSTModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Delete Delivery Receipt"
-        onDelete={handleDeletePurchaseOrder}
+        onDelete={handleDeleteST}
       />
     </>
   );

@@ -1,5 +1,5 @@
 import type { Expense } from "./components/ReceivingReport/interface";
-
+import type { User } from "./pages/Login";
 export interface Item {
   id: number;
   stock_code: string;
@@ -135,6 +135,11 @@ export interface PaginatedSDR {
 export interface PaginatedRR {
   total: number;
   items: ReceivingReport[];
+}
+
+export interface PaginatedST {
+  total: number;
+  items: StockTransfer[];
 }
 
 export interface PaginationQueryParams {
@@ -282,6 +287,13 @@ export interface ViewReceivingReportProps {
   setSelectedRow: (receivingReport: ReceivingReport) => void;
 }
 
+export interface ViewStockTransferProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: StockTransfer | undefined;
+  setSelectedRow: (stockTransfer: StockTransfer) => void;
+}
+
 export interface POItems {
   // Discrepancy between item_id, id
   item_id: number;
@@ -370,41 +382,39 @@ export interface ReceivingReport {
   date_modified: string;
 }
 
+interface StockTransferDetail {
+  id: number;
+  stock_transfer_id: number;
+  warehouse_id: number;
+  item_id: number;
+  product_name: string;
+  total_qty: number;
+  to_warehouse_id: number;
+  rr_balance_quantity: number;
+  on_stock: number;
+  available: number;
+  unit_code: string;
+  created_by: number;
+  date_created: string;
+  modified_by: number;
+  date_modified: string;
+  creator: User;
+  modifier: User;
+}
+
 export interface StockTransfer {
   id: number;
-  purchase_order_number: number;
-  supplier_id: number;
   status: string;
   transaction_date: string;
-  supplier_discount_1: string;
-  transaction_discount_1: string;
-  supplier_discount_2: string;
-  transaction_discount_2: string;
-  supplier_discount_3: string;
-  transaction_discount_3: string;
-  currency_used: string;
-  peso_rate: number;
-  net_amount: number;
-  fob_total: number;
-  landed_total: number;
-  reference_number: string;
+  rr_transfer: boolean;
   remarks: string;
-  supplier: Supplier;
+  supplier_id: number;
+  from_warehouse_id: number;
   created_by: number;
-  modified_by: number;
-  creator: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
   date_created: string;
-  modifier: {
-    full_name: string;
-    username: string;
-    email: string;
-    id: number;
-  };
+  modified_by: number;
   date_modified: string;
-  items: POItems[];
+  stock_transfer_details: StockTransferDetail[];
+  creator: User;
+  modifier: User;
 }
