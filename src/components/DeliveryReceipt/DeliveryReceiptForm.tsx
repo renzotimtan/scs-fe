@@ -21,6 +21,7 @@ const DeliveryReceiptForm = ({
   selectedRow,
   title,
 }: SDRFormProps): JSX.Element => {
+  const currentDate = new Date().toISOString().split("T")[0];
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -30,7 +31,7 @@ const DeliveryReceiptForm = ({
   );
   const [selectedPOs, setSelectedPOs] = useState<PurchaseOrder[]>([]);
   const [status, setStatus] = useState("unposted");
-  const [transactionDate, setTransactionDate] = useState("");
+  const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
@@ -40,6 +41,8 @@ const DeliveryReceiptForm = ({
   const [amountDiscount, setAmountDiscount] = useState(0);
   const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
   const pesoRate = selectedPOs.length > 0 ? selectedPOs[0].peso_rate : 0;
+  const currencyUsed =
+    selectedPOs.length > 0 ? selectedPOs[0].currency_used : "USD";
   const fobTotal = totalGross;
   const netAmount = totalNet - amountDiscount;
   const landedTotal = netAmount * pesoRate;
@@ -64,7 +67,7 @@ const DeliveryReceiptForm = ({
 
     if (selectedRow !== null && selectedRow !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
       setAmountDiscount(selectedRow?.discount_amount ?? 0);
@@ -84,7 +87,7 @@ const DeliveryReceiptForm = ({
     setSelectedSupplier(null);
     setSelectedPOs([]);
     setStatus("unposted");
-    setTransactionDate("");
+    setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");
     setAmountDiscount(0);
@@ -205,6 +208,8 @@ const DeliveryReceiptForm = ({
         setRemarks={setRemarks}
         referenceNumber={referenceNumber}
         setReferenceNumber={setReferenceNumber}
+        pesoRate={pesoRate}
+        currencyUsed={currencyUsed}
         // Summary Amounts
         fobTotal={fobTotal}
         netAmount={netAmount}

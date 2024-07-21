@@ -25,6 +25,8 @@ export interface SDRFormDetailsProps {
   setRemarks: Dispatch<SetStateAction<string>>;
   referenceNumber: string;
   setReferenceNumber: Dispatch<SetStateAction<string>>;
+  pesoRate: number;
+  currencyUsed: string;
 
   fobTotal: number;
   netAmount: number;

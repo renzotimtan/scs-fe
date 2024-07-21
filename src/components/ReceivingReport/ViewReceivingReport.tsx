@@ -187,6 +187,10 @@ const ViewReceivingReport = ({
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -217,7 +221,13 @@ const ViewReceivingReport = ({
             </thead>
             <tbody>
               {receivingReports.items.map((receivingReport) => (
-                <tr key={receivingReport.id}>
+                <tr
+                  key={receivingReport.id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(receivingReport);
+                  }}
+                >
                   <td>{receivingReport.id}</td>
                   <td>{receivingReport.reference_number}</td>
                   <td className="capitalize">{receivingReport.status}</td>

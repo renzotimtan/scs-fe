@@ -223,6 +223,10 @@ const SupplierForm = (): JSX.Element => {
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -255,7 +259,13 @@ const SupplierForm = (): JSX.Element => {
             </thead>
             <tbody>
               {suppliers.items.map((supplier) => (
-                <tr key={supplier.supplier_id}>
+                <tr
+                  key={supplier.supplier_id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(supplier);
+                  }}
+                >
                   <td>{supplier.code}</td>
                   <td>{supplier.name}</td>
                   <td>{supplier.building_address}</td>

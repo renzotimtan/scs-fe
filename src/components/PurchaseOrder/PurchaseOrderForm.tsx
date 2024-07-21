@@ -35,6 +35,7 @@ const PurchaseOrderForm = ({
   selectedRow,
   title,
 }: PurchaseOrderFormProps): JSX.Element => {
+  const currentDate = new Date().toISOString().split("T")[0];
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -50,7 +51,7 @@ const PurchaseOrderForm = ({
   const [discounts, setDiscounts] = useState(INITIAL_DISCOUNTS);
   const [pesoRate, setPesoRate] = useState<number>(56);
   const [status, setStatus] = useState("unposted");
-  const [transactionDate, setTransactionDate] = useState("");
+  const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
@@ -90,7 +91,7 @@ const PurchaseOrderForm = ({
       });
       setPesoRate(selectedRow?.peso_rate ?? 56);
       setStatus(selectedRow?.status ?? "pending");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
 
@@ -366,7 +367,7 @@ const PurchaseOrderForm = ({
     setDiscounts(INITIAL_DISCOUNTS);
     setPesoRate(56);
     setStatus("pending");
-    setTransactionDate("");
+    setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");
   };

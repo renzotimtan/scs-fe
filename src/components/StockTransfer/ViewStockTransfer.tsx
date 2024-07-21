@@ -187,6 +187,10 @@ const ViewStockTransfer = ({
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -212,7 +216,13 @@ const ViewStockTransfer = ({
             </thead>
             <tbody>
               {stockTransfers.items.map((stockTransfer) => (
-                <tr key={stockTransfer.id}>
+                <tr
+                  key={stockTransfer.id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(stockTransfer);
+                  }}
+                >
                   <td>{stockTransfer.id}</td>
                   <td className="capitalize">{stockTransfer.status}</td>
                   <td>{stockTransfer.transaction_date}</td>

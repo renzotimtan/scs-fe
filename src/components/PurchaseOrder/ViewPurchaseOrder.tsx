@@ -188,6 +188,10 @@ const ViewPurchaseOrder = ({
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -218,7 +222,13 @@ const ViewPurchaseOrder = ({
             </thead>
             <tbody>
               {purchaseOrders.items.map((purchaseOrder) => (
-                <tr key={purchaseOrder.id}>
+                <tr
+                  key={purchaseOrder.id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(purchaseOrder);
+                  }}
+                >
                   <td>{purchaseOrder.id}</td>
                   <td>{purchaseOrder.reference_number}</td>
                   <td className="capitalize">{purchaseOrder.status}</td>

@@ -231,6 +231,10 @@ const ItemForm = (): JSX.Element => {
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -265,7 +269,13 @@ const ItemForm = (): JSX.Element => {
             </thead>
             <tbody>
               {items.items.map((item) => (
-                <tr key={item.id}>
+                <tr
+                  key={item.id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(item);
+                  }}
+                >
                   <td>{item.stock_code}</td>
                   <td>{item.status}</td>
                   <td>{item.name}</td>

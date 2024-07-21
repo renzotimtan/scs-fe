@@ -28,7 +28,7 @@ const RRFormExpenses = ({
     if (value !== null) {
       setExpenses(
         expenses.map((expense) =>
-          expense.id === id ? { ...expense, type: value } : expense,
+          expense.id === id ? { ...expense, expense: value } : expense,
         ),
       );
     }
@@ -135,7 +135,7 @@ const RRFormExpenses = ({
                     onChange={(event) =>
                       handleInputChange(
                         expense.id,
-                        "other_expense",
+                        "other_currency_expense",
                         Number(event.target.value),
                       )
                     }

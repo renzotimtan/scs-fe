@@ -24,6 +24,7 @@ const StockTransferForm = ({
   selectedRow,
   title,
 }: RRFormProps): JSX.Element => {
+  const currentDate = new Date().toISOString().split("T")[0];
   const [selectedSDRs, setSelectedSDRs] = useState<DeliveryReceipt[]>([]);
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState("");
@@ -71,7 +72,7 @@ const StockTransferForm = ({
   useEffect(() => {
     if (selectedRow !== null && selectedRow !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
       setSelectedSDRs(selectedRow?.sdrs);
     }
@@ -80,7 +81,7 @@ const StockTransferForm = ({
   const resetForm = (): void => {
     setSelectedSDRs([]);
     setStatus("unposted");
-    setTransactionDate("");
+    setTransactionDate(currentDate);
     setRemarks("");
   };
 

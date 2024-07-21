@@ -187,6 +187,10 @@ const ViewDeliveryReceipt = ({
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -215,7 +219,13 @@ const ViewDeliveryReceipt = ({
             </thead>
             <tbody>
               {deliveryReceipts.items.map((deliveryReceipt) => (
-                <tr key={deliveryReceipt.id}>
+                <tr
+                  key={deliveryReceipt.id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(deliveryReceipt);
+                  }}
+                >
                   <td>{deliveryReceipt.id}</td>
                   <td>{deliveryReceipt.reference_number}</td>
                   <td className="capitalize">{deliveryReceipt.status}</td>

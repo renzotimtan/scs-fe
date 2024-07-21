@@ -23,6 +23,7 @@ const ReceivingReportForm = ({
   selectedRow,
   title,
 }: RRFormProps): JSX.Element => {
+  const currentDate = new Date().toISOString().split("T")[0];
   const initialExpense = {
     id: uuid(),
     expense: "",
@@ -38,7 +39,7 @@ const ReceivingReportForm = ({
   );
   const [selectedSDRs, setSelectedSDRs] = useState<DeliveryReceipt[]>([]);
   const [status, setStatus] = useState("unposted");
-  const [transactionDate, setTransactionDate] = useState("");
+  const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
@@ -78,7 +79,7 @@ const ReceivingReportForm = ({
 
     if (selectedRow !== null && selectedRow !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? "");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
       setSelectedSDRs(selectedRow?.sdrs);
@@ -118,7 +119,7 @@ const ReceivingReportForm = ({
     setStatus("unposted");
     setPesoRate(56);
     setCurrencyUsed("USD");
-    setTransactionDate("");
+    setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");
     setAmountDiscount(0);

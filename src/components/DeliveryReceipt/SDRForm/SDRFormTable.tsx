@@ -204,10 +204,11 @@ const SDRFormTable = ({
             </th>
             <th style={{ width: 300 }}>Stock Code</th>
             <th style={{ width: 300 }}>Name</th>
+            <th style={{ width: 150 }}>Served Qty.</th>
             <th style={{ width: 150 }}>PO Qty.</th>
             <th style={{ width: 150 }}>Unserved Qty.</th>
             <th style={{ width: 150 }}>Price</th>
-            <th style={{ width: 150 }}>Served Qty.</th>
+
             <th style={{ width: 150 }}>Gross Amount</th>
             <th style={{ width: 150 }}>Supp. Disc. 1 (%)</th>
             <th style={{ width: 150 }}>Supp. Disc. 2 (%)</th>
@@ -229,13 +230,6 @@ const SDRFormTable = ({
                   <td style={{ zIndex: 1 }}>{PO.id}</td>
                   <td>{POItem?.item.stock_code}</td>
                   <td>{POItem?.item.name}</td>
-                  <td>{POItem.volume}</td>
-                  <td>
-                    {!openEdit
-                      ? POItem.unserved_spo
-                      : POItem.unserved_spo + POItem.on_stock}
-                  </td>
-                  <td>{POItem?.price}</td>
                   <td>
                     <Input
                       type="number"
@@ -254,6 +248,14 @@ const SDRFormTable = ({
                       required
                     />
                   </td>
+                  <td>{POItem.volume}</td>
+                  <td>
+                    {!openEdit
+                      ? POItem.unserved_spo
+                      : POItem.unserved_spo + POItem.on_stock}
+                  </td>
+                  <td>{POItem?.price}</td>
+
                   <td>{grossPerRow[key]}</td>
                   <td>
                     {PO.supplier_discount_1.includes("%")

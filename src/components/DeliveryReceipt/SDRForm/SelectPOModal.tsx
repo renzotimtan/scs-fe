@@ -79,7 +79,7 @@ const SelectPOModal = ({
                     <ListItem key={PO.id}>
                       <Checkbox
                         checked={!!checkedPOs[PO.reference_number]}
-                        label={`Ref No. ${PO.reference_number}`}
+                        label={`PO: ${PO.id} | Ref: ${PO.reference_number} | ${PO.transaction_date}`}
                         onChange={() =>
                           handleCheckboxChange(PO.reference_number)
                         }

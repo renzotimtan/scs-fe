@@ -179,6 +179,7 @@ const POFormDetails = ({
                 slotProps={{
                   input: {
                     min: 0,
+                    step: ".01",
                   },
                 }}
                 required
@@ -192,11 +193,25 @@ const POFormDetails = ({
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>₱{fobTotal.toFixed(2)}</h5>{" "}
+              <h5>{`${currencyUsed} ${fobTotal.toFixed(2)}`}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{netAmount.toFixed(2)}</h5>
+              <h5>{`${currencyUsed} ${netAmount.toFixed(2)}`}</h5>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1 }}>
+              <FormLabel>LANDED Total</FormLabel>
+              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(2)}`}</h5>
+            </FormControl>
+          </div>
+          <div className="flex justify-around">
+            <FormControl size="sm" sx={{ mb: 1 }}>
+              <FormLabel>FOB Total</FormLabel>
+              <h5>₱{(fobTotal * pesoRate).toFixed(2)}</h5>{" "}
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1 }}>
+              <FormLabel>NET Amount</FormLabel>
+              <h5>₱{(netAmount * pesoRate).toFixed(2)}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>

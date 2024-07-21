@@ -203,6 +203,10 @@ const WarehouseForm = (): JSX.Element => {
                 right: 0,
                 bgcolor: "var(--TableCell-headBackground)",
               },
+              "& tbody tr:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.015)", // Add hover effect
+                cursor: "pointer", // Change cursor on hover
+              },
             }}
             borderAxis="both"
           >
@@ -223,7 +227,13 @@ const WarehouseForm = (): JSX.Element => {
             </thead>
             <tbody>
               {warehouses.items.map((warehouse) => (
-                <tr key={warehouse.id}>
+                <tr
+                  key={warehouse.id}
+                  onDoubleClick={() => {
+                    setOpenEdit(true);
+                    setSelectedRow(warehouse);
+                  }}
+                >
                   <td>{warehouse.code}</td>
                   <td>{warehouse.name}</td>
                   <td>{warehouse.type}</td>
