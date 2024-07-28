@@ -142,7 +142,7 @@ const ViewDeliveryReceipt = ({
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "144px",
+            "--Table-lastColumnWidth": "150px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -261,7 +261,7 @@ const ViewDeliveryReceipt = ({
                           setSelectedRow(deliveryReceipt);
                         }}
                       >
-                        Delete
+                        Archive
                       </Button>
                     </Box>
                   </td>

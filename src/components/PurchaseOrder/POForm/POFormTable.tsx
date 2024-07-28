@@ -154,7 +154,7 @@ const POFormTable = ({
             </th>
             <th style={{ width: 300 }}>Stock Code</th>
             <th style={{ width: 300 }}>Name</th>
-            <th style={{ width: 150 }}>Current Price</th>
+            <th style={{ width: 150 }}>Last Purchase Price</th>
             <th style={{ width: 150 }}>Volume</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
