@@ -243,8 +243,8 @@ const POFormTable = ({
                     }
                     onBlur={(e) => {
                       if (
-                        selectedItem.acquisition_cost !== selectedItem.price &&
-                        status === "posted"
+                        selectedItem.acquisition_cost !== selectedItem.price 
+                        // && status === "posted"
                       ) {
                         setIndexOfModal(index);
                         setIsConfirmOpen(true);
