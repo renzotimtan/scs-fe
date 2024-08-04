@@ -47,7 +47,8 @@ const POFormDetails = ({
   netAmount,
   landedTotal,
 }: POFormProps): JSX.Element => {
-  const isEditDisabled = selectedRow?.status !== "unposted";
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
 
   const handleDiscountChange = (
     type: "supplier" | "transaction",

@@ -45,6 +45,7 @@ export interface NewPriceInstance {
 
 export interface POFormTableProps {
   items: Item[];
+  status: string;
   selectedRow: PurchaseOrder | undefined;
   selectedItems: Item[];
   setSelectedItems: Dispatch<SetStateAction<Item[]>>;

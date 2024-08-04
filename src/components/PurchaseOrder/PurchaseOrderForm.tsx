@@ -36,7 +36,8 @@ const PurchaseOrderForm = ({
   title,
 }: PurchaseOrderFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
-  const isEditDisabled = selectedRow?.status !== "unposted";
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -418,6 +419,7 @@ const PurchaseOrderForm = ({
       />
       <POFormTable
         items={items}
+        status={status}
         selectedRow={selectedRow}
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}

@@ -7,6 +7,7 @@ import type { POFormTableProps } from "../interface";
 
 const POFormTable = ({
   items,
+  status,
   selectedRow,
   selectedItems,
   setSelectedItems,
@@ -17,7 +18,8 @@ const POFormTable = ({
   isConfirmOpen,
   setIsConfirmOpen,
 }: POFormTableProps): JSX.Element => {
-  const isEditDisabled = selectedRow?.status !== "unposted";
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
   const handleRemoveItem = (index: number): void => {
     if (selectedItems[index].id !== null) {
       setSelectedItems(
@@ -241,7 +243,8 @@ const POFormTable = ({
                     }
                     onBlur={(e) => {
                       if (
-                        selectedItem.acquisition_cost !== selectedItem.price
+                        selectedItem.acquisition_cost !== selectedItem.price &&
+                        status === "posted"
                       ) {
                         setIndexOfModal(index);
                         setIsConfirmOpen(true);
