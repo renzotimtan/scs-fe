@@ -7,6 +7,7 @@ import type { POFormTableProps } from "../interface";
 
 const POFormTable = ({
   items,
+  selectedRow,
   selectedItems,
   setSelectedItems,
   indexOfModal,
@@ -16,6 +17,7 @@ const POFormTable = ({
   isConfirmOpen,
   setIsConfirmOpen,
 }: POFormTableProps): JSX.Element => {
+  const isEditDisabled = selectedRow?.status !== "unposted";
   const handleRemoveItem = (index: number): void => {
     if (selectedItems[index].id !== null) {
       setSelectedItems(
@@ -193,6 +195,7 @@ const POFormTable = ({
                   size="sm"
                   placeholder="Select Item"
                   value={selectedItem.id}
+                  disabled={isEditDisabled}
                 >
                   {items.map((item: Item) => (
                     <Option key={item.id} value={item.id}>
@@ -217,6 +220,7 @@ const POFormTable = ({
                       },
                     }}
                     value={selectedItem.volume}
+                    disabled={isEditDisabled}
                     required
                   />
                 )}
@@ -229,7 +233,7 @@ const POFormTable = ({
                     slotProps={{
                       input: {
                         min: 0,
-                        step: ".01"
+                        step: ".01",
                       },
                     }}
                     onChange={(e) =>
@@ -243,6 +247,7 @@ const POFormTable = ({
                         setIsConfirmOpen(true);
                       }
                     }}
+                    disabled={isEditDisabled}
                   />
                 )}
               </td>
@@ -258,6 +263,7 @@ const POFormTable = ({
                     color="danger"
                     className="bg-delete-red"
                     onClick={() => handleRemoveItem(index)}
+                    disabled={isEditDisabled}
                   >
                     Delete
                   </Button>

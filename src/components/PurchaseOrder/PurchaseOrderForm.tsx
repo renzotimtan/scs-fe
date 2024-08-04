@@ -36,6 +36,7 @@ const PurchaseOrderForm = ({
   title,
 }: PurchaseOrderFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
+  const isEditDisabled = selectedRow?.status !== "unposted";
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -417,6 +418,7 @@ const PurchaseOrderForm = ({
       />
       <POFormTable
         items={items}
+        selectedRow={selectedRow}
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}
         indexOfModal={indexOfModal}
@@ -437,16 +439,18 @@ const PurchaseOrderForm = ({
           }}
         >
           <DoDisturbIcon className="mr-2" />
-          Cancel
+          {isEditDisabled ? "Go Back" : "Cancel"}
         </Button>
-        <Button
-          type="submit"
-          className="ml-4 w-[130px] bg-button-primary"
-          size="sm"
-        >
-          <SaveIcon className="mr-2" />
-          Save
-        </Button>
+        {!isEditDisabled && (
+          <Button
+            type="submit"
+            className="ml-4 w-[130px] bg-button-primary"
+            size="sm"
+          >
+            <SaveIcon className="mr-2" />
+            Save
+          </Button>
+        )}
       </div>
     </form>
   );

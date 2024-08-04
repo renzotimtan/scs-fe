@@ -145,7 +145,7 @@ const ViewPurchaseOrder = ({
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "150px",
+            "--Table-lastColumnWidth": "160px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -257,7 +257,7 @@ const ViewPurchaseOrder = ({
                           setSelectedRow(purchaseOrder);
                         }}
                       >
-                        Edit
+                        {purchaseOrder.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"

@@ -47,6 +47,8 @@ const POFormDetails = ({
   netAmount,
   landedTotal,
 }: POFormProps): JSX.Element => {
+  const isEditDisabled = selectedRow?.status !== "unposted";
+
   const handleDiscountChange = (
     type: "supplier" | "transaction",
     index: number,
@@ -92,6 +94,7 @@ const POFormDetails = ({
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Supplier"
+                disabled={isEditDisabled}
                 required
               />
             </div>
@@ -105,6 +108,7 @@ const POFormDetails = ({
                 }}
                 size="sm"
                 value={status}
+                disabled={isEditDisabled}
               >
                 <Option value="unposted">Unposted</Option>
                 <Option value="posted">Posted</Option>
@@ -117,6 +121,7 @@ const POFormDetails = ({
                 type="date"
                 value={transactionDate}
                 onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -132,6 +137,7 @@ const POFormDetails = ({
                       handleDiscountChange("supplier", index, e.target.value)
                     }
                     placeholder="Enter % or actual discount"
+                    disabled={isEditDisabled}
                     required
                   />
                 </FormControl>
@@ -143,6 +149,7 @@ const POFormDetails = ({
                       handleDiscountChange("transaction", index, e.target.value)
                     }
                     placeholder="Enter % or actual discount"
+                    disabled={isEditDisabled}
                     required
                   />
                 </FormControl>
@@ -159,6 +166,7 @@ const POFormDetails = ({
                 size="sm"
                 placeholder="USD"
                 value={currencyUsed}
+                disabled={isEditDisabled}
               >
                 {AVAILABLE_CURRENCIES.map((currency) => (
                   <Option key={currency} value={currency}>
@@ -182,6 +190,7 @@ const POFormDetails = ({
                     step: ".01",
                   },
                 }}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -246,6 +255,7 @@ const POFormDetails = ({
               placeholder="Search"
               onChange={(e) => setReferenceNumber(e.target.value)}
               value={referenceNumber}
+              disabled={isEditDisabled}
               required
             />
           </FormControl>
@@ -256,6 +266,7 @@ const POFormDetails = ({
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
+              disabled={isEditDisabled}
               required
             />
           </FormControl>
