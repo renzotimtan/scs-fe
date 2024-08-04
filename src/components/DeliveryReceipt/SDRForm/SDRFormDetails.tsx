@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
 import type { PurchaseOrder } from "../../../interface";
 import SelectPOModal from "./SelectPOModal";
+import { convertToQueryParams } from "../../../helper";
 
 const SDRFormDetails = ({
   openEdit,
@@ -97,7 +98,9 @@ const SDRFormDetails = ({
         .get<PurchaseOrder[]>(
           `/api/purchase-orders/${selectedSupplier.supplier_id}`,
         )
-        .then((response) => setUnservedPOs(response.data))
+        .then((response) =>
+          setUnservedPOs(response.data.filter((PO) => PO.status === "posted")),
+        )
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedSupplier]);
@@ -209,7 +212,7 @@ const SDRFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(2)}`}</h5>
+              <h5>{`${currencyUsed} ${(landedTotal / pesoRate || 0).toFixed(2)}`}</h5>
             </FormControl>
           </div>
           <div className="flex justify-around">

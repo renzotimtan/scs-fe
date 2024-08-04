@@ -83,8 +83,10 @@ const ViewReceivingReport = ({
         toast.success("Delete successful!");
         setReceivingReports((prevRR) => ({
           ...prevRR,
-          items: prevRR.items.filter((RR) => RR.id !== selectedRow.id),
-          total: prevRR.total - 1,
+          items: prevRR.items.map((RR) =>
+            RR.id === selectedRow.id ? { ...RR, status: "archived" } : RR,
+          ),
+          total: prevRR.total,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -264,6 +266,7 @@ const ViewReceivingReport = ({
                           setOpenDelete(true);
                           setSelectedRow(receivingReport);
                         }}
+                        disabled={receivingReport.status === "archived"}
                       >
                         Archive
                       </Button>
@@ -287,7 +290,7 @@ const ViewReceivingReport = ({
       <DeleteReceivingReportModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Delivery Receipt"
+        title="Archive Delivery Receipt"
         onDelete={handleDeleteRR}
       />
     </>

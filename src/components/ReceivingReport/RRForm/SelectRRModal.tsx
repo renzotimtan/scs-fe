@@ -2,7 +2,7 @@ import { useState, type Dispatch, type SetStateAction, useEffect } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import { Button, Box, ListItem, List, Checkbox } from "@mui/joy";
+import { Button, Box, ListItem, List, Checkbox, Table } from "@mui/joy";
 import type { DeliveryReceipt, PaginatedSDR } from "../../../interface";
 
 const SelectSDRModal = ({
@@ -17,6 +17,9 @@ const SelectSDRModal = ({
   setSelectedSDRs: Dispatch<SetStateAction<DeliveryReceipt[]>>;
 }): JSX.Element => {
   const [checkedSDRs, setCheckedSDRs] = useState<Record<string, boolean>>({});
+  const postedUnservedSDRs = unservedSDRs?.items.filter(
+    (SDR) => SDR.status === "posted",
+  );
 
   useEffect(() => {
     const options: Record<string, boolean> = {};
@@ -64,7 +67,7 @@ const SelectSDRModal = ({
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: 500,
+            maxWidth: 800,
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
@@ -72,25 +75,41 @@ const SelectSDRModal = ({
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <Box>
-            <h4 className="mb-6">Select Purchase Orders</h4>
+            <h4 className="mb-6">Select Delivery Receipts</h4>
 
             <div>
-              <List size="sm" className="h-[250px] overflow-y-scroll">
-                {unservedSDRs?.items !== undefined &&
-                  unservedSDRs.items.length > 0 &&
-                  unservedSDRs.items.map((SDR) => (
-                    <ListItem key={SDR.id}>
-                      <Checkbox
-                        checked={!!checkedSDRs[SDR.reference_number]}
-                        label={`Ref No. ${SDR.reference_number}`}
-                        onChange={() =>
-                          handleCheckboxChange(SDR.reference_number)
-                        }
-                      />
-                    </ListItem>
+              <List size="sm" className="h-[250px] w-100 overflow-y-scroll">
+                {postedUnservedSDRs !== undefined &&
+                  postedUnservedSDRs.length > 0 &&
+                  postedUnservedSDRs.map((SDR) => (
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>Check</th>
+                          <th>PO No.</th>
+                          <th>Ref No.</th>
+                          <th>Trans. Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <td>
+                          <ListItem key={SDR.id}>
+                            <Checkbox
+                              checked={!!checkedSDRs[SDR.reference_number]}
+                              onChange={() =>
+                                handleCheckboxChange(SDR.reference_number)
+                              }
+                            />
+                          </ListItem>
+                        </td>
+                        <td>{SDR.id}</td>
+                        <td>{SDR.reference_number}</td>
+                        <td>{SDR.transaction_date}</td>
+                      </tbody>
+                    </Table>
                   ))}
-                {(unservedSDRs?.items === undefined ||
-                  unservedSDRs.items.length === 0) &&
+                {(postedUnservedSDRs === undefined ||
+                  postedUnservedSDRs.length === 0) &&
                   "No Supplier Delivery Receipts"}
               </List>
             </div>

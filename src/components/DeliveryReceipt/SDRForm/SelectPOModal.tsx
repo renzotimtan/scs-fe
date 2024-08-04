@@ -2,7 +2,7 @@ import { useState, type Dispatch, type SetStateAction, useEffect } from "react";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import { Button, Box, ListItem, List, Checkbox } from "@mui/joy";
+import { Button, Box, ListItem, List, Checkbox, Table } from "@mui/joy";
 import type { PurchaseOrder } from "../../../interface";
 
 const SelectPOModal = ({
@@ -61,7 +61,7 @@ const SelectPOModal = ({
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: 500,
+            maxWidth: 800,
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
@@ -70,21 +70,44 @@ const SelectPOModal = ({
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <Box>
             <h4 className="mb-6">Select Purchase Orders</h4>
-
             <div>
-              <List size="sm" className="h-[250px] overflow-y-scroll">
+              <List size="sm" className="h-[250px] w-100 overflow-y-scroll">
                 {unservedPOs !== undefined &&
                   unservedPOs.length > 0 &&
                   unservedPOs.map((PO) => (
-                    <ListItem key={PO.id}>
-                      <Checkbox
-                        checked={!!checkedPOs[PO.reference_number]}
-                        label={`PO: ${PO.id} | Ref: ${PO.reference_number} | ${PO.transaction_date}`}
-                        onChange={() =>
-                          handleCheckboxChange(PO.reference_number)
-                        }
-                      />
-                    </ListItem>
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>
+                            Check
+                          </th>
+                          <th>
+                            PO No.
+                          </th>
+                          <th>
+                            Ref No.
+                          </th>
+                          <th>
+                            Trans. Date
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <td>
+                          <ListItem key={PO.id}>
+                            <Checkbox
+                              checked={!!checkedPOs[PO.reference_number]}
+                              onChange={() =>
+                                handleCheckboxChange(PO.reference_number)
+                              }
+                            />
+                          </ListItem>
+                        </td>
+                        <td>{PO.id}</td>
+                        <td>{PO.reference_number}</td>
+                        <td>{PO.transaction_date}</td>
+                      </tbody>
+                    </Table>
                   ))}
                 {(unservedPOs === undefined || unservedPOs.length === 0) &&
                   "No Purchase Orders with Unserved Quantities"}

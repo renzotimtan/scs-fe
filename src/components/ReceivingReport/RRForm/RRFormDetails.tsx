@@ -200,7 +200,7 @@ const RRFormDetails = ({
                 onClick={() => setIsSelectModalOpen(true)}
                 disabled={selectedSupplier === null}
               >
-                Fill Up PO Item Table
+                Fill Up SDR Table
               </Button>
             </Stack>
           )}

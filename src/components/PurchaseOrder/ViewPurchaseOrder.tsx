@@ -80,11 +80,13 @@ const ViewPurchaseOrder = ({
       const url = `/api/purchase_orders/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
-        toast.success("Delete successful!");
+        toast.success("Archive successful!");
         setPurchaseOrders((prevPO) => ({
           ...prevPO,
-          items: prevPO.items.filter((PO) => PO.id !== selectedRow.id),
-          total: prevPO.total - 1,
+          items: prevPO.items.map((PO) =>
+            PO.id === selectedRow.id ? { ...PO, status: "archived" } : PO,
+          ),
+          total: prevPO.total,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -266,6 +268,7 @@ const ViewPurchaseOrder = ({
                           setOpenDelete(true);
                           setSelectedRow(purchaseOrder);
                         }}
+                        disabled={purchaseOrder.status === "archived"}
                       >
                         Archive
                       </Button>
@@ -289,7 +292,7 @@ const ViewPurchaseOrder = ({
       <DeletePurchaseOrderModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Purchase Order"
+        title="Archive Purchase Order"
         onDelete={handleDeletePurchaseOrder}
       />
     </>

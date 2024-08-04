@@ -80,11 +80,13 @@ const ViewDeliveryReceipt = ({
       const url = `/api/supplier-delivery-receipts/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
-        toast.success("Delete successful!");
+        toast.success("Archive successful!");
         setDeliveryReceipts((prevSDR) => ({
           ...prevSDR,
-          items: prevSDR.items.filter((SDR) => SDR.id !== selectedRow.id),
-          total: prevSDR.total - 1,
+          items: prevSDR.items.map((SDR) =>
+            SDR.id === selectedRow.id ? { ...SDR, status: "archived" } : SDR,
+          ),
+          total: prevSDR.total,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -260,6 +262,7 @@ const ViewDeliveryReceipt = ({
                           setOpenDelete(true);
                           setSelectedRow(deliveryReceipt);
                         }}
+                        disabled={deliveryReceipt.status === "archived"}
                       >
                         Archive
                       </Button>
@@ -283,7 +286,7 @@ const ViewDeliveryReceipt = ({
       <DeleteDeliveryReceiptModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Delivery Receipt"
+        title="Archive Delivery Receipt"
         onDelete={handleDeleteDeliveryReceipt}
       />
     </>

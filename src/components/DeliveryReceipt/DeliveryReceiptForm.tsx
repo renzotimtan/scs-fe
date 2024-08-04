@@ -116,7 +116,7 @@ const DeliveryReceiptForm = ({
             price: POItem.price,
             total_price: POItem.total_price,
             id: POItem.id,
-            unserved_spo: POItem.unserved_spo - servedAmt[key],
+            unserved_spo: POItem.unserved_spo,
             on_stock: servedAmt[key],
             available: POItem.available,
             allocated: POItem.allocated,
