@@ -37,7 +37,7 @@ textarea:disabled,
 select:disabled,
 textarea:disabled,
 .MuiSelect-button.css-1hr8yhh-JoySelect-button:disabled {
-  color: rgb(119, 119, 119) !important; /* Change the text color to black */
+  color: rgb(78, 78, 78) !important; /* Change the text color to black */
   border-color: black !important; /* Change the border color to black, if applicable */
   background-color: inherit !important; /* Keep the background color same as inherited, if you want */
   opacity: 1 !important; /* Remove any reduced opacity, if needed */

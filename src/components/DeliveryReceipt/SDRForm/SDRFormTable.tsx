@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { POItems, PurchaseOrder } from "../../../interface";
 
 const SDRFormTable = ({
+  selectedRow,
   selectedPOs,
   setSelectedPOs,
   totalNet,
@@ -14,9 +15,11 @@ const SDRFormTable = ({
   setTotalNet,
   setTotalGross,
   openEdit,
+  isEditDisabled,
 }: SDRFormTableProps): JSX.Element => {
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
   const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
+  const status = selectedRow?.status;
 
   useEffect(() => {
     // Instantiate state per row
@@ -59,15 +62,17 @@ const SDRFormTable = ({
 
     selectedPOs.forEach((PO, index1) => {
       PO.items.forEach((POItem, index2) => {
+        console.log(POItem);
         const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-        const onStock = POItem.on_stock;
+        const inTransit =
+          status === "unposted" ? POItem.temp_in_transit : POItem.in_transit;
 
-        servedPerRow[key] = onStock;
+        servedPerRow[key] = inTransit;
 
-        const newNet = calculateNetForRow(onStock, POItem, PO);
+        const newNet = calculateNetForRow(inTransit, POItem, PO);
         netPerRow[key] = newNet;
 
-        const newGross = calculateGrossPerRow(onStock, POItem);
+        const newGross = calculateGrossPerRow(inTransit, POItem);
         grossPerRow[key] = newGross;
       });
     });
@@ -245,6 +250,7 @@ const SDRFormTable = ({
                         },
                       }}
                       value={servedAmt[key]}
+                      disabled={isEditDisabled}
                       required
                     />
                   </td>

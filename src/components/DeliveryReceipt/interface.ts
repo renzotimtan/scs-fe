@@ -27,6 +27,7 @@ export interface SDRFormDetailsProps {
   setReferenceNumber: Dispatch<SetStateAction<string>>;
   pesoRate: number;
   currencyUsed: string;
+  isEditDisabled: boolean;
 
   fobTotal: number;
   netAmount: number;
@@ -46,6 +47,7 @@ export interface POFormTableProps {
 }
 
 export interface SDRFormTableProps {
+  selectedRow: DeliveryReceipt | undefined;
   selectedPOs: PurchaseOrder[];
   setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
   totalNet: number;
@@ -54,6 +56,7 @@ export interface SDRFormTableProps {
   setTotalNet: Dispatch<SetStateAction<number>>;
   setTotalGross: Dispatch<SetStateAction<number>>;
   openEdit: boolean;
+  isEditDisabled: boolean;
 }
 
 export interface POPayload {

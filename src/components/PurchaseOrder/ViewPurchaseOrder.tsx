@@ -249,6 +249,7 @@ const ViewPurchaseOrder = ({
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
+                        className="w-[80px]"
                         size="sm"
                         variant="plain"
                         color="neutral"

@@ -40,6 +40,7 @@ const SDRFormDetails = ({
   setReferenceNumber,
   pesoRate,
   currencyUsed,
+  isEditDisabled,
 
   // Summary Amounts
   fobTotal,
@@ -54,7 +55,7 @@ const SDRFormDetails = ({
   const isAmtDiscountAlreadyApplied = (PO: PurchaseOrder): boolean => {
     for (const POItem of PO.items) {
       // If on stock increased, meaning this PO has already been handled before
-      if (POItem.on_stock > 0 || POItem.allocated > 0 || POItem.available > 0)
+      if (POItem.on_stock > 0 || POItem.allocated > 0 || POItem.in_transit > 0)
         return true;
     }
     return false;
@@ -149,6 +150,7 @@ const SDRFormDetails = ({
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Supplier"
+                disabled={isEditDisabled}
                 required
               />
             </div>
@@ -162,6 +164,7 @@ const SDRFormDetails = ({
                 }}
                 size="sm"
                 value={status}
+                disabled={isEditDisabled}
               >
                 <Option value="posted">Posted</Option>
                 <Option value="unposted">Unposted</Option>
@@ -173,6 +176,7 @@ const SDRFormDetails = ({
                 type="date"
                 value={transactionDate}
                 onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -257,6 +261,7 @@ const SDRFormDetails = ({
               placeholder="Search"
               onChange={(e) => setReferenceNumber(e.target.value)}
               value={referenceNumber}
+              disabled={isEditDisabled}
               required
             />
           </FormControl>
@@ -267,6 +272,7 @@ const SDRFormDetails = ({
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
+              disabled={isEditDisabled}
               required
             />
           </FormControl>

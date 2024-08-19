@@ -44,7 +44,7 @@ const POFormTable = ({
         volume: 1,
         on_stock: 0,
         allocated: 0,
-        available: 0,
+        in_transit: 0,
       };
 
       // We need to add the new item before the null item
@@ -158,7 +158,7 @@ const POFormTable = ({
             </th>
             <th style={{ width: 300 }}>Stock Code</th>
             <th style={{ width: 300 }}>Name</th>
-            <th style={{ width: 150 }}>Last Purchase Price</th>
+            <th style={{ width: 200 }}>Last Purchase Price</th>
             <th style={{ width: 150 }}>Volume</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>

@@ -208,7 +208,7 @@ const PurchaseOrderForm = ({
         volume: item.volume,
         on_stock: item.on_stock,
         allocated: item.allocated,
-        available: item.available,
+        in_transit: item.in_transit,
       };
 
       return modifiedItem;
@@ -344,7 +344,7 @@ const PurchaseOrderForm = ({
         // Fields needed only for edit
         on_stock: item.on_stock,
         allocated: item.allocated,
-        available: item.available,
+        in_transit: item.in_transit,
       }));
 
     const payload = createPayload(itemPayload, true);

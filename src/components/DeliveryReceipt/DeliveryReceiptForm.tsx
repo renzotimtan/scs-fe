@@ -47,6 +47,9 @@ const DeliveryReceiptForm = ({
   const netAmount = totalNet - amountDiscount;
   const landedTotal = netAmount * pesoRate;
 
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
+
   useEffect(() => {
     // Fetch suppliers
     axiosInstance
@@ -117,8 +120,8 @@ const DeliveryReceiptForm = ({
             total_price: POItem.total_price,
             id: POItem.id,
             unserved_spo: POItem.unserved_spo,
-            on_stock: servedAmt[key],
-            available: POItem.available,
+            on_stock: POItem.on_stock,
+            in_transit: servedAmt[key],
             allocated: POItem.allocated,
           };
         }),
@@ -136,56 +139,58 @@ const DeliveryReceiptForm = ({
     }
   };
 
-  // const handleEditDeliveryReceipt = async (): Promise<void> => {
-  //   const payload = {
-  //     sdr_data: {
-  //       status,
-  //       transaction_date: transactionDate,
-  //       fob_total: fobTotal,
-  //       net_amount: netAmount,
-  //       landed_total: landedTotal,
-  //       discount_amount: amountDiscount,
-  //       reference_number: referenceNumber,
-  //       remarks,
-  //       modified_by: userId,
-  //     },
-  //     items_data: selectedPOs.flatMap((PO, index1) =>
-  //       PO.items.map((POItem, index2) => {
-  //         const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-  //         return {
-  //           purchase_order_id: PO.id,
-  //           item_id: POItem.item_id,
-  //           volume: POItem.volume,
-  //           price: POItem.price,
-  //           total_price: POItem.total_price,
-  //           id: POItem.id,
-  //           unserved_spo:
-  //             // ORIGINAL unserved - served
-  //             POItem.unserved_spo + POItem.on_stock - servedAmt[key],
-  //           on_stock: servedAmt[key],
-  //           available: POItem.available,
-  //           allocated: POItem.allocated,
-  //         };
-  //       }),
-  //     ),
-  //   };
+  const handleEditDeliveryReceipt = async (): Promise<void> => {
+    const payload = {
+      sdr_data: {
+        status,
+        transaction_date: transactionDate,
+        fob_total: fobTotal,
+        net_amount: netAmount,
+        landed_total: landedTotal,
+        discount_amount: amountDiscount,
+        reference_number: referenceNumber,
+        remarks,
+        modified_by: userId,
+      },
+      items_data: selectedPOs.flatMap((PO, index1) =>
+        PO.items.map((POItem, index2) => {
+          const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+          return {
+            purchase_order_id: PO.id,
+            item_id: POItem.item_id,
+            volume: POItem.volume,
+            price: POItem.price,
+            total_price: POItem.total_price,
+            id: POItem.id,
+            unserved_spo: POItem.unserved_spo,
+            on_stock: POItem.on_stock,
+            in_transit: servedAmt[key],
+            allocated: POItem.allocated,
+          };
+        }),
+      ),
+    };
 
-  //   try {
-  //     await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
-  //     toast.success("Save successful!");
-  //     resetForm();
-  //     setOpen(false);
-  //     // Handle the response, update state, etc.
-  //   } catch (error: any) {
-  //     toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
-  //   }
-  // };
+    try {
+      await axiosInstance.put(
+        `/api/supplier-delivery-receipts/${selectedRow?.id}`,
+        payload,
+      );
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
+  };
 
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateDeliveryReceipt();
+        if (openEdit) await handleEditDeliveryReceipt();
       }}
     >
       <div className="flex justify-between">
@@ -216,8 +221,10 @@ const DeliveryReceiptForm = ({
         landedTotal={landedTotal}
         amountDiscount={amountDiscount}
         setAmountDiscount={setAmountDiscount}
+        isEditDisabled={isEditDisabled}
       />
       <SDRFormTable
+        selectedRow={selectedRow}
         selectedPOs={selectedPOs}
         setSelectedPOs={setSelectedPOs}
         totalNet={totalNet}
@@ -226,6 +233,7 @@ const DeliveryReceiptForm = ({
         setTotalNet={setTotalNet}
         setTotalGross={setTotalGross}
         openEdit={openEdit}
+        isEditDisabled={isEditDisabled}
       />
       <Divider />
       <div className="flex justify-end mt-4">
@@ -238,16 +246,18 @@ const DeliveryReceiptForm = ({
           }}
         >
           <DoDisturbIcon className="mr-2" />
-          Cancel
+          {isEditDisabled ? "Go Back" : "Cancel"}
         </Button>
-        <Button
-          type="submit"
-          className="ml-4 w-[130px] bg-button-primary"
-          size="sm"
-        >
-          <SaveIcon className="mr-2" />
-          Save
-        </Button>
+        {!isEditDisabled && (
+          <Button
+            type="submit"
+            className="ml-4 w-[130px] bg-button-primary"
+            size="sm"
+          >
+            <SaveIcon className="mr-2" />
+            Save
+          </Button>
+        )}
       </div>
     </form>
   );

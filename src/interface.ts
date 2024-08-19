@@ -39,7 +39,7 @@ export interface Item {
   volume?: number;
   price?: number;
   on_stock?: number;
-  available?: number;
+  in_transit?: number;
   allocated?: number;
 }
 
@@ -304,10 +304,14 @@ export interface POItems {
   price: number;
   total_price: number;
   on_stock: number;
-  available: number;
+  in_transit: number;
   allocated: number;
   unserved_spo: number;
   item: Item;
+
+  temp_in_transit: number;
+  temp_on_stock: number;
+  temp_allocated: number;
 }
 
 export interface DeliveryReceipt {
