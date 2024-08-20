@@ -167,11 +167,54 @@ const ReceivingReportForm = ({
     }
   };
 
+  const handleEditReceivingReport = async (): Promise<void> => {
+    const payload = {
+      status,
+      transaction_date: transactionDate,
+      supplier_id: selectedSupplier?.supplier_id,
+      currency: currencyUsed,
+      rate: pesoRate,
+      total_expense: totalExpense,
+      reference_number: referenceNumber,
+      pct_net_cost: percentNetCost,
+      remarks,
+      fob_total: fobTotal,
+      net_amount: netAmount,
+      landed_total: landedTotal,
+      modified_by: userId,
+      sdr_ids: selectedSDRs.map((SDR) => SDR.id),
+      expenses: expenses.map((expense) => {
+        return {
+          id: expense.id,
+          expense: expense.expense,
+          amount: expense.amount,
+          currency: "",
+          other_currency_expense: expense.other_currency_expense,
+          modified_by: userId,
+        };
+      }),
+    };
+
+    try {
+      await axiosInstance.put(
+        `/api/receiving-reports/${selectedRow?.id}`,
+        payload,
+      );
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+    }
+  };
+
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateReceivingReport();
+        if (openEdit) await handleEditReceivingReport();
       }}
     >
       <div className="flex justify-between">
