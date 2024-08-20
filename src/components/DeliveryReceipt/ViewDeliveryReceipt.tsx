@@ -265,7 +265,7 @@ const ViewDeliveryReceipt = ({
                           setOpenDelete(true);
                           setSelectedRow(deliveryReceipt);
                         }}
-                        disabled={deliveryReceipt.status === "archived"}
+                        disabled={deliveryReceipt.status !== "unposted"}
                       >
                         Archive
                       </Button>

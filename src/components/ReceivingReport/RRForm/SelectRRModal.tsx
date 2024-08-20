@@ -79,38 +79,41 @@ const SelectSDRModal = ({
 
             <div>
               <List size="sm" className="h-[250px] w-100 overflow-y-scroll">
-                {postedUnservedSDRs !== undefined &&
-                  postedUnservedSDRs.length > 0 &&
-                  postedUnservedSDRs.map((SDR) => (
-                    <Table>
-                      <thead>
+                <Table>
+                  <thead>
+                    <tr>
+                      <th>Check</th>
+                      <th>PO No.</th>
+                      <th>Ref No.</th>
+                      <th>Trans. Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {postedUnservedSDRs !== undefined &&
+                      postedUnservedSDRs.length > 0 &&
+                      postedUnservedSDRs.map((SDR) => (
                         <tr>
-                          <th>Check</th>
-                          <th>PO No.</th>
-                          <th>Ref No.</th>
-                          <th>Trans. Date</th>
+                          <td>
+                            <ListItem key={SDR.id}>
+                              <Checkbox
+                                checked={!!checkedSDRs[SDR.reference_number]}
+                                onChange={() =>
+                                  handleCheckboxChange(SDR.reference_number)
+                                }
+                              />
+                            </ListItem>
+                          </td>
+                          <td>{SDR.id}</td>
+                          <td>{SDR.reference_number}</td>
+                          <td>{SDR.transaction_date}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        <td>
-                          <ListItem key={SDR.id}>
-                            <Checkbox
-                              checked={!!checkedSDRs[SDR.reference_number]}
-                              onChange={() =>
-                                handleCheckboxChange(SDR.reference_number)
-                              }
-                            />
-                          </ListItem>
-                        </td>
-                        <td>{SDR.id}</td>
-                        <td>{SDR.reference_number}</td>
-                        <td>{SDR.transaction_date}</td>
-                      </tbody>
-                    </Table>
-                  ))}
+                      ))}
+                  </tbody>
+                </Table>
                 {(postedUnservedSDRs === undefined ||
-                  postedUnservedSDRs.length === 0) &&
-                  "No Supplier Delivery Receipts"}
+                  postedUnservedSDRs.length === 0) && (
+                  <p className="mt-5 text-sm">No Supplier Delivery Receipts</p>
+                )}
               </List>
             </div>
             <div className="flex justify-end mt-5">

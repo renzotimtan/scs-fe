@@ -42,14 +42,14 @@ const RRFormTable = ({
       SDR.purchase_orders.forEach((PO, index2) => {
         PO.items.forEach((POItem, index3) => {
           const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
-          const onStock = POItem.on_stock;
+          const inTransit = POItem.in_transit;
 
-          servedPerRow[key] = onStock;
+          servedPerRow[key] = inTransit;
 
-          const newNet = calculateNetForRow(onStock, POItem, PO);
+          const newNet = calculateNetForRow(inTransit, POItem, PO);
           netPerRow[key] = newNet;
 
-          const newGross = calculateGrossPerRow(onStock, POItem);
+          const newGross = calculateGrossPerRow(inTransit, POItem);
           grossPerRow[key] = newGross;
         });
       });
@@ -190,7 +190,7 @@ const RRFormTable = ({
                     <td>{PO.id}</td>
                     <td>{POItem?.item.stock_code}</td>
                     <td>{POItem?.item.name}</td>
-                    <td>{POItem.on_stock}</td>
+                    <td>{POItem.in_transit}</td>
                     <td>{POItem.price}</td>
                     <td>{grossPerRow[key]}</td>
                     <td>

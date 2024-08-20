@@ -72,45 +72,42 @@ const SelectPOModal = ({
             <h4 className="mb-6">Select Purchase Orders</h4>
             <div>
               <List size="sm" className="h-[250px] w-100 overflow-y-scroll">
-                {unservedPOs !== undefined &&
-                  unservedPOs.length > 0 &&
-                  unservedPOs.map((PO) => (
-                    <Table>
-                      <thead>
+                <Table>
+                  <thead>
+                    <tr>
+                      <th>Check</th>
+                      <th>PO No.</th>
+                      <th>Ref No.</th>
+                      <th>Trans. Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {unservedPOs !== undefined &&
+                      unservedPOs.length > 0 &&
+                      unservedPOs.map((PO) => (
                         <tr>
-                          <th>
-                            Check
-                          </th>
-                          <th>
-                            PO No.
-                          </th>
-                          <th>
-                            Ref No.
-                          </th>
-                          <th>
-                            Trans. Date
-                          </th>
+                          <td>
+                            <ListItem key={PO.id}>
+                              <Checkbox
+                                checked={!!checkedPOs[PO.reference_number]}
+                                onChange={() =>
+                                  handleCheckboxChange(PO.reference_number)
+                                }
+                              />
+                            </ListItem>
+                          </td>
+                          <td>{PO.id}</td>
+                          <td>{PO.reference_number}</td>
+                          <td>{PO.transaction_date}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        <td>
-                          <ListItem key={PO.id}>
-                            <Checkbox
-                              checked={!!checkedPOs[PO.reference_number]}
-                              onChange={() =>
-                                handleCheckboxChange(PO.reference_number)
-                              }
-                            />
-                          </ListItem>
-                        </td>
-                        <td>{PO.id}</td>
-                        <td>{PO.reference_number}</td>
-                        <td>{PO.transaction_date}</td>
-                      </tbody>
-                    </Table>
-                  ))}
-                {(unservedPOs === undefined || unservedPOs.length === 0) &&
-                  "No Purchase Orders with Unserved Quantities"}
+                      ))}
+                  </tbody>
+                </Table>
+                {(unservedPOs === undefined || unservedPOs.length === 0) && (
+                  <p className="mt-5 text-sm">
+                    No Purchase Orders with Unserved Quantities
+                  </p>
+                )}
               </List>
             </div>
             <div className="flex justify-end mt-5">

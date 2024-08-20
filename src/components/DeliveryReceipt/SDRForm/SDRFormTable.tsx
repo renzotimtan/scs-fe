@@ -244,9 +244,7 @@ const SDRFormTable = ({
                       slotProps={{
                         input: {
                           min: 0,
-                          max: !openEdit
-                            ? POItem.unserved_spo
-                            : POItem.unserved_spo + POItem.on_stock,
+                          max: POItem.unserved_spo,
                         },
                       }}
                       value={servedAmt[key]}

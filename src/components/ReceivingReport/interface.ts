@@ -56,6 +56,7 @@ export interface RRFormDetailsProps {
   setRemarks: Dispatch<SetStateAction<string>>;
   referenceNumber: string;
   setReferenceNumber: Dispatch<SetStateAction<string>>;
+  isEditDisabled: boolean;
 
   fobTotal: number;
   netAmount: number;

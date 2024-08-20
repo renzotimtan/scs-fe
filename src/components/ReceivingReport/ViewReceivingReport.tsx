@@ -144,7 +144,7 @@ const ViewReceivingReport = ({
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "150px",
+            "--Table-lastColumnWidth": "160px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -247,6 +247,7 @@ const ViewReceivingReport = ({
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
+                        className="w-[80px]"
                         size="sm"
                         variant="plain"
                         color="neutral"
@@ -255,7 +256,9 @@ const ViewReceivingReport = ({
                           setSelectedRow(receivingReport);
                         }}
                       >
-                        Edit
+                        {receivingReport.status !== "unposted"
+                          ? "View"
+                          : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -266,7 +269,7 @@ const ViewReceivingReport = ({
                           setOpenDelete(true);
                           setSelectedRow(receivingReport);
                         }}
-                        disabled={receivingReport.status === "archived"}
+                        disabled={receivingReport.status !== "unposted"}
                       >
                         Archive
                       </Button>

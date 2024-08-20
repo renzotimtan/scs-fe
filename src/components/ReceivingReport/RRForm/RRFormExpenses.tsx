@@ -10,11 +10,13 @@ const RRFormExpenses = ({
   setTotalExpense,
   expenses,
   setExpenses,
+  isEditDisabled,
 }: {
   selectedSDRs: DeliveryReceipt[];
   setTotalExpense: Dispatch<SetStateAction<number>>;
   expenses: Expense[];
   setExpenses: Dispatch<SetStateAction<Expense[]>>;
+  isEditDisabled: boolean;
 }): JSX.Element => {
   useEffect(() => {
     const totalExpense = expenses.reduce(
@@ -107,6 +109,7 @@ const RRFormExpenses = ({
                     size="sm"
                     placeholder="Select Expense"
                     value={expense.expense}
+                    disabled={isEditDisabled}
                     required
                   >
                     <Option value="brokerage">Brokerage</Option>
@@ -125,6 +128,7 @@ const RRFormExpenses = ({
                       )
                     }
                     value={expense.amount}
+                    disabled={isEditDisabled}
                     required
                   />
                 </td>
@@ -140,6 +144,7 @@ const RRFormExpenses = ({
                       )
                     }
                     value={expense.other_currency_expense}
+                    disabled={isEditDisabled}
                   />
                 </td>
                 <td>
@@ -152,7 +157,7 @@ const RRFormExpenses = ({
                       onClick={() =>
                         setExpenses(expenses.filter((e) => e.id !== expense.id))
                       }
-                      disabled={expenses.length === 1}
+                      disabled={expenses.length === 1 || isEditDisabled}
                     >
                       Delete
                     </Button>
@@ -173,6 +178,7 @@ const RRFormExpenses = ({
               { id: uuid(), expense: "", amount: 0, other_currency_expense: 0 },
             ])
           }
+          disabled={isEditDisabled}
         >
           Add Expense
         </Button>

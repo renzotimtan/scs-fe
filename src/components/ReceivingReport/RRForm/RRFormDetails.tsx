@@ -51,6 +51,7 @@ const RRFormDetails = ({
   landedTotal,
   totalExpense,
   percentNetCost,
+  isEditDisabled
 }: RRFormDetailsProps): JSX.Element => {
   const [unservedSDRs, setUnservedSDRs] = useState<PaginatedSDR | undefined>();
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
@@ -119,6 +120,7 @@ const RRFormDetails = ({
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Supplier"
+                disabled={isEditDisabled}
                 required
               />
             </div>
@@ -143,6 +145,7 @@ const RRFormDetails = ({
                 type="date"
                 value={transactionDate}
                 onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -180,6 +183,7 @@ const RRFormDetails = ({
                     step: ".01",
                   },
                 }}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -198,7 +202,7 @@ const RRFormDetails = ({
                 className="ml-4 bg-button-primary"
                 size="sm"
                 onClick={() => setIsSelectModalOpen(true)}
-                disabled={selectedSupplier === null}
+                disabled={selectedSupplier === null || isEditDisabled}
               >
                 Fill Up SDR Table
               </Button>
@@ -271,6 +275,7 @@ const RRFormDetails = ({
               placeholder="Search"
               onChange={(e) => setReferenceNumber(e.target.value)}
               value={referenceNumber}
+              disabled={isEditDisabled}
               required
             />
           </FormControl>
@@ -281,6 +286,7 @@ const RRFormDetails = ({
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
+              disabled={isEditDisabled}
               required
             />
           </FormControl>

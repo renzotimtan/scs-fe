@@ -59,6 +59,9 @@ const ReceivingReportForm = ({
     ? 0
     : (totalExpense / landedTotal) * 100;
 
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
+
   useEffect(() => {
     // Fetch suppliers
     axiosInstance
@@ -203,6 +206,7 @@ const ReceivingReportForm = ({
         landedTotal={landedTotal}
         totalExpense={totalExpense}
         percentNetCost={percentNetCost}
+        isEditDisabled={isEditDisabled}
       />
       <RRFormTable
         selectedSDRs={selectedSDRs}
@@ -220,6 +224,7 @@ const ReceivingReportForm = ({
         expenses={expenses}
         setExpenses={setExpenses}
         setTotalExpense={setTotalExpense}
+        isEditDisabled={isEditDisabled}
       />
       <div className="flex justify-end mt-4">
         <Button
@@ -231,16 +236,18 @@ const ReceivingReportForm = ({
           }}
         >
           <DoDisturbIcon className="mr-2" />
-          Cancel
+          {isEditDisabled ? "Go Back" : "Cancel"}
         </Button>
-        <Button
-          type="submit"
-          className="ml-4 w-[130px] bg-button-primary"
-          size="sm"
-        >
-          <SaveIcon className="mr-2" />
-          Save
-        </Button>
+        {!isEditDisabled && (
+          <Button
+            type="submit"
+            className="ml-4 w-[130px] bg-button-primary"
+            size="sm"
+          >
+            <SaveIcon className="mr-2" />
+            Save
+          </Button>
+        )}
       </div>
     </form>
   );

@@ -88,8 +88,8 @@ const ViewPurchaseOrder = ({
           ),
           total: prevPO.total,
         }));
-      } catch (error) {
-        console.error("Error:", error);
+      } catch (error: any) {
+        toast.error(`Error message: ${error.response.data.detail}`);
       }
     }
   };
@@ -269,7 +269,7 @@ const ViewPurchaseOrder = ({
                           setOpenDelete(true);
                           setSelectedRow(purchaseOrder);
                         }}
-                        disabled={purchaseOrder.status === "archived"}
+                        disabled={purchaseOrder.status !== "unposted"}
                       >
                         Archive
                       </Button>
