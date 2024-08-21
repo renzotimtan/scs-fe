@@ -24,7 +24,7 @@ export const convertToQueryParams = (
 };
 
 export function formatToDateTime(dateStr: string | undefined) {
-  if (dateStr === undefined || dateStr === null) return "N/A";
+  if (dateStr === undefined || dateStr === null) return "-";
   const date = new Date(dateStr);
 
   // Extract year, month, day, hours, and minutes

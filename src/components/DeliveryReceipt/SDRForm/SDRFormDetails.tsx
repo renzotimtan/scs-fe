@@ -238,13 +238,13 @@ const SDRFormDetails = ({
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">
-                {openEdit && selectedRow?.creator?.full_name}
+                {selectedRow?.creator?.full_name ?? "-"}
               </p>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Date Created</FormLabel>
               <p className="text-sm">
-                {openEdit && formatToDateTime(selectedRow?.date_created)}
+                {formatToDateTime(selectedRow?.date_created)}
               </p>
             </FormControl>
           </Stack>
@@ -252,13 +252,13 @@ const SDRFormDetails = ({
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Modified by</FormLabel>
               <p className="text-sm">
-                {openEdit && selectedRow?.modifier?.full_name}
+                {selectedRow?.modifier?.full_name ?? "-"}
               </p>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Date Modified</FormLabel>
               <p className="text-sm">
-                {openEdit && formatToDateTime(selectedRow?.date_modified)}
+                {formatToDateTime(selectedRow?.date_modified)}
               </p>
             </FormControl>
           </Stack>
