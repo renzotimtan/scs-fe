@@ -22,3 +22,24 @@ export const convertToQueryParams = (
 
   return queryString;
 };
+
+export function formatToDateTime(dateStr: string | undefined) {
+  if (dateStr === undefined || dateStr === null) return "N/A";
+  const date = new Date(dateStr);
+
+  // Extract year, month, day, hours, and minutes
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() returns 0-based month, so add 1
+  const day = String(date.getDate()).padStart(2, "0");
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  // Determine AM or PM and convert hours to 12-hour format
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // Convert hour '0' to '12'
+
+  // Return the formatted date and time as MM/DD/YYYY HH:MM AM/PM
+  return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
+}

@@ -14,6 +14,7 @@ import {
 } from "@mui/joy";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
+import { formatToDateTime } from "../../../helper";
 import type { POFormProps } from "../interface";
 
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
@@ -232,21 +233,29 @@ const POFormDetails = ({
           <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Created by</FormLabel>
-              <p className="text-sm">Renzo Tan</p>
+              <p className="text-sm">
+                {openEdit && selectedRow?.creator?.full_name}
+              </p>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Date Created</FormLabel>
-              <p className="text-sm">01/29/2024 11:55 AM</p>
+              <p className="text-sm">
+                {openEdit && formatToDateTime(selectedRow?.date_created)}
+              </p>
             </FormControl>
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Modified by</FormLabel>
-              <p className="text-sm">Renzo Tan</p>
+              <p className="text-sm">
+                {openEdit && selectedRow?.modifier?.full_name}
+              </p>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Date Modified</FormLabel>
-              <p className="text-sm">01/29/2024 11:55 AM</p>
+              <p className="text-sm">
+                {openEdit && formatToDateTime(selectedRow?.date_modified)}
+              </p>
             </FormControl>
           </Stack>
           <FormControl size="sm" sx={{ mb: 1, mt: 2.5 }}>
