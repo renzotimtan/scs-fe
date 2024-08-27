@@ -45,14 +45,20 @@ const SDRFormTable = ({
 
   const provideDefaultCreateTableValues = (): void => {
     const defaultPerRow: Record<string, number> = {};
+    const servedPerRow: Record<string, number> = {};
+
     selectedPOs.forEach((PO, index1) => {
       PO.items.forEach((POItem, index2) => {
-        defaultPerRow[`${PO.id}-${POItem.id}-${index1}-${index2}`] = 0;
+        const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+        const ToServe = 0;
+        defaultPerRow[key] = 0;
+        servedPerRow[key] = ToServe;
       });
     });
+
     setNetPerRow(defaultPerRow);
     setGrossPerRow(defaultPerRow);
-    setServedAmt(defaultPerRow);
+    setServedAmt(servedPerRow);
   };
 
   const provideDefaultEditTableValues = (): void => {
@@ -65,7 +71,11 @@ const SDRFormTable = ({
         console.log(POItem);
         const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
         const inTransit =
-          status === "unposted" ? POItem.temp_in_transit : POItem.in_transit;
+          status === "unposted"
+            ? POItem.unserved_spo === 0
+              ? 0
+              : POItem.in_transit
+            : POItem.in_transit;
 
         servedPerRow[key] = inTransit;
 
@@ -209,7 +219,10 @@ const SDRFormTable = ({
             </th>
             <th style={{ width: 300 }}>Stock Code</th>
             <th style={{ width: 300 }}>Name</th>
-            <th style={{ width: 150 }}>Served Qty.</th>
+            <th style={{ width: 150 }}>Serving Now</th>
+            {status === "posted" ? null : (
+              <th style={{ width: 150 }}>Prev Unserved Qty.</th>
+            )}
             <th style={{ width: 150 }}>PO Qty.</th>
             <th style={{ width: 150 }}>Unserved Qty.</th>
             <th style={{ width: 150 }}>Price</th>
@@ -235,28 +248,38 @@ const SDRFormTable = ({
                   <td style={{ zIndex: 1 }}>{PO.id}</td>
                   <td>{POItem?.item.stock_code}</td>
                   <td>{POItem?.item.name}</td>
-                  <td>
-                    <Input
-                      type="number"
-                      onChange={(event) =>
-                        handleServedInputChange(event, key, PO, POItem)
-                      }
-                      slotProps={{
-                        input: {
-                          min: 0,
-                          max: POItem.unserved_spo,
-                        },
-                      }}
-                      value={servedAmt[key]}
-                      disabled={isEditDisabled}
-                      required
-                    />
-                  </td>
+                  {status === "posted" ? (
+                    <td>{servedAmt[key]}</td>
+                  ) : (
+                    <td>
+                      <Input
+                        type="number"
+                        onChange={(event) =>
+                          handleServedInputChange(event, key, PO, POItem)
+                        }
+                        slotProps={{
+                          input: {
+                            min: 0,
+                            max:
+                              status === "posted"
+                                ? POItem.unserved_spo
+                                : POItem.unserved_spo + POItem.in_transit,
+                          },
+                        }}
+                        value={servedAmt[key]}
+                        disabled={isEditDisabled}
+                        required
+                      />
+                    </td>
+                  )}
+                  {status === "posted" ? null : (
+                    <td>{POItem.unserved_spo + POItem.in_transit}</td>
+                  )}
                   <td>{POItem.volume}</td>
                   <td>
-                    {!openEdit
-                      ? POItem.unserved_spo
-                      : POItem.unserved_spo + POItem.on_stock}
+                    {status === "posted"
+                      ? POItem.volume - servedAmt[key]
+                      : POItem.unserved_spo}
                   </td>
                   <td>{POItem?.price}</td>
 
