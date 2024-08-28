@@ -70,12 +70,7 @@ const SDRFormTable = ({
       PO.items.forEach((POItem, index2) => {
         console.log(POItem);
         const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-        const inTransit =
-          status === "unposted"
-            ? POItem.unserved_spo === 0
-              ? 0
-              : POItem.in_transit
-            : POItem.in_transit;
+        const inTransit = POItem.in_transit;
 
         servedPerRow[key] = inTransit;
 
@@ -221,10 +216,10 @@ const SDRFormTable = ({
             <th style={{ width: 300 }}>Name</th>
             <th style={{ width: 150 }}>Serving Now</th>
             {status === "posted" ? null : (
-              <th style={{ width: 150 }}>Prev Unserved Qty.</th>
+              <th style={{ width: 200 }}>Unposted Served Qty.</th>
             )}
             <th style={{ width: 150 }}>PO Qty.</th>
-            <th style={{ width: 150 }}>Unserved Qty.</th>
+            <th style={{ width: 200 }}>Posted Unserved Qty.</th>
             <th style={{ width: 150 }}>Price</th>
 
             <th style={{ width: 150 }}>Gross Amount</th>
@@ -272,14 +267,14 @@ const SDRFormTable = ({
                       />
                     </td>
                   )}
-                  {status === "posted" ? null : (
-                    <td>{POItem.unserved_spo + POItem.in_transit}</td>
-                  )}
+                  {status === "posted" ? null : <td>{POItem.in_transit}</td>}
                   <td>{POItem.volume}</td>
                   <td>
                     {status === "posted"
                       ? POItem.volume - servedAmt[key]
-                      : POItem.unserved_spo}
+                      : openEdit
+                        ? POItem.unserved_spo + POItem.in_transit
+                        : POItem.unserved_spo}
                   </td>
                   <td>{POItem?.price}</td>
 
