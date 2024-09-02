@@ -8,45 +8,31 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
 import axiosInstance from "../utils/axiosConfig";
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  full_name: string;
-}
 
-export default function Login(): JSX.Element {
+export default function Register(): JSX.Element {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (
+  const handleRegister = async (
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
     try {
-      const response = await axiosInstance.post(
-        "/token",
-        `username=${username}&password=${password}`,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        },
-      );
-      console.log("Login successful:", response.data);
-      sessionStorage.setItem("token", response.data.access_token as string);
-      axiosInstance.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
-
+      const response = await axiosInstance.post("/register/", {
+        username,
+        email,
+        full_name: fullName,
+        password,
+      });
+      console.log("Registration successful:", response.data);
       await router.push("/configuration/warehouse");
     } catch (error) {
-      setError("Login failed");
+      setError("Registration failed");
     }
-  };
-
-  const handleRegisterRedirect = async (): Promise<void> => {
-    await router.push("/register");
   };
 
   return (
@@ -68,11 +54,11 @@ export default function Login(): JSX.Element {
       >
         <div>
           <Typography level="h4" component="h1">
-            <b>Welcome!</b>
+            <b>Create an Account</b>
           </Typography>
-          <Typography level="body-sm">Sign in to continue.</Typography>
+          <Typography level="body-sm">Register to get started.</Typography>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleRegister}>
           <FormControl>
             <FormLabel>Username</FormLabel>
             <Input
@@ -81,6 +67,26 @@ export default function Login(): JSX.Element {
               value={username}
               placeholder="johndoe"
               onChange={(e) => setUsername(e.target.value)}
+            />
+          </FormControl>
+          <FormControl className="mt-4">
+            <FormLabel>Email</FormLabel>
+            <Input
+              type="email"
+              id="email"
+              value={email}
+              placeholder="johndoe@example.com"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </FormControl>
+          <FormControl className="mt-4">
+            <FormLabel>Full Name</FormLabel>
+            <Input
+              type="text"
+              id="fullName"
+              value={fullName}
+              placeholder="John Doe"
+              onChange={(e) => setFullName(e.target.value)}
             />
           </FormControl>
           <FormControl className="mt-4">
@@ -98,15 +104,9 @@ export default function Login(): JSX.Element {
             sx={{ mt: 4 }}
             type="submit"
           >
-            Log in
+            Register
           </Button>
         </form>
-        <Button
-          className="bg-button-primary w-full"
-          onClick={handleRegisterRedirect}
-        >
-          Register
-        </Button>
         {error !== "" && <p>{error}</p>}
       </Sheet>
     </main>
