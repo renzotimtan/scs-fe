@@ -252,6 +252,7 @@ const ReceivingReportForm = ({
         isEditDisabled={isEditDisabled}
       />
       <RRFormTable
+        selectedRow={selectedRow}
         selectedSDRs={selectedSDRs}
         setSelectedSDRs={setSelectedSDRs}
         totalNet={totalNet}

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { POItems, PurchaseOrder } from "../../../interface";
 
 const RRFormTable = ({
+  selectedRow,
   selectedSDRs,
   setServedAmt,
   setTotalNet,
@@ -14,6 +15,7 @@ const RRFormTable = ({
 }: RRFormTableProps): JSX.Element => {
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
   const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
+  const status = selectedRow?.status;
 
   useEffect(() => {
     // Instantiate state per row
@@ -42,7 +44,7 @@ const RRFormTable = ({
       SDR.purchase_orders.forEach((PO, index2) => {
         PO.items.forEach((POItem, index3) => {
           const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
-          const inTransit = POItem.in_transit;
+          const inTransit = POItem.volume;
 
           servedPerRow[key] = inTransit;
 
@@ -190,7 +192,11 @@ const RRFormTable = ({
                     <td>{PO.id}</td>
                     <td>{POItem?.item.stock_code}</td>
                     <td>{POItem?.item.name}</td>
-                    <td>{POItem.in_transit}</td>
+                    {status === "posted" ? (
+                      <td>{POItem.volume}</td>
+                    ) : (
+                      <td>{POItem.in_transit}</td>
+                    )}
                     <td>{POItem.price}</td>
                     <td>{grossPerRow[key]}</td>
                     <td>

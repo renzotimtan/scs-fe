@@ -90,6 +90,7 @@ export interface SDRFormTableProps {
 }
 
 export interface RRFormTableProps {
+  selectedRow: ReceivingReport | undefined;
   selectedSDRs: DeliveryReceipt[];
   setSelectedSDRs: Dispatch<SetStateAction<DeliveryReceipt[]>>;
   totalNet: number;
