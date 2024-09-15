@@ -1,21 +1,22 @@
 import STFormDetails from "./STForm/STFormDetails";
-import RRFormTable from "./STForm/STFormTable";
+import STFormTable from "./STForm/STFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import { useEffect, useState } from "react";
-// import { v4 as uuid } from "uuid";
 import axiosInstance from "../../utils/axiosConfig";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
 import type {
-  RRFormProps,
-  DeliveryReceipt,
   PaginatedWarehouse,
   Warehouse,
   PaginatedRR,
   ReceivingReport,
+  STFormProps,
+  WarehouseItem,
 } from "../../interface";
+
+import { STFormPayload } from "./interface";
 
 const StockTransferForm = ({
   setOpen,
@@ -23,11 +24,10 @@ const StockTransferForm = ({
   openEdit,
   selectedRow,
   title,
-}: RRFormProps): JSX.Element => {
+}: STFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
-  const [selectedSDRs, setSelectedSDRs] = useState<DeliveryReceipt[]>([]);
   const [status, setStatus] = useState("unposted");
-  const [transactionDate, setTransactionDate] = useState("");
+  const [transactionDate, setTransactionDate] = useState(currentDate);
   const [remarks, setRemarks] = useState("");
   const [receivingReports, setReceivingReports] = useState<PaginatedRR>({
     total: 0,
@@ -43,6 +43,14 @@ const StockTransferForm = ({
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(
     null,
   );
+
+  //  Initialize state of selectedWarehouseItem outside of component to avoid creating new object on each render
+  const INITIAL_SELECTED_ITEMS = [{ id: null }];
+
+  const [selectedWarehouseItem, setSelectedWarehouseItem] = useState<any>(
+    INITIAL_SELECTED_ITEMS,
+  );
+  const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
 
   useEffect(() => {
     // Fetch warehouses
@@ -74,12 +82,74 @@ const StockTransferForm = ({
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
-      setSelectedSDRs(selectedRow?.sdrs);
     }
   }, [selectedRow]);
 
+  const createStockTransferDetails = () => {
+    const results = [];
+
+    for (const warehouseItem of selectedWarehouseItem) {
+      if (warehouseItem?.id !== null && selectedWarehouse !== null) {
+        const result: STFormPayload = {
+          warehouse_id: selectedWarehouse.id,
+          item_id: warehouseItem.item_id,
+          product_name: warehouseItem.item.name,
+          unit_code: warehouseItem.item.stock_code,
+          destinations: [],
+        };
+
+        if (warehouseItem.firstWarehouse !== null) {
+          result.destinations.push({
+            to_warehouse_id: warehouseItem.firstWarehouse.id,
+            quantity: warehouseItem.firstWarehouseAmt,
+          });
+        }
+
+        if (warehouseItem.secondWarehouse !== null) {
+          result.destinations.push({
+            to_warehouse_id: warehouseItem.secondWarehouse.id,
+            quantity: warehouseItem.secondWarehouseAmt,
+          });
+        }
+
+        if (warehouseItem.thirdWarehouse !== null) {
+          result.destinations.push({
+            to_warehouse_id: warehouseItem.thirdWarehouse.id,
+            quantity: warehouseItem.thirdWarehouseAmt,
+          });
+        }
+
+        results.push(result);
+      }
+    }
+    return results;
+  };
+
+  const handleCreateStockTransfer = async () => {
+    if (selectedWarehouse !== null) {
+      const payload = {
+        status,
+        transaction_date: transactionDate,
+        rr_transfer: rrTransfer,
+        remarks,
+        supplier_id: 1,
+        from_warehouse_id: selectedWarehouse.id,
+        stock_transfer_details: createStockTransferDetails(),
+      };
+
+      try {
+        await axiosInstance.post("/api/stock-transfers/", payload);
+        toast.success("Save successful!");
+        resetForm();
+        setOpen(false);
+        // Handle the response, update state, etc.
+      } catch (error: any) {
+        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
+      }
+    }
+  };
+
   const resetForm = (): void => {
-    setSelectedSDRs([]);
     setStatus("unposted");
     setTransactionDate(currentDate);
     setRemarks("");
@@ -89,7 +159,7 @@ const StockTransferForm = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        // if (openCreate) await handleCreateReceivingReport();
+        if (openCreate) await handleCreateStockTransfer();
       }}
     >
       <div className="flex justify-between">
@@ -113,7 +183,15 @@ const StockTransferForm = ({
         selectedRR={selectedRR}
         setSelectedRR={setSelectedRR}
       />
-      <RRFormTable />
+      <STFormTable
+        selectedWarehouse={selectedWarehouse}
+        selectedRow={selectedRow}
+        warehouses={warehouses}
+        selectedWarehouseItem={selectedWarehouseItem}
+        setSelectedWarehouseItem={setSelectedWarehouseItem}
+        warehouseItems={warehouseItems}
+        setWarehouseItems={setWarehouseItems}
+      />
       <Divider />
       <div className="flex justify-end mt-4">
         <Button

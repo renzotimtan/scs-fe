@@ -1,7 +1,115 @@
-import { Sheet } from "@mui/joy";
+import { Sheet, Select, Option, Autocomplete, Input } from "@mui/joy";
 import Table from "@mui/joy/Table";
+import { useState, useEffect } from "react";
+import type { Item, WarehouseItem, Warehouse } from "../../../interface";
+import { STFormTableProps } from "../interface";
+import axiosInstance from "../../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
-const RRFormTable = (): JSX.Element => {
+const STFormTable = ({
+  selectedWarehouse,
+  selectedRow,
+  warehouses,
+  selectedWarehouseItem,
+  setSelectedWarehouseItem,
+  warehouseItems,
+  setWarehouseItems,
+}: STFormTableProps): JSX.Element => {
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
+
+  useEffect(() => {
+    if (selectedWarehouse !== null) {
+      // Fetch items for the selected warehouse
+      axiosInstance
+        .get(`/api/warehouse_items?warehouse_id=${selectedWarehouse?.id}`)
+        .then((response) => {
+          setWarehouseItems(response.data.items);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedWarehouse]);
+
+  const fetchSelectedItem = (
+    event: any,
+    value: number,
+    index: number,
+  ): void => {
+    if (value !== undefined) {
+      const foundWarehouseItem = warehouseItems.find(
+        (warehouseItem) => warehouseItem.item_id === value,
+      );
+      if (foundWarehouseItem === undefined) return;
+      if (selectedWarehouseItem.includes(foundWarehouseItem)) {
+        toast.error("Item has already been added");
+        return;
+      }
+
+      const warehouseItem: WarehouseItem = {
+        ...foundWarehouseItem,
+        firstWarehouse: null,
+        firstWarehouseAmt: 0,
+        secondWarehouse: null,
+        secondWarehouseAmt: 0,
+        thirdWarehouse: null,
+        thirdWarehouseAmt: 0,
+      };
+
+      // We need to add the new item before the null item
+      const newSelectedWarehouseItem = selectedWarehouseItem.filter(
+        (selectedItem: Item) => selectedItem.id !== null,
+      );
+      newSelectedWarehouseItem[index] = warehouseItem;
+      newSelectedWarehouseItem.push({ id: null });
+
+      setSelectedWarehouseItem(newSelectedWarehouseItem);
+    }
+  };
+
+  const addWarehouseToTransfer = (
+    index: number,
+    newValue: Warehouse,
+    warehousePosition: number,
+  ) => {
+    const newWarehouseItem = {
+      ...selectedWarehouseItem[index],
+    };
+
+    if (warehousePosition == 1) {
+      newWarehouseItem.firstWarehouse = newValue;
+    } else if (warehousePosition == 2) {
+      newWarehouseItem.secondWarehouse = newValue;
+    } else {
+      newWarehouseItem.thirdWarehouse = newValue;
+    }
+
+    const newSelectedWarehouseItem = [...selectedWarehouseItem];
+    newSelectedWarehouseItem[index] = newWarehouseItem;
+    setSelectedWarehouseItem(newSelectedWarehouseItem);
+  };
+
+  const addWarehouseAmtToTransfer = (
+    index: number,
+    newValue: number,
+    warehousePosition: number,
+  ) => {
+    const newWarehouseItem = {
+      ...selectedWarehouseItem[index],
+    };
+
+    if (warehousePosition == 1) {
+      newWarehouseItem.firstWarehouseAmt = newValue;
+    } else if (warehousePosition == 2) {
+      newWarehouseItem.secondWarehouseAmt = newValue;
+    } else {
+      newWarehouseItem.thirdWarehouseAmt = newValue;
+    }
+
+    const newSelectedWarehouseItem = [...selectedWarehouseItem];
+    newSelectedWarehouseItem[index] = newWarehouseItem;
+    setSelectedWarehouseItem(newSelectedWarehouseItem);
+  };
+
   return (
     <Sheet
       sx={{
@@ -55,22 +163,175 @@ const RRFormTable = (): JSX.Element => {
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              Stock No.
+              Selected Item
             </th>
+            <th style={{ width: 250 }}>Stock No.</th>
             <th style={{ width: 300 }}>Product Name</th>
-            <th style={{ width: 100 }}>Total Quantity</th>
-            <th style={{ width: 150 }}>To Whse 1</th>
+            <th style={{ width: 150 }}>Total Quantity</th>
+            <th style={{ width: 200 }}>To Whse 1</th>
             <th style={{ width: 150 }}>Whse 1 Qty.</th>
-            <th style={{ width: 150 }}>To Whse 2</th>
+            <th style={{ width: 200 }}>To Whse 2</th>
             <th style={{ width: 150 }}>Whse 2 Qty.</th>
-            <th style={{ width: 150 }}>To Whse 3</th>
+            <th style={{ width: 200 }}>To Whse 3</th>
             <th style={{ width: 150 }}>Whse 3 Qty.</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          {selectedWarehouseItem.map(
+            (selectedItem: WarehouseItem, index: number) => (
+              <tr key={`${selectedItem.item_id}-${index}`}>
+                <td style={{ zIndex: 10 }}>
+                  <Select
+                    onChange={(event, value) => {
+                      if (value !== null) {
+                        fetchSelectedItem(event, value, index);
+                      }
+                    }}
+                    className="mt-1 border-0"
+                    size="sm"
+                    placeholder="Select Item"
+                    value={selectedItem.item_id}
+                    disabled={isEditDisabled}
+                  >
+                    {warehouseItems.map((warehouseItem: WarehouseItem) => (
+                      <Option
+                        key={warehouseItem.item_id}
+                        value={warehouseItem.item_id}
+                      >
+                        {warehouseItem.item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </td>
+                <td>{selectedItem?.item?.stock_code}</td>
+                <td>{selectedItem?.item?.name}</td>
+                <td>{selectedItem?.on_stock}</td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Autocomplete
+                      options={warehouses.items.filter(
+                        (warehouseItem) => warehouseItem.id,
+                      )}
+                      getOptionLabel={(option) => option.name}
+                      value={selectedWarehouseItem[index].firstWarehouse}
+                      onChange={(event, newValue) => {
+                        addWarehouseToTransfer(index, newValue, 1);
+                      }}
+                      size="sm"
+                      className="w-[100%]"
+                      placeholder="Select Warehouse"
+                      required
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) =>
+                        addWarehouseAmtToTransfer(
+                          index,
+                          Number(e.target.value),
+                          1,
+                        )
+                      }
+                      slotProps={{
+                        input: {
+                          min: 0,
+                          max: selectedItem.on_stock,
+                        },
+                      }}
+                      value={selectedWarehouseItem[index].firstWarehouseAmt}
+                      disabled={isEditDisabled}
+                      required
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Autocomplete
+                      options={warehouses.items.filter(
+                        (warehouseItem) => warehouseItem.id,
+                      )}
+                      getOptionLabel={(option) => option.name}
+                      value={selectedWarehouseItem[index].secondWarehouse}
+                      onChange={(event, newValue) => {
+                        addWarehouseToTransfer(index, newValue, 2);
+                      }}
+                      size="sm"
+                      className="w-[100%]"
+                      placeholder="Select Warehouse"
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) =>
+                        addWarehouseAmtToTransfer(
+                          index,
+                          Number(e.target.value),
+                          2,
+                        )
+                      }
+                      slotProps={{
+                        input: {
+                          min: 0,
+                          max: selectedItem.on_stock,
+                        },
+                      }}
+                      value={selectedWarehouseItem[index].secondWarehouseAmt}
+                      disabled={isEditDisabled}
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Autocomplete
+                      options={warehouses.items.filter(
+                        (warehouseItem) => warehouseItem.id,
+                      )}
+                      getOptionLabel={(option) => option.name}
+                      value={selectedWarehouseItem[index].thirdWarehouse}
+                      onChange={(event, newValue) => {
+                        addWarehouseToTransfer(index, newValue, 3);
+                      }}
+                      size="sm"
+                      className="w-[100%]"
+                      placeholder="Select Warehouse"
+                    />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) =>
+                        addWarehouseAmtToTransfer(
+                          index,
+                          Number(e.target.value),
+                          3,
+                        )
+                      }
+                      slotProps={{
+                        input: {
+                          min: 0,
+                          max: selectedItem.on_stock,
+                        },
+                      }}
+                      value={selectedWarehouseItem[index].thirdWarehouseAmt}
+                      disabled={isEditDisabled}
+                    />
+                  )}
+                </td>
+              </tr>
+            ),
+          )}
+        </tbody>
       </Table>
     </Sheet>
   );
 };
 
-export default RRFormTable;
+export default STFormTable;

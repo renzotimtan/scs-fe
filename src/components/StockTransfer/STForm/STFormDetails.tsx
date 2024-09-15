@@ -11,6 +11,7 @@ import {
   Autocomplete,
 } from "@mui/joy";
 import type { STFormDetailsProps } from "../interface";
+import { formatToDateTime } from "../../../helper";
 
 const STFormDetails = ({
   openEdit,
@@ -93,7 +94,6 @@ const STFormDetails = ({
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Receiving Report"
-                required
               />
             </FormControl>
           </Stack>
@@ -118,24 +118,32 @@ const STFormDetails = ({
       </Card>
       <Card className="w-[40%]">
         <div>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Created by</FormLabel>
-              <p className="text-sm">Renzo Tan</p>
+              <p className="text-sm">
+                {selectedRow?.creator?.full_name ?? "-"}
+              </p>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Date Created</FormLabel>
-              <p className="text-sm">01/29/2024 11:55 AM</p>
+              <p className="text-sm">
+                {formatToDateTime(selectedRow?.date_created)}
+              </p>
             </FormControl>
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Modified by</FormLabel>
-              <p className="text-sm">Renzo Tan</p>
+              <p className="text-sm">
+                {selectedRow?.modifier?.full_name ?? "-"}
+              </p>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Date Modified</FormLabel>
-              <p className="text-sm">01/29/2024 11:55 AM</p>
+              <p className="text-sm">
+                {formatToDateTime(selectedRow?.date_modified)}
+              </p>
             </FormControl>
           </Stack>
           <FormControl size="sm" sx={{ mb: 3 }}>

@@ -3,6 +3,8 @@ import type {
   PaginatedWarehouse,
   ReceivingReport,
   Warehouse,
+  WarehouseItem,
+  StockTransfer,
 } from "../../interface";
 
 export interface STFormDetailsProps {
@@ -22,4 +24,27 @@ export interface STFormDetailsProps {
   receivingReports: PaginatedRR;
   selectedRR: ReceivingReport | null;
   setSelectedRR: (receivingReport: ReceivingReport | null) => void;
+}
+
+export interface STFormTableProps {
+  selectedWarehouse: Warehouse | null;
+  selectedRow: StockTransfer | undefined;
+  warehouses: PaginatedWarehouse;
+  selectedWarehouseItem: any;
+  setSelectedWarehouseItem: (warehouseItems: any) => void;
+  warehouseItems: WarehouseItem[];
+  setWarehouseItems: (warehouseItems: WarehouseItem[]) => void;
+}
+
+interface Destinations {
+  to_warehouse_id: number;
+  quantity: number;
+}
+
+export interface STFormPayload {
+  warehouse_id: number;
+  item_id: number;
+  product_name: string;
+  unit_code: string;
+  destinations: Destinations[];
 }

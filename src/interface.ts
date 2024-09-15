@@ -203,6 +203,13 @@ export interface WarehouseItem {
   modified_by: string;
   date_created: string;
   date_modified: string;
+
+  firstWarehouse?: any;
+  firstWarehouseAmt?: number;
+  secondWarehouse?: any;
+  secondWarehouseAmt?: number;
+  thirdWarehouse?: any;
+  thirdWarehouseAmt?: number;
 }
 
 export interface PurchaseOrder {
@@ -264,6 +271,14 @@ export interface RRFormProps {
   openCreate: boolean;
   openEdit: boolean;
   selectedRow?: ReceivingReport;
+  title: string;
+}
+
+export interface STFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: StockTransfer;
   title: string;
 }
 
