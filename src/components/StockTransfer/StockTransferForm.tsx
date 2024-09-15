@@ -82,8 +82,16 @@ const StockTransferForm = ({
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
+
+      const selectedWarehouse = warehouses.items.find(
+        (warehouse: Warehouse) => warehouse.id == selectedRow.from_warehouse_id,
+      );
+
+      if (selectedWarehouse !== undefined) {
+        setSelectedWarehouse(selectedWarehouse);
+      }
     }
-  }, [selectedRow]);
+  }, [selectedRow, warehouses]);
 
   const createStockTransferDetails = () => {
     const results = [];
@@ -144,7 +152,7 @@ const StockTransferForm = ({
         setOpen(false);
         // Handle the response, update state, etc.
       } catch (error: any) {
-        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
+        toast.error(`Error: ${error?.response?.data?.detail}`);
       }
     }
   };

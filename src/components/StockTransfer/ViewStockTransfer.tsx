@@ -226,7 +226,7 @@ const ViewStockTransfer = ({
                   <td>{stockTransfer.id}</td>
                   <td className="capitalize">{stockTransfer.status}</td>
                   <td>{stockTransfer.transaction_date}</td>
-                  <td>{stockTransfer.rr_transfer}</td>
+                  <td>{stockTransfer.rr_transfer ? "Yes" : "No"}</td>
                   <td>{0}</td>
                   <td>{stockTransfer.remarks}</td>
                   <td>{stockTransfer?.creator?.username}</td>
@@ -244,7 +244,7 @@ const ViewStockTransfer = ({
                           setSelectedRow(stockTransfer);
                         }}
                       >
-                        Edit
+                        {stockTransfer.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -255,6 +255,7 @@ const ViewStockTransfer = ({
                           setOpenDelete(true);
                           setSelectedRow(stockTransfer);
                         }}
+                        disabled={stockTransfer.status !== "unposted"}
                       >
                         Archive
                       </Button>
@@ -278,7 +279,7 @@ const ViewStockTransfer = ({
       <DeleteSTModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Delete Delivery Receipt"
+        title="Archive Stock Transfer"
         onDelete={handleDeleteST}
       />
     </>
