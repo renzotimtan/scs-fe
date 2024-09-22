@@ -257,8 +257,10 @@ const SDRFormTable = ({
                             min: 0,
                             max:
                               status === "posted"
-                                ? POItem.unserved_spo
-                                : POItem.unserved_spo + POItem.in_transit,
+                                ? POItem.volume - servedAmt[key]
+                                : openEdit
+                                  ? POItem.unserved_spo + POItem.in_transit
+                                  : POItem.unserved_spo,
                           },
                         }}
                         value={servedAmt[key]}
