@@ -88,7 +88,7 @@ const STFormDetails = ({
                 options={receivingReports.items}
                 getOptionLabel={(option) => option.reference_number}
                 value={selectedRR}
-                onChange={(event, newValue) => {
+                onChange={(_, newValue) => {
                   setSelectedRR(newValue);
                 }}
                 size="sm"
@@ -112,6 +112,10 @@ const STFormDetails = ({
                 placeholder="Select Warehouse"
                 required
               />
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+              <FormLabel>Supplier</FormLabel>
+              <Input value={selectedRR?.supplier_id} disabled />
             </FormControl>
           </Stack>
         </div>

@@ -427,6 +427,7 @@ export interface StockTransfer {
   transaction_date: string;
   rr_transfer: boolean;
   remarks: string;
+  rr_id: number;
   supplier_id: number;
   from_warehouse_id: number;
   created_by: number;

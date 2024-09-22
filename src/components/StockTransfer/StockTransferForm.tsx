@@ -14,6 +14,7 @@ import type {
   ReceivingReport,
   STFormProps,
   WarehouseItem,
+  Item,
 } from "../../interface";
 
 import { STFormPayload } from "./interface";
@@ -47,7 +48,7 @@ const StockTransferForm = ({
   //  Initialize state of selectedWarehouseItem outside of component to avoid creating new object on each render
   const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
-  const [selectedWarehouseItem, setSelectedWarehouseItem] = useState<any>(
+  const [selectedWarehouseItems, setSelectedWarehouseItems] = useState<any>(
     INITIAL_SELECTED_ITEMS,
   );
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
@@ -82,6 +83,15 @@ const StockTransferForm = ({
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
+      setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
+
+      const selectedReceivingReport = receivingReports.items.find(
+        (rr: ReceivingReport) => rr.id == selectedRow.rr_id,
+      );
+
+      if (selectedReceivingReport !== undefined) {
+        setSelectedRR(selectedReceivingReport);
+      }
 
       const selectedWarehouse = warehouses.items.find(
         (warehouse: Warehouse) => warehouse.id == selectedRow.from_warehouse_id,
@@ -91,12 +101,96 @@ const StockTransferForm = ({
         setSelectedWarehouse(selectedWarehouse);
       }
     }
-  }, [selectedRow, warehouses]);
+  }, [selectedRow, warehouses, receivingReports]);
+
+  useEffect(() => {
+    const addedPOItems: any = [];
+
+    selectedRR?.sdrs.forEach((SDR) => {
+      SDR.purchase_orders.forEach((PO) => {
+        PO.items.forEach((POItem) => {
+          if (!addedPOItems.includes(POItem.item_id)) {
+            addedPOItems.push(POItem.item_id);
+          }
+        });
+      });
+    });
+
+    fetchMultipleItems(addedPOItems);
+  }, [selectedRR]);
+
+  const fetchSelectedItem = (value: number, index: number): void => {
+    if (value !== undefined) {
+      const foundWarehouseItem = warehouseItems.find(
+        (warehouseItem) => warehouseItem.item_id === value,
+      );
+
+      if (foundWarehouseItem === undefined) return;
+
+      for (const warehouseItem of selectedWarehouseItems) {
+        if (warehouseItem?.item_id === foundWarehouseItem.item_id) {
+          toast.error("Item has already been added");
+          return;
+        }
+      }
+
+      const warehouseItem: WarehouseItem = {
+        ...foundWarehouseItem,
+        firstWarehouse: null,
+        firstWarehouseAmt: 0,
+        secondWarehouse: null,
+        secondWarehouseAmt: 0,
+        thirdWarehouse: null,
+        thirdWarehouseAmt: 0,
+      };
+
+      // We need to add the new item before the null item
+      const newSelectedWarehouseItem = selectedWarehouseItems.filter(
+        (selectedItem: Item) => selectedItem.id !== null,
+      );
+      newSelectedWarehouseItem[index] = warehouseItem;
+      newSelectedWarehouseItem.push({ id: null });
+
+      setSelectedWarehouseItems(newSelectedWarehouseItem);
+    }
+  };
+
+  const fetchMultipleItems = (POItems: any) => {
+    if (POItems.length > 0) {
+      const foundWarehouseItems = warehouseItems
+        .filter((warehouseItem) => {
+          return POItems.includes(warehouseItem.item_id);
+        })
+        .map((warehouseItem) => {
+          return {
+            ...warehouseItem,
+            firstWarehouse: null,
+            firstWarehouseAmt: 0,
+            secondWarehouse: null,
+            secondWarehouseAmt: 0,
+            thirdWarehouse: null,
+            thirdWarehouseAmt: 0,
+          };
+        });
+
+      if (foundWarehouseItems.length === 0) return;
+
+      // We need to add the new item before the null item
+      const newSelectedWarehouseItem = [];
+
+      foundWarehouseItems.forEach((warehouseItem, index) => {
+        newSelectedWarehouseItem[index] = warehouseItem;
+      });
+
+      newSelectedWarehouseItem.push({ id: null });
+      setSelectedWarehouseItems(newSelectedWarehouseItem);
+    }
+  };
 
   const createStockTransferDetails = () => {
     const results = [];
 
-    for (const warehouseItem of selectedWarehouseItem) {
+    for (const warehouseItem of selectedWarehouseItems) {
       if (warehouseItem?.id !== null && selectedWarehouse !== null) {
         const result: STFormPayload = {
           warehouse_id: selectedWarehouse.id,
@@ -139,8 +233,9 @@ const StockTransferForm = ({
         status,
         transaction_date: transactionDate,
         rr_transfer: rrTransfer,
+        rr_id: selectedRR?.id ?? null,
         remarks,
-        supplier_id: 1,
+        supplier_id: selectedRR?.supplier_id ?? null,
         from_warehouse_id: selectedWarehouse.id,
         stock_transfer_details: createStockTransferDetails(),
       };
@@ -152,7 +247,8 @@ const StockTransferForm = ({
         setOpen(false);
         // Handle the response, update state, etc.
       } catch (error: any) {
-        toast.error(`Error: ${error?.response?.data?.detail}`);
+        console.log(error);
+        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
       }
     }
   };
@@ -195,8 +291,9 @@ const StockTransferForm = ({
         selectedWarehouse={selectedWarehouse}
         selectedRow={selectedRow}
         warehouses={warehouses}
-        selectedWarehouseItem={selectedWarehouseItem}
-        setSelectedWarehouseItem={setSelectedWarehouseItem}
+        selectedWarehouseItems={selectedWarehouseItems}
+        setSelectedWarehouseItems={setSelectedWarehouseItems}
+        fetchSelectedItem={fetchSelectedItem}
         warehouseItems={warehouseItems}
         setWarehouseItems={setWarehouseItems}
       />

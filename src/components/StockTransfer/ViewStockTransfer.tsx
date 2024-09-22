@@ -203,6 +203,7 @@ const ViewStockTransfer = ({
                 <th style={{ width: 250 }}>Transaction Date</th>
                 <th style={{ width: 150 }}>RR Transfer</th>
                 <th style={{ width: 150 }}>RR No.</th>
+                <th style={{ width: 150 }}>Supplier No.</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -227,7 +228,8 @@ const ViewStockTransfer = ({
                   <td className="capitalize">{stockTransfer.status}</td>
                   <td>{stockTransfer.transaction_date}</td>
                   <td>{stockTransfer.rr_transfer ? "Yes" : "No"}</td>
-                  <td>{0}</td>
+                  <td>{stockTransfer?.rr_id ?? "N/A" }</td>
+                  <td>{stockTransfer?.supplier_id ?? "N/A" }</td>
                   <td>{stockTransfer.remarks}</td>
                   <td>{stockTransfer?.creator?.username}</td>
                   <td>{stockTransfer?.modifier?.username}</td>

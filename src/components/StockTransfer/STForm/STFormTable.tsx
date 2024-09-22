@@ -1,4 +1,4 @@
-import { Sheet, Select, Option, Autocomplete, Input } from "@mui/joy";
+import { Sheet, Select, Option, Autocomplete, Input, Button } from "@mui/joy";
 import Table from "@mui/joy/Table";
 import { useState, useEffect } from "react";
 import type { Item, WarehouseItem, Warehouse } from "../../../interface";
@@ -10,10 +10,11 @@ const STFormTable = ({
   selectedWarehouse,
   selectedRow,
   warehouses,
-  selectedWarehouseItem,
-  setSelectedWarehouseItem,
+  selectedWarehouseItems,
+  setSelectedWarehouseItems,
   warehouseItems,
   setWarehouseItems,
+  fetchSelectedItem,
 }: STFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -30,49 +31,13 @@ const STFormTable = ({
     }
   }, [selectedWarehouse]);
 
-  const fetchSelectedItem = (
-    event: any,
-    value: number,
-    index: number,
-  ): void => {
-    if (value !== undefined) {
-      const foundWarehouseItem = warehouseItems.find(
-        (warehouseItem) => warehouseItem.item_id === value,
-      );
-      if (foundWarehouseItem === undefined) return;
-      if (selectedWarehouseItem.includes(foundWarehouseItem)) {
-        toast.error("Item has already been added");
-        return;
-      }
-
-      const warehouseItem: WarehouseItem = {
-        ...foundWarehouseItem,
-        firstWarehouse: null,
-        firstWarehouseAmt: 0,
-        secondWarehouse: null,
-        secondWarehouseAmt: 0,
-        thirdWarehouse: null,
-        thirdWarehouseAmt: 0,
-      };
-
-      // We need to add the new item before the null item
-      const newSelectedWarehouseItem = selectedWarehouseItem.filter(
-        (selectedItem: Item) => selectedItem.id !== null,
-      );
-      newSelectedWarehouseItem[index] = warehouseItem;
-      newSelectedWarehouseItem.push({ id: null });
-
-      setSelectedWarehouseItem(newSelectedWarehouseItem);
-    }
-  };
-
   const addWarehouseToTransfer = (
     index: number,
     newValue: Warehouse,
     warehousePosition: number,
   ) => {
     const newWarehouseItem = {
-      ...selectedWarehouseItem[index],
+      ...selectedWarehouseItems[index],
     };
 
     if (warehousePosition == 1) {
@@ -83,9 +48,9 @@ const STFormTable = ({
       newWarehouseItem.thirdWarehouse = newValue;
     }
 
-    const newSelectedWarehouseItem = [...selectedWarehouseItem];
+    const newSelectedWarehouseItem = [...selectedWarehouseItems];
     newSelectedWarehouseItem[index] = newWarehouseItem;
-    setSelectedWarehouseItem(newSelectedWarehouseItem);
+    setSelectedWarehouseItems(newSelectedWarehouseItem);
   };
 
   const addWarehouseAmtToTransfer = (
@@ -94,7 +59,7 @@ const STFormTable = ({
     warehousePosition: number,
   ) => {
     const newWarehouseItem = {
-      ...selectedWarehouseItem[index],
+      ...selectedWarehouseItems[index],
     };
 
     if (warehousePosition == 1) {
@@ -105,9 +70,17 @@ const STFormTable = ({
       newWarehouseItem.thirdWarehouseAmt = newValue;
     }
 
-    const newSelectedWarehouseItem = [...selectedWarehouseItem];
+    const newSelectedWarehouseItem = [...selectedWarehouseItems];
     newSelectedWarehouseItem[index] = newWarehouseItem;
-    setSelectedWarehouseItem(newSelectedWarehouseItem);
+    setSelectedWarehouseItems(newSelectedWarehouseItem);
+  };
+
+  const handleRemoveItem = (index: number): void => {
+    if (selectedWarehouseItems[index].id !== null) {
+      setSelectedWarehouseItems(
+        selectedWarehouseItems.filter((_: Item, i: number) => i !== index),
+      );
+    }
   };
 
   return (
@@ -174,17 +147,21 @@ const STFormTable = ({
             <th style={{ width: 150 }}>Whse 2 Qty.</th>
             <th style={{ width: 200 }}>To Whse 3</th>
             <th style={{ width: 150 }}>Whse 3 Qty.</th>
+            <th
+              aria-label="last"
+              style={{ width: "var(--Table-lastColumnWidth)" }}
+            />
           </tr>
         </thead>
         <tbody>
-          {selectedWarehouseItem.map(
+          {selectedWarehouseItems.map(
             (selectedItem: WarehouseItem, index: number) => (
               <tr key={`${selectedItem.item_id}-${index}`}>
                 <td style={{ zIndex: 10 }}>
                   <Select
-                    onChange={(event, value) => {
+                    onChange={(_, value) => {
                       if (value !== null) {
-                        fetchSelectedItem(event, value, index);
+                        fetchSelectedItem(value, index);
                       }
                     }}
                     className="mt-1 border-0"
@@ -213,7 +190,7 @@ const STFormTable = ({
                         (warehouseItem) => warehouseItem.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItem[index].firstWarehouse}
+                      value={selectedWarehouseItems[index].firstWarehouse}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 1);
                       }}
@@ -241,7 +218,7 @@ const STFormTable = ({
                           max: selectedItem.on_stock,
                         },
                       }}
-                      value={selectedWarehouseItem[index].firstWarehouseAmt}
+                      value={selectedWarehouseItems[index].firstWarehouseAmt}
                       disabled={isEditDisabled}
                       required
                     />
@@ -254,7 +231,7 @@ const STFormTable = ({
                         (warehouseItem) => warehouseItem.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItem[index].secondWarehouse}
+                      value={selectedWarehouseItems[index].secondWarehouse}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 2);
                       }}
@@ -281,7 +258,7 @@ const STFormTable = ({
                           max: selectedItem.on_stock,
                         },
                       }}
-                      value={selectedWarehouseItem[index].secondWarehouseAmt}
+                      value={selectedWarehouseItems[index].secondWarehouseAmt}
                       disabled={isEditDisabled}
                     />
                   )}
@@ -293,7 +270,7 @@ const STFormTable = ({
                         (warehouseItem) => warehouseItem.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItem[index].thirdWarehouse}
+                      value={selectedWarehouseItems[index].thirdWarehouse}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 3);
                       }}
@@ -320,9 +297,23 @@ const STFormTable = ({
                           max: selectedItem.on_stock,
                         },
                       }}
-                      value={selectedWarehouseItem[index].thirdWarehouseAmt}
+                      value={selectedWarehouseItems[index].thirdWarehouseAmt}
                       disabled={isEditDisabled}
                     />
+                  )}
+                </td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Button
+                      size="sm"
+                      variant="soft"
+                      color="danger"
+                      className="bg-delete-red"
+                      onClick={() => handleRemoveItem(index)}
+                      disabled={isEditDisabled}
+                    >
+                      Delete
+                    </Button>
                   )}
                 </td>
               </tr>

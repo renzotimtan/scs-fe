@@ -30,10 +30,11 @@ export interface STFormTableProps {
   selectedWarehouse: Warehouse | null;
   selectedRow: StockTransfer | undefined;
   warehouses: PaginatedWarehouse;
-  selectedWarehouseItem: any;
-  setSelectedWarehouseItem: (warehouseItems: any) => void;
+  selectedWarehouseItems: any;
+  setSelectedWarehouseItems: (warehouseItems: any) => void;
   warehouseItems: WarehouseItem[];
   setWarehouseItems: (warehouseItems: WarehouseItem[]) => void;
+  fetchSelectedItem: (value: number, index: number) => void;
 }
 
 interface Destinations {
