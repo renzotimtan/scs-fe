@@ -196,7 +196,7 @@ const StockTransferForm = ({
           warehouse_id: selectedWarehouse.id,
           item_id: warehouseItem.item_id,
           product_name: warehouseItem.item.name,
-          unit_code: warehouseItem.item.stock_code,
+          stock_code: warehouseItem.item.stock_code,
           destinations: [],
         };
 

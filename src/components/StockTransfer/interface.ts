@@ -46,6 +46,6 @@ export interface STFormPayload {
   warehouse_id: number;
   item_id: number;
   product_name: string;
-  unit_code: string;
+  stock_code: string;
   destinations: Destinations[];
 }
