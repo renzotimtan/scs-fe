@@ -255,8 +255,8 @@ const POFormTable = ({
                 {selectedItem?.id !== null &&
                   Number(selectedItem?.price) * Number(selectedItem?.volume)}
               </td>
-              <td>{selectedItem?.available}</td>
-              <td>{selectedItem?.allocated}</td>
+              <td>{0}</td>
+              <td>{0}</td>
               <td>
                 {selectedItem?.id !== null && (
                   <Button
