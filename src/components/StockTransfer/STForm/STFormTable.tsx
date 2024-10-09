@@ -89,7 +89,7 @@ const STFormTable = ({
         "--TableCell-height": "40px",
         // the number is the amount of the header rows.
         "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-        "--Table-firstColumnWidth": "150px",
+        "--Table-firstColumnWidth": "200px",
         "--Table-lastColumnWidth": "86px",
         // background needs to have transparency to show the scrolling shadows
         "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -158,7 +158,7 @@ const STFormTable = ({
             (selectedItem: WarehouseItem, index: number) => (
               <tr key={`${selectedItem.item_id}-${index}`}>
                 <td style={{ zIndex: 10 }}>
-                  <Select
+                  {/* <Select
                     onChange={(_, value) => {
                       if (value !== null) {
                         fetchSelectedItem(value, index);
@@ -178,7 +178,30 @@ const STFormTable = ({
                         {warehouseItem.item.name}
                       </Option>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Autocomplete
+                    placeholder="Select Stock"
+                    options={warehouseItems}
+                    getOptionLabel={(warehouseItem) =>
+                      warehouseItem.item?.name ?? ""
+                    }
+                    onChange={(_, value) => {
+                      if (value !== null) {
+                        fetchSelectedItem(value.item_id, index);
+                      }
+                    }}
+                    value={selectedItem}
+                    disabled={isEditDisabled}
+                    size="sm"
+                    slotProps={{
+                      listbox: {
+                        sx: {
+                          width: 300, // Increase the width
+                          fontSize: "13px",
+                        },
+                      },
+                    }}
+                  />
                 </td>
                 <td>{selectedItem?.item?.stock_code}</td>
                 <td>{selectedItem?.item?.name}</td>

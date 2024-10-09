@@ -138,8 +138,8 @@ const STFormTable = ({
             >
               Selected Item
             </th>
-            <th style={{ width: 250 }}>Stock No.</th>
-            <th style={{ width: 300 }}>Product Name</th>
+            <th style={{ width: 200 }}>Stock No.</th>
+            <th style={{ width: 200 }}>Product Name</th>
             <th style={{ width: 150 }}>Total Quantity</th>
             <th style={{ width: 200 }}>To Whse 1</th>
             <th style={{ width: 150 }}>Whse 1 Qty.</th>

@@ -165,8 +165,8 @@ const RRFormTable = ({
               SDR No.
             </th>
             <th style={{ width: 100 }}>PO No.</th>
-            <th style={{ width: 300 }}>Stock Code</th>
-            <th style={{ width: 300 }}>Name</th>
+            <th style={{ width: 200 }}>Stock Code</th>
+            <th style={{ width: 200 }}>Name</th>
             <th style={{ width: 150 }}>Served Qty.</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross Amount</th>
@@ -185,6 +185,11 @@ const RRFormTable = ({
           {selectedSDRs.map((SDR, index1) => {
             return SDR.purchase_orders.map((PO, index2) => {
               return PO.items.map((POItem, index3) => {
+                if (
+                  (status !== "posted" && POItem.in_transit === 0) 
+                  || (status === "posted" && POItem.volume === 0)
+                ) return null;
+
                 const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
                 return (
                   <tr key={key}>

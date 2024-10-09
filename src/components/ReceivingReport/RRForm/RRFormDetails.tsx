@@ -216,27 +216,27 @@ const RRFormDetails = ({
           <div className="ml-5 grid grid-cols-3">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>{`${currencyUsed} ${fobTotal.toFixed(2)}`}</h5>{" "}
+              <h5>{`${currencyUsed} ${fobTotal.toFixed(4)}`}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>{`${currencyUsed} ${netAmount.toFixed(2)}`}</h5>
+              <h5>{`${currencyUsed} ${netAmount.toFixed(4)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(2)}`}</h5>
+              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(4)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>₱{(fobTotal * pesoRate).toFixed(2)}</h5>{" "}
+              <h5>₱{(fobTotal * pesoRate).toFixed(4)}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{(netAmount * pesoRate).toFixed(2)}</h5>
+              <h5>₱{(netAmount * pesoRate).toFixed(4)}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>₱{landedTotal.toFixed(2)}</h5>
+              <h5>₱{landedTotal.toFixed(4)}</h5>
             </FormControl>
 
             <FormControl size="sm" sx={{ mb: 1 }}>
@@ -245,7 +245,7 @@ const RRFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>Total Expense</FormLabel>
-              <h5>₱{totalExpense.toFixed(2)}</h5>{" "}
+              <h5>₱{totalExpense.toFixed(4)}</h5>{" "}
             </FormControl>
           </div>
           <Divider />

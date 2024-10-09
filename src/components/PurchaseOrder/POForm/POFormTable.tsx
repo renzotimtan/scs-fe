@@ -1,4 +1,12 @@
-import { Input, Button, Select, Option, Sheet } from "@mui/joy";
+import {
+  Input,
+  Button,
+  Select,
+  Option,
+  Sheet,
+  Autocomplete,
+  TextField,
+} from "@mui/joy";
 import ConfirmationModal from "../ConfirmationModal";
 import Table from "@mui/joy/Table";
 
@@ -52,6 +60,12 @@ const POFormTable = ({
         (selectedItem: Item) => selectedItem.id !== null,
       );
       newSelectedItems[index] = item;
+
+      // Sort by Stock Code
+      newSelectedItems.sort((a, b) => {
+        return a.stock_code.localeCompare(b.stock_code);
+      });
+
       // @ts-expect-error (Used null instead of undefined.)
       newSelectedItems.push({ id: null });
 
@@ -102,7 +116,7 @@ const POFormTable = ({
         "--TableCell-height": "40px",
         // the number is the amount of the header rows.
         "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-        "--Table-firstColumnWidth": "150px",
+        "--Table-firstColumnWidth": "200px",
         "--Table-lastColumnWidth": "86px",
         // background needs to have transparency to show the scrolling shadows
         "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -154,10 +168,9 @@ const POFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              Selected Item
+              Name
             </th>
-            <th style={{ width: 300 }}>Stock Code</th>
-            <th style={{ width: 300 }}>Name</th>
+            <th style={{ width: 200 }}>Stock Code</th>
             <th style={{ width: 200 }}>Last Purchase Price</th>
             <th style={{ width: 150 }}>Volume</th>
             <th style={{ width: 150 }}>Price</th>
@@ -187,27 +200,29 @@ const POFormTable = ({
               )}
 
               <td style={{ zIndex: 1 }}>
-                <Select
+                <Autocomplete
+                  placeholder="Select Stock"
+                  options={items}
+                  getOptionLabel={(item) => item.name ?? ""}
                   onChange={(event, value) => {
                     if (value !== null) {
-                      fetchSelectedItem(event, value, index);
+                      fetchSelectedItem(event, value.id, index);
                     }
                   }}
-                  className="mt-1 border-0"
-                  size="sm"
-                  placeholder="Select Item"
-                  value={selectedItem.id}
+                  value={selectedItem}
                   disabled={isEditDisabled}
-                >
-                  {items.map((item: Item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
+                  size="sm"
+                  slotProps={{
+                    listbox: {
+                      sx: {
+                        width: 300, // Increase the width
+                        fontSize: "13px"
+                      },
+                    },
+                  }}
+                />
               </td>
               <td>{selectedItem?.stock_code}</td>
-              <td>{selectedItem?.name}</td>
               <td>{selectedItem?.acquisition_cost}</td>
               <td style={{ zIndex: 2 }}>
                 {selectedItem?.id !== null && (
@@ -243,7 +258,7 @@ const POFormTable = ({
                     }
                     onBlur={(e) => {
                       if (
-                        selectedItem.acquisition_cost !== selectedItem.price 
+                        selectedItem.acquisition_cost !== selectedItem.price
                         // && status === "posted"
                       ) {
                         setIndexOfModal(index);

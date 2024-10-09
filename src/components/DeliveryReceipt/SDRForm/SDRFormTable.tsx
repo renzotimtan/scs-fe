@@ -212,16 +212,15 @@ const SDRFormTable = ({
             >
               PO No.
             </th>
-            <th style={{ width: 300 }}>Stock Code</th>
-            <th style={{ width: 300 }}>Name</th>
+            <th style={{ width: 200 }}>Stock Code</th>
+            <th style={{ width: 200 }}>Name</th>
             <th style={{ width: 150 }}>Serving Now</th>
+            <th style={{ width: 200 }}>Unserved Qty.</th>
             {status === "posted" ? null : (
-              <th style={{ width: 200 }}>Unposted Served Qty.</th>
+              <th style={{ width: 200 }}>Served Qty.</th>
             )}
             <th style={{ width: 150 }}>PO Qty.</th>
-            <th style={{ width: 200 }}>Posted Unserved Qty.</th>
             <th style={{ width: 150 }}>Price</th>
-
             <th style={{ width: 150 }}>Gross Amount</th>
             <th style={{ width: 150 }}>Supp. Disc. 1 (%)</th>
             <th style={{ width: 150 }}>Supp. Disc. 2 (%)</th>
@@ -237,6 +236,9 @@ const SDRFormTable = ({
         <tbody>
           {selectedPOs.map((PO, index1) => {
             return PO.items.map((POItem, index2) => {
+              // Don't show if unserved is 0
+              if (POItem.unserved_spo === 0) return null;
+
               const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
               return (
                 <tr key={key}>
@@ -269,8 +271,6 @@ const SDRFormTable = ({
                       />
                     </td>
                   )}
-                  {status === "posted" ? null : <td>{POItem.in_transit}</td>}
-                  <td>{POItem.volume}</td>
                   <td>
                     {status === "posted"
                       ? POItem.volume - servedAmt[key]
@@ -278,6 +278,8 @@ const SDRFormTable = ({
                         ? POItem.unserved_spo + POItem.in_transit
                         : POItem.unserved_spo}
                   </td>
+                  {status === "posted" ? null : <td>{POItem.in_transit}</td>}
+                  <td>{POItem.volume}</td>
                   <td>{POItem?.price}</td>
 
                   <td>{grossPerRow[key]}</td>
