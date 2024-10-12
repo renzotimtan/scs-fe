@@ -72,7 +72,7 @@ const WarehousesModal = ({
       setWarehouse(generateWarehouse());
       setOpen(false);
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+      toast.error(`Error message: ${error?.response?.data?.detail}`);
     }
   };
 
