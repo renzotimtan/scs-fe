@@ -277,7 +277,6 @@ const POFormDetails = ({
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
               disabled={isEditDisabled}
-              required
             />
           </FormControl>
         </div>
