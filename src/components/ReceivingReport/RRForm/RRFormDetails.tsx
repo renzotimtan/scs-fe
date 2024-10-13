@@ -79,6 +79,11 @@ const RRFormDetails = ({
 
   useEffect(() => {
     if (!openEdit) getFixedAmtDiscounts();
+
+    if (selectedSDRs.length > 0) {
+      const firstSDR = selectedSDRs[0];
+      setReferenceNumber(firstSDR.reference_number);
+    }
   }, [selectedSDRs]);
 
   return (
@@ -284,7 +289,7 @@ const RRFormDetails = ({
               placeholder="Search"
               onChange={(e) => setReferenceNumber(e.target.value)}
               value={referenceNumber}
-              disabled={isEditDisabled}
+              disabled
               required
             />
           </FormControl>
