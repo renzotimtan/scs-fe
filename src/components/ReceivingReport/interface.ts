@@ -135,5 +135,5 @@ export interface Expense {
   id: string;
   expense: string;
   amount: number;
-  other_currency_expense: number;
+  comments: string;
 }

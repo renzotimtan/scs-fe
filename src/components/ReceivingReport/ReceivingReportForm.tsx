@@ -28,7 +28,7 @@ const ReceivingReportForm = ({
     id: uuid(),
     expense: "",
     amount: 0,
-    other_currency_expense: 0,
+    comments: "",
   };
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
@@ -101,7 +101,7 @@ const ReceivingReportForm = ({
             id: expense.id,
             expense: expense.expense,
             amount: expense.amount,
-            other_currency_expense: expense.other_currency_expense,
+            comments: expense.comments,
           };
         }),
       );
@@ -150,7 +150,7 @@ const ReceivingReportForm = ({
           expense: expense.expense,
           amount: expense.amount,
           currency: "",
-          other_currency_expense: expense.other_currency_expense,
+          comments: expense.comments,
           created_by: userId,
         };
       }),
@@ -189,7 +189,7 @@ const ReceivingReportForm = ({
           expense: expense.expense,
           amount: expense.amount,
           currency: "",
-          other_currency_expense: expense.other_currency_expense,
+          comments: expense.comments,
           modified_by: userId,
         };
       }),

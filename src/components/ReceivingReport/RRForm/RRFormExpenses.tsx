@@ -1,5 +1,13 @@
 import { useEffect } from "react";
-import { Sheet, Table, Select, Option, Input, Button } from "@mui/joy";
+import {
+  Sheet,
+  Table,
+  Select,
+  Option,
+  Input,
+  Button,
+  Textarea,
+} from "@mui/joy";
 import type { DeliveryReceipt } from "../../../interface";
 import type { Expense } from "../interface";
 import type { Dispatch, SetStateAction } from "react";
@@ -20,7 +28,7 @@ const RRFormExpenses = ({
 }): JSX.Element => {
   useEffect(() => {
     const totalExpense = expenses.reduce(
-      (acc, expense) => acc + expense.amount + expense.other_currency_expense,
+      (acc, expense) => acc + expense.amount,
       0,
     );
     setTotalExpense(totalExpense);
@@ -40,6 +48,18 @@ const RRFormExpenses = ({
     setExpenses(
       expenses.map((expense) =>
         expense.id === id ? { ...expense, [field]: Number(value) } : expense,
+      ),
+    );
+  };
+
+  const handleStringInputChange = (
+    id: any,
+    field: string,
+    value: string,
+  ): void => {
+    setExpenses(
+      expenses.map((expense) =>
+        expense.id === id ? { ...expense, [field]: value } : expense,
       ),
     );
   };
@@ -92,7 +112,7 @@ const RRFormExpenses = ({
           <tr>
             <th style={{ width: "var(--Table-firstColumnWidth)" }}>Expense</th>
             <th style={{ width: 100 }}>Amount</th>
-            <th style={{ width: 100 }}>Other Expenses</th>
+            <th style={{ width: 100 }}>Comments</th>
             <th style={{ width: 65 }}></th>
           </tr>
         </thead>
@@ -133,17 +153,16 @@ const RRFormExpenses = ({
                   />
                 </td>
                 <td>
-                  <Input
-                    type="number"
-                    slotProps={{ input: { min: 0 } }}
+                  <Textarea
+                    placeholder="Comments"
                     onChange={(event) =>
-                      handleInputChange(
+                      handleStringInputChange(
                         expense.id,
-                        "other_currency_expense",
-                        Number(event.target.value),
+                        "comments",
+                        event.target.value,
                       )
                     }
-                    value={expense.other_currency_expense}
+                    value={expense.comments}
                     disabled={isEditDisabled}
                   />
                 </td>
@@ -175,7 +194,7 @@ const RRFormExpenses = ({
           onClick={() =>
             setExpenses([
               ...expenses,
-              { id: uuid(), expense: "", amount: 0, other_currency_expense: 0 },
+              { id: uuid(), expense: "", amount: 0, comments: "" },
             ])
           }
           disabled={isEditDisabled}
