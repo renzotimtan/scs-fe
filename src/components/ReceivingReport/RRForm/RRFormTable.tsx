@@ -44,14 +44,14 @@ const RRFormTable = ({
       SDR.purchase_orders.forEach((PO, index2) => {
         PO.items.forEach((POItem, index3) => {
           const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
-          const inTransit = POItem.volume;
+          const servedQty = POItem.in_transit;
 
-          servedPerRow[key] = inTransit;
+          servedPerRow[key] = servedQty;
 
-          const newNet = calculateNetForRow(inTransit, POItem, PO);
+          const newNet = calculateNetForRow(servedQty, POItem, PO);
           netPerRow[key] = newNet;
 
-          const newGross = calculateGrossPerRow(inTransit, POItem);
+          const newGross = calculateGrossPerRow(servedQty, POItem);
           grossPerRow[key] = newGross;
         });
       });
@@ -103,11 +103,13 @@ const RRFormTable = ({
     return result;
   };
 
-  const calculateGrossPerRow = (newValue: number, POItem: POItems): number => {
-    const result = newValue * POItem.price;
+  const calculateGrossPerRow = (servedQty: number, POItem: POItems): number => {
+    const result = servedQty * POItem.price;
     if (isNaN(result)) return 0;
     return result;
   };
+
+  const uniqueKeyMap = new Set();
 
   return (
     <Sheet
@@ -185,23 +187,24 @@ const RRFormTable = ({
           {selectedSDRs.map((SDR, index1) => {
             return SDR.purchase_orders.map((PO, index2) => {
               return PO.items.map((POItem, index3) => {
-                if (
-                  (status !== "posted" && POItem.in_transit === 0) 
-                  || (status === "posted" && POItem.volume === 0)
-                ) return null;
+                const key = `${POItem.id}`;
+                const rowIsDuplicate =
+                  status === "posted" && uniqueKeyMap.has(key);
 
-                const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
+                if (rowIsDuplicate) return null;
+                if (status === "posted") uniqueKeyMap.add(key);
+
                 return (
                   <tr key={key}>
                     <td style={{ zIndex: 1 }}>{SDR.id}</td>
                     <td>{PO.id}</td>
                     <td>{POItem?.item.stock_code}</td>
                     <td>{POItem?.item.name}</td>
-                    {status === "posted" ? (
-                      <td>{POItem.volume}</td>
-                    ) : (
-                      <td>{POItem.in_transit}</td>
-                    )}
+                    <td>
+                      {status === "posted"
+                        ? POItem.on_stock
+                        : POItem.in_transit}
+                    </td>
                     <td>{POItem.price}</td>
                     <td>{grossPerRow[key]}</td>
                     <td>
