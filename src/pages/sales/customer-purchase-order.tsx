@@ -1,6 +1,6 @@
 import { useState } from "react";
 import CustomerPurchaseOrderForm from "../../components/CustomerPurchaseOrder/CustomerPurchaseOrderForm";
-import ViewCustomerPurchaseOrder from "../../components/CustomerPurchaseOrder/ViewPurchaseOrder";
+import ViewCustomerPurchaseOrder from "../../components/CustomerPurchaseOrder/ViewCPurchaseOrder";
 import type { PurchaseOrder } from "../../interface";
 
 const CustomerPurchaseOrderMenu = (): JSX.Element => {

@@ -216,13 +216,35 @@ const POFormTable = ({
                     listbox: {
                       sx: {
                         width: 300, // Increase the width
-                        fontSize: "13px"
+                        fontSize: "13px",
                       },
                     },
                   }}
                 />
               </td>
-              <td>{selectedItem?.stock_code}</td>
+              <td>
+                <Autocomplete
+                  placeholder="Select Stock"
+                  options={items}
+                  getOptionLabel={(item) => item.stock_code ?? ""}
+                  onChange={(event, value) => {
+                    if (value !== null) {
+                      fetchSelectedItem(event, value.id, index);
+                    }
+                  }}
+                  value={selectedItem}
+                  disabled={isEditDisabled}
+                  size="sm"
+                  slotProps={{
+                    listbox: {
+                      sx: {
+                        width: 300, // Increase the width
+                        fontSize: "13px",
+                      },
+                    },
+                  }}
+                />
+              </td>
               <td>{selectedItem?.acquisition_cost}</td>
               <td style={{ zIndex: 2 }}>
                 {selectedItem?.id !== null && (

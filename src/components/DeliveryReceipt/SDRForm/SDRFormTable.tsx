@@ -237,7 +237,7 @@ const SDRFormTable = ({
           {selectedPOs.map((PO, index1) => {
             return PO.items.map((POItem, index2) => {
               // Don't show if unserved is 0
-              if (POItem.unserved_spo === 0) return null;
+              if (POItem.unserved_spo === 0 && status !== "posted") return null;
 
               const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
               return (

@@ -1,5 +1,5 @@
-import POFormDetails from "./CustomerPOForm/POFormDetails";
-import POFormTable from "./CustomerPOForm/POFormTable";
+import POFormDetails from "./CustomerPOForm/CPOFormDetails";
+import POFormTable from "./CustomerPOForm/CPOFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
