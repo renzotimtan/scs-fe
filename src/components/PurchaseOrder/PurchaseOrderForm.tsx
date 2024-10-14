@@ -315,8 +315,8 @@ const PurchaseOrderForm = ({
       await axiosInstance.post("/api/purchase_orders/", payload);
       toast.success("Save successful!");
       resetForm();
-      setOpen(false);
-      // Handle the response, update state, etc.
+              setOpen(false);
+            // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(`Error message: ${error?.response?.data?.detail}`);
     }
@@ -375,7 +375,7 @@ const PurchaseOrderForm = ({
     setCurrencyUsed("USD");
     setDiscounts(INITIAL_DISCOUNTS);
     setPesoRate(56);
-    setStatus("pending");
+    setStatus("unposted");
     setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");

@@ -188,6 +188,13 @@ const RRFormTable = ({
             return SDR.purchase_orders.map((PO, index2) => {
               return PO.items.map((POItem, index3) => {
                 const key = `${POItem.id}`;
+
+                if (
+                  (status !== "posted" && POItem.in_transit === 0)
+                ) {
+                  return null;
+                }
+
                 const rowIsDuplicate =
                   status === "posted" && uniqueKeyMap.has(key);
 
