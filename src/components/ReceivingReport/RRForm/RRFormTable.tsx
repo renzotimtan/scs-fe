@@ -44,7 +44,8 @@ const RRFormTable = ({
       SDR.purchase_orders.forEach((PO, index2) => {
         PO.items.forEach((POItem, index3) => {
           const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
-          const servedQty = POItem.in_transit;
+          const servedQty =
+            status === "posted" ? POItem.on_stock : POItem.in_transit;
 
           servedPerRow[key] = servedQty;
 
@@ -189,9 +190,7 @@ const RRFormTable = ({
               return PO.items.map((POItem, index3) => {
                 const key = `${POItem.id}`;
 
-                if (
-                  (status !== "posted" && POItem.in_transit === 0)
-                ) {
+                if (status !== "posted" && POItem.in_transit === 0) {
                   return null;
                 }
 
