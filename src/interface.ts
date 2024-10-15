@@ -36,8 +36,8 @@ export interface Item {
   };
 
   // Fields for PO Functionality only
-  volume?: number;
-  price?: number;
+  volume?: any;
+  price?: any;
   on_stock?: number;
   in_transit?: number;
   allocated?: number;

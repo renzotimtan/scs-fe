@@ -43,7 +43,7 @@ const ReceivingReportForm = ({
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
-  const [pesoRate, setPesoRate] = useState<number>(56);
+  const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [amountDiscount, setAmountDiscount] = useState(0);
   const [totalGross, setTotalGross] = useState(0);
@@ -54,7 +54,7 @@ const ReceivingReportForm = ({
 
   const fobTotal = totalGross;
   const netAmount = totalNet;
-  const landedTotal = netAmount * pesoRate;
+  const landedTotal = netAmount * Number(pesoRate);
   const percentNetCost = isNaN(totalExpense / landedTotal)
     ? 0
     : (totalExpense / landedTotal) * 100;

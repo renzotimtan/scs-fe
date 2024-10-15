@@ -55,7 +55,7 @@ const STFormTable = ({
 
   const addWarehouseAmtToTransfer = (
     index: number,
-    newValue: number,
+    newValue: string,
     warehousePosition: number,
   ) => {
     const newWarehouseItem = {
@@ -208,7 +208,7 @@ const STFormTable = ({
                       onChange={(e) =>
                         addWarehouseAmtToTransfer(
                           index,
-                          Number(e.target.value),
+                          e.target.value,
                           1,
                         )
                       }
@@ -248,7 +248,7 @@ const STFormTable = ({
                       onChange={(e) =>
                         addWarehouseAmtToTransfer(
                           index,
-                          Number(e.target.value),
+                          e.target.value,
                           2,
                         )
                       }
@@ -287,7 +287,7 @@ const STFormTable = ({
                       onChange={(e) =>
                         addWarehouseAmtToTransfer(
                           index,
-                          Number(e.target.value),
+                          e.target.value,
                           3,
                         )
                       }

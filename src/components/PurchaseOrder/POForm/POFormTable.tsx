@@ -73,7 +73,7 @@ const POFormTable = ({
     }
   };
 
-  const addItemVolume = (value: number, index: number): void => {
+  const addItemVolume = (value: string, index: number): void => {
     const newSelectedItems = selectedItems.map((item: Item, i: number) => {
       if (i === index) {
         return { ...item, volume: value };
@@ -85,7 +85,7 @@ const POFormTable = ({
     setSelectedItems(newSelectedItems);
   };
 
-  const addItemPrice = (value: number, index: number): void => {
+  const addItemPrice = (value: string, index: number): void => {
     const newSelectedItems = selectedItems.map((item: Item, i: number) => {
       if (i === index) {
         return { ...item, price: value };
@@ -193,7 +193,7 @@ const POFormTable = ({
                   onConfirm={() => handlePriceChange(selectedItem, index)}
                   // When cancelled, revert back original price
                   onCancel={() =>
-                    addItemPrice(selectedItem.acquisition_cost, index)
+                    addItemPrice(String(selectedItem.acquisition_cost), index)
                   }
                   itemName={selectedItem.name}
                 />
@@ -250,9 +250,7 @@ const POFormTable = ({
                 {selectedItem?.id !== null && (
                   <Input
                     type="number"
-                    onChange={(e) =>
-                      addItemVolume(Number(e.target.value), index)
-                    }
+                    onChange={(e) => addItemVolume(e.target.value, index)}
                     slotProps={{
                       input: {
                         min: 0,
@@ -275,9 +273,7 @@ const POFormTable = ({
                         step: ".01",
                       },
                     }}
-                    onChange={(e) =>
-                      addItemPrice(Number(e.target.value), index)
-                    }
+                    onChange={(e) => addItemPrice(e.target.value, index)}
                     onBlur={(e) => {
                       if (
                         selectedItem.acquisition_cost !== selectedItem.price

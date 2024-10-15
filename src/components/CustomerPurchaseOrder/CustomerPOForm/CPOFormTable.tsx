@@ -56,7 +56,7 @@ const POFormTable = ({
     }
   };
 
-  const addItemVolume = (value: number, index: number): void => {
+  const addItemVolume = (value: string, index: number): void => {
     const newSelectedItems = selectedItems.map((item: Item, i: number) => {
       if (i === index) {
         return { ...item, volume: value };
@@ -68,7 +68,7 @@ const POFormTable = ({
     setSelectedItems(newSelectedItems);
   };
 
-  const addItemPrice = (value: number, index: number): void => {
+  const addItemPrice = (value: string, index: number): void => {
     const newSelectedItems = selectedItems.map((item: Item, i: number) => {
       if (i === index) {
         return { ...item, price: value };
@@ -178,7 +178,7 @@ const POFormTable = ({
                   onConfirm={() => handlePriceChange(selectedItem, index)}
                   // When cancelled, revert back original price
                   onCancel={() =>
-                    addItemPrice(selectedItem.acquisition_cost, index)
+                    addItemPrice(String(selectedItem.acquisition_cost), index)
                   }
                   itemName={selectedItem.name}
                 />
@@ -211,7 +211,7 @@ const POFormTable = ({
                   <Input
                     type="number"
                     onChange={(e) =>
-                      addItemVolume(Number(e.target.value), index)
+                      addItemVolume(e.target.value, index)
                     }
                     slotProps={{
                       input: {
@@ -236,7 +236,7 @@ const POFormTable = ({
                       },
                     }}
                     onChange={(e) =>
-                      addItemPrice(Number(e.target.value), index)
+                      addItemPrice(e.target.value, index)
                     }
                     onBlur={(e) => {
                       if (

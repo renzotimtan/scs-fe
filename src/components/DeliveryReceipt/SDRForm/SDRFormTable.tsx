@@ -141,7 +141,7 @@ const SDRFormTable = ({
     PO: PurchaseOrder,
     POItem: POItems,
   ): void => {
-    const newValue = Number(event.target.value);
+    const newValue = event.target.value;
 
     // Set served amount to get gross
     setServedAmt({

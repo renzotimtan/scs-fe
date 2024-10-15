@@ -185,7 +185,9 @@ const POFormDetails = ({
                 size="sm"
                 placeholder="56"
                 value={pesoRate}
-                onChange={(e) => setPesoRate(Number(e.target.value))}
+                onChange={(e) => {
+                  setPesoRate(e.target.value);
+                }}
                 slotProps={{
                   input: {
                     min: 0,
@@ -212,17 +214,17 @@ const POFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(4)}`}</h5>
+              <h5>{`${currencyUsed} ${(landedTotal / Number(pesoRate)).toFixed(4)}`}</h5>
             </FormControl>
           </div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>₱{(fobTotal * pesoRate).toFixed(4)}</h5>{" "}
+              <h5>₱{(fobTotal * Number(pesoRate)).toFixed(4)}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{(netAmount * pesoRate).toFixed(4)}</h5>
+              <h5>₱{(netAmount * Number(pesoRate)).toFixed(4)}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>

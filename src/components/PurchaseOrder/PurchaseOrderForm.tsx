@@ -51,7 +51,7 @@ const PurchaseOrderForm = ({
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [discounts, setDiscounts] = useState(INITIAL_DISCOUNTS);
-  const [pesoRate, setPesoRate] = useState<number>(56);
+  const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -144,7 +144,7 @@ const PurchaseOrderForm = ({
       transaction_discount_1: discounts.transaction[0],
       transaction_discount_2: discounts.transaction[1],
       transaction_discount_3: discounts.transaction[2],
-      peso_rate: pesoRate,
+      peso_rate: Number(pesoRate),
       net_amount: netAmount,
       reference_number: referenceNumber,
       landed_total: landedTotal,
@@ -185,7 +185,7 @@ const PurchaseOrderForm = ({
     discounts.transaction,
     subtotalAfterSupplierDiscounts,
   );
-  const landedTotal = netAmount * pesoRate;
+  const landedTotal = netAmount * Number(pesoRate);
 
   const getAllPOItems = (): void => {
     const POItems = selectedRow?.items;
@@ -315,8 +315,8 @@ const PurchaseOrderForm = ({
       await axiosInstance.post("/api/purchase_orders/", payload);
       toast.success("Save successful!");
       resetForm();
-              setOpen(false);
-            // Handle the response, update state, etc.
+      setOpen(false);
+      // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(`Error message: ${error?.response?.data?.detail}`);
     }
@@ -343,9 +343,9 @@ const PurchaseOrderForm = ({
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
-        volume: item.volume,
-        price: item.price,
-        unserved_spo: item.volume,
+        volume: Number(item.volume),
+        price: Number(item.price),
+        unserved_spo: Number(item.volume),
         total_price: Number(item.volume) * Number(item.price),
 
         // Fields needed only for edit

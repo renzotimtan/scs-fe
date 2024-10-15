@@ -48,8 +48,8 @@ export interface RRFormDetailsProps {
   setStatus: Dispatch<SetStateAction<string>>;
   transactionDate: string;
   setTransactionDate: Dispatch<SetStateAction<string>>;
-  pesoRate: number;
-  setPesoRate: Dispatch<SetStateAction<number>>;
+  pesoRate: number | string;
+  setPesoRate: Dispatch<SetStateAction<number | string>>;
   currencyUsed: string;
   setCurrencyUsed: Dispatch<SetStateAction<string>>;
   remarks: string;

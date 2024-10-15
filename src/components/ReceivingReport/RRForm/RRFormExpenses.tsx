@@ -44,10 +44,10 @@ const RRFormExpenses = ({
     }
   };
 
-  const handleInputChange = (id: any, field: string, value: number): void => {
+  const handleInputChange = (id: any, field: string, value: string): void => {
     setExpenses(
       expenses.map((expense) =>
-        expense.id === id ? { ...expense, [field]: Number(value) } : expense,
+        expense.id === id ? { ...expense, [field]: value } : expense,
       ),
     );
   };
@@ -144,7 +144,7 @@ const RRFormExpenses = ({
                       handleInputChange(
                         expense.id,
                         "amount",
-                        Number(event.target.value),
+                        event.target.value,
                       )
                     }
                     value={expense.amount}

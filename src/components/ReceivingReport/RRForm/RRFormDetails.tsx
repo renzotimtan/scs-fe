@@ -61,7 +61,7 @@ const RRFormDetails = ({
     if (selectedSupplier !== null && selectedSupplier !== undefined) {
       axiosInstance
         .get<PaginatedSDR>(
-          `/api/supplier-delivery-receipts/?supplier_id=${selectedSupplier.supplier_id}`,
+          `/api/supplier-delivery-receipts/?supplier_id=${selectedSupplier.supplier_id}&sort_order=desc`,
         )
         .then((response) => setUnservedSDRs(response.data))
         .catch((error) => console.error("Error:", error));
@@ -182,7 +182,7 @@ const RRFormDetails = ({
                 size="sm"
                 placeholder="56"
                 value={pesoRate}
-                onChange={(e) => setPesoRate(Number(e.target.value))}
+                onChange={(e) => setPesoRate(e.target.value)}
                 slotProps={{
                   input: {
                     min: 0,
@@ -229,15 +229,15 @@ const RRFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(4)}`}</h5>
+              <h5>{`${currencyUsed} ${(landedTotal / Number(pesoRate)).toFixed(4)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>₱{(fobTotal * pesoRate).toFixed(4)}</h5>{" "}
+              <h5>₱{(fobTotal * Number(pesoRate)).toFixed(4)}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{(netAmount * pesoRate).toFixed(4)}</h5>
+              <h5>₱{(netAmount * Number(pesoRate)).toFixed(4)}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
@@ -250,7 +250,7 @@ const RRFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>Total Expense</FormLabel>
-              <h5>₱{totalExpense.toFixed(4)}</h5>{" "}
+              <h5>₱{Number(totalExpense).toFixed(4)}</h5>{" "}
             </FormControl>
           </div>
           <Divider />
