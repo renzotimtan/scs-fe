@@ -15,8 +15,10 @@ import type {
   STFormProps,
   WarehouseItem,
   Item,
+  Supplier,
+  PaginatedSuppliers,
 } from "../../interface";
-
+import { convertToQueryParams } from "../../helper";
 import { STFormPayload } from "./interface";
 
 const StockTransferForm = ({
@@ -52,6 +54,13 @@ const StockTransferForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
+  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+    total: 0,
+    items: [],
+  });
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
 
   useEffect(() => {
     // Fetch warehouses
@@ -61,6 +70,12 @@ const StockTransferForm = ({
         setWarehouses(response.data);
         setSelectedWarehouse(response.data.items[0]);
       })
+      .catch((error) => console.error("Error:", error));
+
+    // Fetch suppliers
+    axiosInstance
+      .get<PaginatedSuppliers>("/api/suppliers/")
+      .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch RR
@@ -118,6 +133,31 @@ const StockTransferForm = ({
 
     fetchMultipleItems(addedPOItems);
   }, [selectedRR]);
+
+  useEffect(() => {
+    if (selectedWarehouse !== null) {
+      // Fetch items for the selected warehouse
+      const params: {
+        warehouse_id: number;
+        supplier_id: number | undefined;
+      } = {
+        warehouse_id: selectedWarehouse.id,
+        supplier_id: selectedSupplier?.supplier_id,
+      };
+      axiosInstance
+        .get(`/api/warehouse_items?${convertToQueryParams(params)}`)
+        .then((response) => {
+          setWarehouseItems(response.data.items);
+        })
+        .catch((error) => console.error("Error:", error));
+
+      if (rrTransfer === "no") {
+        fetchMultipleItems(
+          warehouseItems.map((warehouseItem) => warehouseItem.item_id),
+        );
+      }
+    }
+  }, [selectedWarehouse, selectedSupplier]);
 
   const fetchSelectedItem = (value: number, index: number): void => {
     if (value !== undefined) {
@@ -286,6 +326,12 @@ const StockTransferForm = ({
         receivingReports={receivingReports}
         selectedRR={selectedRR}
         setSelectedRR={setSelectedRR}
+        suppliers={suppliers}
+        selectedSupplier={selectedSupplier}
+        setSelectedSupplier={setSelectedSupplier}
+        setSelectedWarehouseItems={setSelectedWarehouseItems}
+        fetchMultipleItems={fetchMultipleItems}
+        warehouseItems={warehouseItems}
       />
       <STFormTable
         selectedWarehouse={selectedWarehouse}
@@ -296,6 +342,7 @@ const StockTransferForm = ({
         fetchSelectedItem={fetchSelectedItem}
         warehouseItems={warehouseItems}
         setWarehouseItems={setWarehouseItems}
+        selectedSupplier={selectedSupplier}
       />
       <Divider />
       <div className="flex justify-end mt-4">

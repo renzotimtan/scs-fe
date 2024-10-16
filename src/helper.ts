@@ -1,8 +1,6 @@
 import type { PaginationQueryParams } from "./interface";
 
-export const convertToQueryParams = (
-  queryParams: PaginationQueryParams,
-): string => {
+export const convertToQueryParams = (queryParams: any): string => {
   const queryString = Object.entries(queryParams)
     .filter(([_, value]) => value !== undefined)
     .map(([key, value]) => {

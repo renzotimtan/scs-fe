@@ -32,7 +32,16 @@ const STFormDetails = ({
   receivingReports,
   selectedRR,
   setSelectedRR,
+  suppliers,
+  selectedSupplier,
+  setSelectedSupplier,
+  setSelectedWarehouseItems,
+  warehouseItems,
+  fetchMultipleItems,
 }: STFormDetailsProps): JSX.Element => {
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
+
   return (
     <Box sx={{ display: "flex" }}>
       <Card className="w-[60%] mr-7">
@@ -44,6 +53,46 @@ const STFormDetails = ({
               </div>
             )}
           </div>
+
+          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+              <FormLabel>Supplier</FormLabel>
+              <div className="flex">
+                <Autocomplete
+                  options={suppliers.items}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedSupplier}
+                  onChange={(event, newValue) => {
+                    setSelectedSupplier(newValue);
+                    // @ts-expect-error (Item object, unless its using the empty object)
+                    setSelectedWarehouseItems([{ id: null }]);
+                  }}
+                  size="sm"
+                  className="w-[100%]"
+                  placeholder="Select Supplier"
+                  disabled={isEditDisabled}
+                  required
+                />
+              </div>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+              <FormLabel>From Warehouse</FormLabel>
+              <Autocomplete
+                options={warehouses.items}
+                getOptionLabel={(option) => option.name}
+                value={selectedWarehouse}
+                onChange={(event, newValue) => {
+                  setSelectedWarehouse(newValue);
+                  // @ts-expect-error (Item object, unless its using the empty object)
+                  setSelectedWarehouseItems([{ id: null }]);
+                }}
+                size="sm"
+                className="w-[100%]"
+                placeholder="Select Warehouse"
+                required
+              />
+            </FormControl>
+          </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Status</FormLabel>
@@ -73,7 +122,17 @@ const STFormDetails = ({
               <FormLabel>RR Transfer</FormLabel>
               <Select
                 onChange={(event, value) => {
-                  if (value !== null) setRRTransfer(value);
+                  if (value !== null) {
+                    if (value === "no") {
+                      setSelectedRR(null);
+                      fetchMultipleItems(
+                        warehouseItems.map(
+                          (warehouseItem) => warehouseItem.item_id,
+                        ),
+                      );
+                    }
+                    setRRTransfer(value);
+                  }
                 }}
                 size="sm"
                 value={rrTransfer}
@@ -94,28 +153,8 @@ const STFormDetails = ({
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Receiving Report"
+                disabled={rrTransfer === "no"}
               />
-            </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>From Warehouse</FormLabel>
-              <Autocomplete
-                options={warehouses.items}
-                getOptionLabel={(option) => option.name}
-                value={selectedWarehouse}
-                onChange={(event, newValue) => {
-                  setSelectedWarehouse(newValue);
-                }}
-                size="sm"
-                className="w-[100%]"
-                placeholder="Select Warehouse"
-                required
-              />
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>Supplier</FormLabel>
-              <Input value={selectedRR?.supplier_id} disabled />
             </FormControl>
           </Stack>
         </div>

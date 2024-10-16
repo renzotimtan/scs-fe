@@ -5,6 +5,7 @@ import type { Item, WarehouseItem, Warehouse } from "../../../interface";
 import { STFormTableProps } from "../interface";
 import axiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import { convertToQueryParams } from "../../../helper";
 
 const STFormTable = ({
   selectedWarehouse,
@@ -15,21 +16,10 @@ const STFormTable = ({
   warehouseItems,
   setWarehouseItems,
   fetchSelectedItem,
+  selectedSupplier,
 }: STFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
-
-  useEffect(() => {
-    if (selectedWarehouse !== null) {
-      // Fetch items for the selected warehouse
-      axiosInstance
-        .get(`/api/warehouse_items?warehouse_id=${selectedWarehouse?.id}`)
-        .then((response) => {
-          setWarehouseItems(response.data.items);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedWarehouse]);
 
   const addWarehouseToTransfer = (
     index: number,
@@ -227,7 +217,6 @@ const STFormTable = ({
                     }}
                   />
                 </td>
-                <td>{selectedItem?.item?.name}</td>
                 <td>{selectedItem?.on_stock}</td>
                 <td>
                   {selectedItem?.id !== null && (

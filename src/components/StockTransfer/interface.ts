@@ -5,7 +5,10 @@ import type {
   Warehouse,
   WarehouseItem,
   StockTransfer,
+  Supplier,
+  PaginatedSuppliers,
 } from "../../interface";
+import type { Dispatch, SetStateAction } from "react";
 
 export interface STFormDetailsProps {
   openEdit: boolean;
@@ -24,6 +27,12 @@ export interface STFormDetailsProps {
   receivingReports: PaginatedRR;
   selectedRR: ReceivingReport | null;
   setSelectedRR: (receivingReport: ReceivingReport | null) => void;
+  suppliers: PaginatedSuppliers;
+  selectedSupplier: Supplier | null;
+  setSelectedSupplier: Dispatch<SetStateAction<Supplier | null>>;
+  setSelectedWarehouseItems: Dispatch<SetStateAction<WarehouseItem[]>>;
+  warehouseItems: WarehouseItem[];
+  fetchMultipleItems: (POItems: any) => void;
 }
 
 export interface STFormTableProps {
@@ -35,6 +44,7 @@ export interface STFormTableProps {
   warehouseItems: WarehouseItem[];
   setWarehouseItems: (warehouseItems: WarehouseItem[]) => void;
   fetchSelectedItem: (value: number, index: number) => void;
+  selectedSupplier: Supplier | null;
 }
 
 interface Destinations {
