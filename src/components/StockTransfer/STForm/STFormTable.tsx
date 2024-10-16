@@ -136,10 +136,9 @@ const STFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              Selected Item
+              Product Name
             </th>
-            <th style={{ width: 250 }}>Stock No.</th>
-            <th style={{ width: 300 }}>Product Name</th>
+            <th style={{ width: 200 }}>Stock Code</th>
             <th style={{ width: 150 }}>Total Quantity</th>
             <th style={{ width: 200 }}>To Whse 1</th>
             <th style={{ width: 150 }}>Whse 1 Qty.</th>
@@ -203,7 +202,31 @@ const STFormTable = ({
                     }}
                   />
                 </td>
-                <td>{selectedItem?.item?.stock_code}</td>
+                <td>
+                  <Autocomplete
+                    placeholder="Select Stock"
+                    options={warehouseItems}
+                    getOptionLabel={(warehouseItem) =>
+                      warehouseItem.item?.stock_code ?? ""
+                    }
+                    onChange={(_, value) => {
+                      if (value !== null) {
+                        fetchSelectedItem(value.item_id, index);
+                      }
+                    }}
+                    value={selectedItem}
+                    disabled={isEditDisabled}
+                    size="sm"
+                    slotProps={{
+                      listbox: {
+                        sx: {
+                          width: 300, // Increase the width
+                          fontSize: "13px",
+                        },
+                      },
+                    }}
+                  />
+                </td>
                 <td>{selectedItem?.item?.name}</td>
                 <td>{selectedItem?.on_stock}</td>
                 <td>
@@ -229,11 +252,7 @@ const STFormTable = ({
                     <Input
                       type="number"
                       onChange={(e) =>
-                        addWarehouseAmtToTransfer(
-                          index,
-                          e.target.value,
-                          1,
-                        )
+                        addWarehouseAmtToTransfer(index, e.target.value, 1)
                       }
                       slotProps={{
                         input: {
@@ -269,11 +288,7 @@ const STFormTable = ({
                     <Input
                       type="number"
                       onChange={(e) =>
-                        addWarehouseAmtToTransfer(
-                          index,
-                          e.target.value,
-                          2,
-                        )
+                        addWarehouseAmtToTransfer(index, e.target.value, 2)
                       }
                       slotProps={{
                         input: {
@@ -308,11 +323,7 @@ const STFormTable = ({
                     <Input
                       type="number"
                       onChange={(e) =>
-                        addWarehouseAmtToTransfer(
-                          index,
-                          e.target.value,
-                          3,
-                        )
+                        addWarehouseAmtToTransfer(index, e.target.value, 3)
                       }
                       slotProps={{
                         input: {
