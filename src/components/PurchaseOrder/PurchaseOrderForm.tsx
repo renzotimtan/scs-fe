@@ -20,11 +20,6 @@ import type {
   PaginatedItems,
 } from "../../interface";
 
-const INITIAL_DISCOUNTS = {
-  supplier: ["0", "0", "0"],
-  transaction: ["0", "0", "0"],
-};
-
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
@@ -50,7 +45,10 @@ const PurchaseOrderForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
-  const [discounts, setDiscounts] = useState(INITIAL_DISCOUNTS);
+  const [discounts, setDiscounts] = useState({
+    supplier: ["0", "0", "0"],
+    transaction: ["0", "0", "0"],
+  });
   const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
@@ -373,7 +371,10 @@ const PurchaseOrderForm = ({
     setItems([]);
     setSelectedItems(INITIAL_SELECTED_ITEMS);
     setCurrencyUsed("USD");
-    setDiscounts(INITIAL_DISCOUNTS);
+    setDiscounts({
+      supplier: ["0", "0", "0"],
+      transaction: ["0", "0", "0"],
+    });
     setPesoRate(56);
     setStatus("unposted");
     setTransactionDate(currentDate);
