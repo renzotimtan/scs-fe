@@ -117,23 +117,7 @@ const StockTransferForm = ({
       }
     }
   }, [selectedRow, warehouses, receivingReports]);
-
-  useEffect(() => {
-    const addedPOItems: any = [];
-
-    selectedRR?.sdrs.forEach((SDR) => {
-      SDR.purchase_orders.forEach((PO) => {
-        PO.items.forEach((POItem) => {
-          if (!addedPOItems.includes(POItem.item_id)) {
-            addedPOItems.push(POItem.item_id);
-          }
-        });
-      });
-    });
-
-    fetchMultipleItems(addedPOItems);
-  }, [selectedRR]);
-
+  
   useEffect(() => {
     if (selectedWarehouse !== null) {
       // Fetch items for the selected warehouse
@@ -147,17 +131,21 @@ const StockTransferForm = ({
       axiosInstance
         .get(`/api/warehouse_items?${convertToQueryParams(params)}`)
         .then((response) => {
-          setWarehouseItems(response.data.items);
+          const tempWarehouseItems = response.data.items;
+          setWarehouseItems(tempWarehouseItems);
+
+          if (rrTransfer === "no") {
+            fetchMultipleItems(
+              tempWarehouseItems.map(
+                (warehouseItem: WarehouseItem) => warehouseItem.item_id,
+              ),
+              tempWarehouseItems,
+            );
+          }
         })
         .catch((error) => console.error("Error:", error));
-
-      if (rrTransfer === "no") {
-        fetchMultipleItems(
-          warehouseItems.map((warehouseItem) => warehouseItem.item_id),
-        );
-      }
     }
-  }, [selectedWarehouse, selectedSupplier]);
+  }, [selectedWarehouse, selectedSupplier, rrTransfer]);
 
   const fetchSelectedItem = (value: number, index: number): void => {
     if (value !== undefined) {
@@ -195,9 +183,12 @@ const StockTransferForm = ({
     }
   };
 
-  const fetchMultipleItems = (POItems: any) => {
+  const fetchMultipleItems = (
+    POItems: any,
+    items: WarehouseItem[] = warehouseItems,
+  ) => {
     if (POItems.length > 0) {
-      const foundWarehouseItems = warehouseItems
+      const foundWarehouseItems = items
         .filter((warehouseItem) => {
           return POItems.includes(warehouseItem.item_id);
         })

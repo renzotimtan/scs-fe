@@ -12,6 +12,7 @@ import {
 } from "@mui/joy";
 import type { STFormDetailsProps } from "../interface";
 import { formatToDateTime } from "../../../helper";
+import { ReceivingReport } from "../../../interface";
 
 const STFormDetails = ({
   openEdit,
@@ -41,6 +42,36 @@ const STFormDetails = ({
 }: STFormDetailsProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
+
+  const handleRRTransferChange = (value: string | null) => {
+    if (value !== null) {
+      if (value === "no") {
+        setSelectedRR(null);
+      } else {
+        // @ts-expect-error (Item object, unless its using the empty object)
+        setSelectedWarehouseItems([{ id: null }]);
+      }
+      setRRTransfer(value);
+    }
+  };
+
+  const handleRRNumChange = (newValue: ReceivingReport) => {
+    setSelectedRR(newValue);
+
+    const addedPOItems: any = [];
+
+    newValue?.sdrs.forEach((SDR) => {
+      SDR.purchase_orders.forEach((PO) => {
+        PO.items.forEach((POItem) => {
+          if (!addedPOItems.includes(POItem.item_id)) {
+            addedPOItems.push(POItem.item_id);
+          }
+        });
+      });
+    });
+
+    fetchMultipleItems(addedPOItems);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -121,19 +152,7 @@ const STFormDetails = ({
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>RR Transfer</FormLabel>
               <Select
-                onChange={(event, value) => {
-                  if (value !== null) {
-                    if (value === "no") {
-                      setSelectedRR(null);
-                      fetchMultipleItems(
-                        warehouseItems.map(
-                          (warehouseItem) => warehouseItem.item_id,
-                        ),
-                      );
-                    }
-                    setRRTransfer(value);
-                  }
-                }}
+                onChange={(_, value) => handleRRTransferChange(value)}
                 size="sm"
                 value={rrTransfer}
               >
@@ -148,7 +167,9 @@ const STFormDetails = ({
                 getOptionLabel={(option) => option.reference_number}
                 value={selectedRR}
                 onChange={(_, newValue) => {
-                  setSelectedRR(newValue);
+                  if (newValue !== null) {
+                    handleRRNumChange(newValue);
+                  }
                 }}
                 size="sm"
                 className="w-[100%]"
