@@ -182,7 +182,7 @@ const RRFormDetails = ({
                 size="sm"
                 placeholder="56"
                 value={pesoRate}
-                onChange={(e) => setPesoRate(e.target.value)}
+                onChange={(e) => setPesoRate(Number(e.target.value))}
                 slotProps={{
                   input: {
                     min: 0,

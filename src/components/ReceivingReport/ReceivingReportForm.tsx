@@ -43,7 +43,7 @@ const ReceivingReportForm = ({
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
-  const [pesoRate, setPesoRate] = useState<number | string>(56);
+  const [pesoRate, setPesoRate] = useState<number>(56);
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [amountDiscount, setAmountDiscount] = useState(0);
   const [totalGross, setTotalGross] = useState(0);
@@ -86,6 +86,7 @@ const ReceivingReportForm = ({
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
       setSelectedSDRs(selectedRow?.sdrs);
+      setPesoRate(selectedRow?.rate ?? 56);
 
       // Get Fixed Discounts and sum them
       let totalDiscount = 0;
