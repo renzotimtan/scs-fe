@@ -210,6 +210,9 @@ export interface WarehouseItem {
   secondWarehouseAmt?: number;
   thirdWarehouse?: any;
   thirdWarehouseAmt?: number;
+
+  // Hack fix
+  id?: number | null;
 }
 
 export interface PurchaseOrder {
@@ -401,12 +404,19 @@ export interface ReceivingReport {
   date_modified: string;
 }
 
+interface STDest {
+  id: number;
+  quantity: number;
+  to_warehouse_id: number;
+}
+
 interface StockTransferDetail {
   id: number;
   stock_transfer_id: number;
   warehouse_id: number;
   item_id: number;
   product_name: string;
+  stock_code: string;
   total_qty: number;
   to_warehouse_id: number;
   rr_balance_quantity: number;
@@ -419,6 +429,7 @@ interface StockTransferDetail {
   date_modified: string;
   creator: User;
   modifier: User;
+  destinations: STDest[];
 }
 
 export interface StockTransfer {

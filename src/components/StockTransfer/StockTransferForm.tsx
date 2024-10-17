@@ -100,24 +100,30 @@ const StockTransferForm = ({
       setRemarks(selectedRow?.remarks ?? "");
       setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
 
-      const selectedReceivingReport = receivingReports.items.find(
-        (rr: ReceivingReport) => rr.id == selectedRow.rr_id,
-      );
+      axiosInstance
+        .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
+        .then((response) => {
+          const selectedReceivingReport = response.data;
+          handleRRNumChange(selectedReceivingReport);
+        })
+        .catch((error) => console.error("Error:", error));
 
-      if (selectedReceivingReport !== undefined) {
-        setSelectedRR(selectedReceivingReport);
-      }
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
 
-      const selectedWarehouse = warehouses.items.find(
-        (warehouse: Warehouse) => warehouse.id == selectedRow.from_warehouse_id,
-      );
-
-      if (selectedWarehouse !== undefined) {
-        setSelectedWarehouse(selectedWarehouse);
-      }
+      axiosInstance
+        .get<Warehouse>(`/api/warehouses/${selectedRow.from_warehouse_id}`)
+        .then((response) => {
+          setSelectedWarehouse(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
     }
   }, [selectedRow, warehouses, receivingReports]);
-  
+
   useEffect(() => {
     if (selectedWarehouse !== null) {
       // Fetch items for the selected warehouse
@@ -146,6 +152,24 @@ const StockTransferForm = ({
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedWarehouse, selectedSupplier, rrTransfer]);
+
+  const handleRRNumChange = (newValue: ReceivingReport) => {
+    setSelectedRR(newValue);
+
+    const addedPOItems: any = [];
+
+    newValue?.sdrs.forEach((SDR) => {
+      SDR.purchase_orders.forEach((PO) => {
+        PO.items.forEach((POItem) => {
+          if (!addedPOItems.includes(POItem.item_id)) {
+            addedPOItems.push(POItem.item_id);
+          }
+        });
+      });
+    });
+
+    fetchMultipleItems(addedPOItems);
+  };
 
   const fetchSelectedItem = (value: number, index: number): void => {
     if (value !== undefined) {
@@ -183,26 +207,79 @@ const StockTransferForm = ({
     }
   };
 
-  const fetchMultipleItems = (
+  const fetchMultipleItems = async (
     POItems: any,
     items: WarehouseItem[] = warehouseItems,
   ) => {
     if (POItems.length > 0) {
-      const foundWarehouseItems = items
-        .filter((warehouseItem) => {
-          return POItems.includes(warehouseItem.item_id);
-        })
-        .map((warehouseItem) => {
-          return {
-            ...warehouseItem,
-            firstWarehouse: null,
-            firstWarehouseAmt: 0,
-            secondWarehouse: null,
-            secondWarehouseAmt: 0,
-            thirdWarehouse: null,
-            thirdWarehouseAmt: 0,
-          };
-        });
+      const foundWarehouseItems = await Promise.all(
+        items
+          .filter((warehouseItem) => {
+            return POItems.includes(warehouseItem.item_id);
+          })
+          .map(async (warehouseItem) => {
+            if (selectedRow !== null && selectedRow !== undefined) {
+              const foundDetails = selectedRow.stock_transfer_details.find(
+                (std) => std.stock_code === warehouseItem.item.stock_code,
+              );
+              const result: WarehouseItem = {
+                ...warehouseItem,
+                firstWarehouse: null,
+                firstWarehouseAmt: 0,
+                secondWarehouse: null,
+                secondWarehouseAmt: 0,
+                thirdWarehouse: null,
+                thirdWarehouseAmt: 0,
+              };
+
+              if (foundDetails) {
+                if (foundDetails.destinations.length >= 1) {
+                  result.firstWarehouse = warehouses.items.find(
+                    (warehouse) =>
+                      warehouse.id ===
+                      foundDetails.destinations[0].to_warehouse_id,
+                  );
+                  result.firstWarehouseAmt =
+                    foundDetails.destinations[0].quantity;
+                }
+
+                if (foundDetails.destinations.length >= 2) {
+                  result.secondWarehouse = warehouses.items.find(
+                    (warehouse) =>
+                      warehouse.id ===
+                      foundDetails.destinations[1].to_warehouse_id,
+                  );
+
+                  result.secondWarehouseAmt =
+                    foundDetails.destinations[1].quantity;
+                }
+
+                if (foundDetails.destinations.length >= 3) {
+                  result.thirdWarehouse = warehouses.items.find(
+                    (warehouse) =>
+                      warehouse.id ===
+                      foundDetails.destinations[2].to_warehouse_id,
+                  );
+
+                  result.thirdWarehouseAmt =
+                    foundDetails.destinations[2].quantity;
+                }
+              }
+
+              return result;
+            } else {
+              return {
+                ...warehouseItem,
+                firstWarehouse: null,
+                firstWarehouseAmt: 0,
+                secondWarehouse: null,
+                secondWarehouseAmt: 0,
+                thirdWarehouse: null,
+                thirdWarehouseAmt: 0,
+              };
+            }
+          }),
+      );
 
       if (foundWarehouseItems.length === 0) return;
 
@@ -295,6 +372,7 @@ const StockTransferForm = ({
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateStockTransfer();
+        // if (openCreate) await handleEditStockTransfer();
       }}
     >
       <div className="flex justify-between">
@@ -323,6 +401,7 @@ const StockTransferForm = ({
         setSelectedWarehouseItems={setSelectedWarehouseItems}
         fetchMultipleItems={fetchMultipleItems}
         warehouseItems={warehouseItems}
+        handleRRNumChange={handleRRNumChange}
       />
       <STFormTable
         selectedWarehouse={selectedWarehouse}

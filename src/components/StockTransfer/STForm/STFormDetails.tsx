@@ -39,6 +39,7 @@ const STFormDetails = ({
   setSelectedWarehouseItems,
   warehouseItems,
   fetchMultipleItems,
+  handleRRNumChange
 }: STFormDetailsProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -53,24 +54,6 @@ const STFormDetails = ({
       }
       setRRTransfer(value);
     }
-  };
-
-  const handleRRNumChange = (newValue: ReceivingReport) => {
-    setSelectedRR(newValue);
-
-    const addedPOItems: any = [];
-
-    newValue?.sdrs.forEach((SDR) => {
-      SDR.purchase_orders.forEach((PO) => {
-        PO.items.forEach((POItem) => {
-          if (!addedPOItems.includes(POItem.item_id)) {
-            addedPOItems.push(POItem.item_id);
-          }
-        });
-      });
-    });
-
-    fetchMultipleItems(addedPOItems);
   };
 
   return (

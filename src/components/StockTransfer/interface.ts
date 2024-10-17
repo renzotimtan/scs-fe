@@ -33,6 +33,7 @@ export interface STFormDetailsProps {
   setSelectedWarehouseItems: Dispatch<SetStateAction<WarehouseItem[]>>;
   warehouseItems: WarehouseItem[];
   fetchMultipleItems: (POItems: any) => void;
+  handleRRNumChange: (RR: ReceivingReport) => void;
 }
 
 export interface STFormTableProps {

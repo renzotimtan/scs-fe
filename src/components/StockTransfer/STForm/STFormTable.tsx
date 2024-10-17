@@ -147,27 +147,6 @@ const STFormTable = ({
             (selectedItem: WarehouseItem, index: number) => (
               <tr key={`${selectedItem.item_id}-${index}`}>
                 <td style={{ zIndex: 10 }}>
-                  {/* <Select
-                    onChange={(_, value) => {
-                      if (value !== null) {
-                        fetchSelectedItem(value, index);
-                      }
-                    }}
-                    className="mt-1 border-0"
-                    size="sm"
-                    placeholder="Select Item"
-                    value={selectedItem.item_id}
-                    disabled={isEditDisabled}
-                  >
-                    {warehouseItems.map((warehouseItem: WarehouseItem) => (
-                      <Option
-                        key={warehouseItem.item_id}
-                        value={warehouseItem.item_id}
-                      >
-                        {warehouseItem.item.name}
-                      </Option>
-                    ))}
-                  </Select> */}
                   <Autocomplete
                     placeholder="Select Stock"
                     options={warehouseItems}
