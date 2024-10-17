@@ -61,7 +61,7 @@ const RRFormDetails = ({
     if (selectedSupplier !== null && selectedSupplier !== undefined) {
       axiosInstance
         .get<PaginatedSDR>(
-          `/api/supplier-delivery-receipts/?supplier_id=${selectedSupplier.supplier_id}&sort_order=desc`,
+          `/api/supplier-delivery-receipts/?supplier_id=${selectedSupplier.supplier_id}&sort_order=desc&unassigned_to_rr=true`,
         )
         .then((response) => setUnservedSDRs(response.data))
         .catch((error) => console.error("Error:", error));

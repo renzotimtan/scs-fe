@@ -149,6 +149,7 @@ export interface PaginationQueryParams {
   sort_order?: string;
   search_term?: string;
   status?: string;
+  unassigned_to_rr?: boolean;
 }
 
 export interface Warehouse {
