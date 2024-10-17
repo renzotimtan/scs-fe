@@ -188,7 +188,7 @@ const RRFormTable = ({
           {selectedSDRs.map((SDR, index1) => {
             return SDR.purchase_orders.map((PO, index2) => {
               return PO.items.map((POItem, index3) => {
-                const key = `${POItem.id}`;
+                const key = `${SDR.id}-${PO.id}-${POItem.id}-${index1}-${index2}-${index3}`;
 
                 if (status !== "posted" && POItem.in_transit === 0) {
                   return null;
