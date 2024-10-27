@@ -16,7 +16,7 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import type { SDRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
-import type { PurchaseOrder } from "../../../interface";
+import type { PaginatedPO, PurchaseOrder } from "../../../interface";
 import SelectPOModal from "./SelectPOModal";
 import { convertToQueryParams, formatToDateTime } from "../../../helper";
 
@@ -96,11 +96,13 @@ const SDRFormDetails = ({
   useEffect(() => {
     if (selectedSupplier !== null && selectedSupplier !== undefined) {
       axiosInstance
-        .get<PurchaseOrder[]>(
-          `/api/purchase-orders/${selectedSupplier.supplier_id}`,
+        .get<PaginatedPO>(
+          `/api/purchase_orders/supplier/${selectedSupplier.supplier_id}`,
         )
         .then((response) =>
-          setUnservedPOs(response.data.filter((PO) => PO.status === "posted")),
+          setUnservedPOs(
+            response.data.items.filter((PO) => PO.status === "posted"),
+          ),
         )
         .catch((error) => console.error("Error:", error));
     }

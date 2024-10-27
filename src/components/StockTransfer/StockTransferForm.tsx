@@ -94,19 +94,12 @@ const StockTransferForm = ({
   }, []);
 
   useEffect(() => {
-    if (selectedRow !== null && selectedRow !== undefined) {
+    // Fill in fields for Edit
+    if (selectedRow) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
       setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
-
-      axiosInstance
-        .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
-        .then((response) => {
-          const selectedReceivingReport = response.data;
-          handleRRNumChange(selectedReceivingReport);
-        })
-        .catch((error) => console.error("Error:", error));
 
       axiosInstance
         .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
@@ -122,14 +115,26 @@ const StockTransferForm = ({
         })
         .catch((error) => console.error("Error:", error));
     }
-  }, [selectedRow, warehouses, receivingReports]);
+  }, [selectedRow]);
 
   useEffect(() => {
-    if (selectedWarehouse !== null) {
-      // Fetch items for the selected warehouse
+    if (selectedRow && selectedRow.rr_transfer && warehouseItems.length > 0) {
+      axiosInstance
+        .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
+        .then((response) => {
+          const selectedReceivingReport = response.data;
+          handleRRNumChange(selectedReceivingReport);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow, warehouseItems]);
+
+  useEffect(() => {
+    if (selectedWarehouse && selectedSupplier) {
+      // Fetch items for the selected warehouse and supplier
       const params: {
         warehouse_id: number;
-        supplier_id: number | undefined;
+        supplier_id: number;
       } = {
         warehouse_id: selectedWarehouse.id,
         supplier_id: selectedSupplier?.supplier_id,
@@ -361,6 +366,35 @@ const StockTransferForm = ({
     }
   };
 
+  const handleEditStockTransfer = async () => {
+    if (selectedWarehouse !== null) {
+      const payload = {
+        status,
+        transaction_date: transactionDate,
+        rr_transfer: rrTransfer,
+        rr_id: selectedRR?.id ?? null,
+        remarks,
+        supplier_id: selectedRR?.supplier_id ?? null,
+        from_warehouse_id: selectedWarehouse.id,
+        stock_transfer_details: createStockTransferDetails(),
+      };
+
+      try {
+        await axiosInstance.put(
+          `api/stock-transfers/${selectedRow?.id}`,
+          payload,
+        );
+        toast.success("Save successful!");
+        resetForm();
+        setOpen(false);
+        // Handle the response, update state, etc.
+      } catch (error: any) {
+        console.log(error);
+        toast.error(`Error: ${error?.response?.data?.detail}`);
+      }
+    }
+  };
+
   const resetForm = (): void => {
     setStatus("unposted");
     setTransactionDate(currentDate);
@@ -372,7 +406,7 @@ const StockTransferForm = ({
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateStockTransfer();
-        // if (openCreate) await handleEditStockTransfer();
+        if (openEdit) await handleEditStockTransfer();
       }}
     >
       <div className="flex justify-between">
