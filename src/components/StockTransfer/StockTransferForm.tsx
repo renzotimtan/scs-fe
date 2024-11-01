@@ -3,7 +3,7 @@ import STFormTable from "./STForm/STFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
@@ -80,7 +80,7 @@ const StockTransferForm = ({
 
     // Fetch RR
     axiosInstance
-      .get<PaginatedRR>("/api/receiving-reports/")
+      .get<PaginatedRR>("/api/receiving-reports/?status=posted")
       .then((response) => {
         setReceivingReports(response.data);
       })
@@ -92,6 +92,19 @@ const StockTransferForm = ({
       .then((response) => setUserId(response.data.id))
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
+
+  const filteredReceivingReports = useMemo(() => {
+    if (selectedSupplier != null) {
+      const filteredItems = receivingReports.items.filter(
+        (rr) => rr.supplier_id === selectedSupplier.supplier_id,
+      );
+      return {
+        total: filteredItems.length,
+        items: filteredItems,
+      };
+    }
+    return receivingReports;
+  }, [selectedSupplier, receivingReports]);
 
   useEffect(() => {
     // Fill in fields for Edit
@@ -426,7 +439,7 @@ const StockTransferForm = ({
         warehouses={warehouses}
         selectedWarehouse={selectedWarehouse}
         setSelectedWarehouse={setSelectedWarehouse}
-        receivingReports={receivingReports}
+        receivingReports={filteredReceivingReports}
         selectedRR={selectedRR}
         setSelectedRR={setSelectedRR}
         suppliers={suppliers}
