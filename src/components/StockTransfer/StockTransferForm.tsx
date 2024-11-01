@@ -348,7 +348,7 @@ const StockTransferForm = ({
         rr_transfer: rrTransfer,
         rr_id: selectedRR?.id ?? null,
         remarks,
-        supplier_id: selectedRR?.supplier_id ?? null,
+        supplier_id: selectedSupplier?.supplier_id ?? null,
         from_warehouse_id: selectedWarehouse.id,
         stock_transfer_details: createStockTransferDetails(),
       };
