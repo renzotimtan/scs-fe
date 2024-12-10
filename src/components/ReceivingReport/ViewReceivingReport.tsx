@@ -11,7 +11,10 @@ import type {
 
 import { Pagination } from "@mui/material";
 
-import { convertToQueryParams } from "../../helper";
+import {
+  convertToQueryParams,
+  addCommaToNumberWithFourPlaces,
+} from "../../helper";
 
 const PAGE_LIMIT = 10;
 
@@ -205,9 +208,9 @@ const ViewReceivingReport = ({
                 <th style={{ width: 300 }}>Status</th>
                 {/* <th style={{ width: 300 }}>Supplier</th> */}
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>Net Amount</th>
-                <th style={{ width: 150 }}>FOB Total</th>
-                <th style={{ width: 150 }}>Landed Total</th>
+                <th style={{ width: 150 }}>Net Amount (₱)</th>
+                <th style={{ width: 150 }}>FOB Total (₱)</th>
+                <th style={{ width: 150 }}>Landed Total (₱)</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 300 }}>Currency</th>
                 <th style={{ width: 300 }}>Rate</th>
@@ -234,9 +237,17 @@ const ViewReceivingReport = ({
                   <td>{receivingReport.reference_number}</td>
                   <td className="capitalize">{receivingReport.status}</td>
                   <td>{receivingReport.transaction_date}</td>
-                  <td>{receivingReport.net_amount}</td>
-                  <td>{receivingReport.fob_total}</td>
-                  <td>{receivingReport.landed_total}</td>
+                  <td>
+                    {addCommaToNumberWithFourPlaces(receivingReport.net_amount)}
+                  </td>
+                  <td>
+                    {addCommaToNumberWithFourPlaces(receivingReport.fob_total)}
+                  </td>
+                  <td>
+                    {addCommaToNumberWithFourPlaces(
+                      receivingReport.landed_total,
+                    )}
+                  </td>
                   <td>{receivingReport.remarks}</td>
                   <td>{receivingReport.currency}</td>
                   <td>{receivingReport.rate}</td>

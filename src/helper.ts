@@ -42,6 +42,8 @@ export function formatToDateTime(dateStr: string | undefined) {
   return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
 }
 
-export function addCommaToNumberWithFourPlaces(num: number) {
+export function addCommaToNumberWithFourPlaces(num: number | undefined) {
+  if (!num) return num;
+
   return num.toFixed(4).replace(/\d(?=(\d{3})+\.)/g, "$&,");
 }

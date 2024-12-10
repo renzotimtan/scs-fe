@@ -12,6 +12,7 @@ import type {
 import { Pagination } from "@mui/material";
 
 import { convertToQueryParams } from "../../helper";
+import { addCommaToNumberWithFourPlaces } from "../../helper";
 
 const PAGE_LIMIT = 10;
 
@@ -208,9 +209,9 @@ const ViewPurchaseOrder = ({
                 <th style={{ width: 250 }}>Transaction Date</th>
                 <th style={{ width: 150 }}>Currency Used</th>
                 <th style={{ width: 150 }}>Peso Rate</th>
-                <th style={{ width: 150 }}>Net Amount</th>
-                <th style={{ width: 150 }}>FOB Total</th>
-                <th style={{ width: 150 }}>Landed Total</th>
+                <th style={{ width: 150 }}>Net Amount (₱)</th>
+                <th style={{ width: 150 }}>FOB Total (₱)</th>
+                <th style={{ width: 150 }}>Landed Total (₱)</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -238,9 +239,9 @@ const ViewPurchaseOrder = ({
                   <td>{purchaseOrder.transaction_date}</td>
                   <td>{purchaseOrder.currency_used}</td>
                   <td>{purchaseOrder.peso_rate}</td>
-                  <td>{purchaseOrder.net_amount}</td>
-                  <td>{purchaseOrder.fob_total}</td>
-                  <td>{purchaseOrder.landed_total}</td>
+                  <td>{addCommaToNumberWithFourPlaces(purchaseOrder.net_amount)}</td>
+                  <td>{addCommaToNumberWithFourPlaces(purchaseOrder.fob_total)}</td>
+                  <td>{addCommaToNumberWithFourPlaces(purchaseOrder.landed_total)}</td>
                   <td>{purchaseOrder.remarks}</td>
                   <td>{purchaseOrder?.creator?.username}</td>
                   <td>{purchaseOrder?.modifier?.username}</td>

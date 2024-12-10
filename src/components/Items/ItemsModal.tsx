@@ -211,7 +211,7 @@ const ItemsModal = ({
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "22.9%" }}>
-                    <FormLabel>Acquision Cost (₱)</FormLabel>
+                    <FormLabel>Acquisition Cost (₱)</FormLabel>
                     <Input
                       name="acquisition_cost"
                       type="number"
