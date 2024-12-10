@@ -18,7 +18,11 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
 import type { PaginatedPO, PurchaseOrder } from "../../../interface";
 import SelectPOModal from "./SelectPOModal";
-import { convertToQueryParams, formatToDateTime } from "../../../helper";
+import {
+  convertToQueryParams,
+  formatToDateTime,
+  addCommaToNumberWithFourPlaces,
+} from "../../../helper";
 
 const SDRFormDetails = ({
   openEdit,
@@ -210,29 +214,31 @@ const SDRFormDetails = ({
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>{`${currencyUsed} ${fobTotal.toFixed(4)}`}</h5>{" "}
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(fobTotal)}`}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>{`${currencyUsed} ${netAmount.toFixed(4)}`}</h5>
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(netAmount)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${(landedTotal / pesoRate || 0).toFixed(4)}`}</h5>
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(landedTotal / pesoRate || 0)}`}</h5>
             </FormControl>
           </div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>₱{(fobTotal * pesoRate).toFixed(4)}</h5>{" "}
+              <h5>
+                ₱{addCommaToNumberWithFourPlaces(fobTotal * pesoRate)}
+              </h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{(netAmount * pesoRate).toFixed(4)}</h5>
+              <h5>₱{addCommaToNumberWithFourPlaces(netAmount * pesoRate)}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>₱{landedTotal.toFixed(4)}</h5>
+              <h5>₱{addCommaToNumberWithFourPlaces(landedTotal)}</h5>
             </FormControl>
           </div>
           <Divider />

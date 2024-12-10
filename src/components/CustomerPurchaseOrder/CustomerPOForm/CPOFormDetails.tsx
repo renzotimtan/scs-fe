@@ -14,7 +14,10 @@ import {
 } from "@mui/joy";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
-import { formatToDateTime } from "../../../helper";
+import {
+  formatToDateTime,
+  addCommaToNumberWithFourPlaces,
+} from "../../../helper";
 
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
@@ -141,7 +144,7 @@ const POFormDetails = ({
                 size="sm"
                 placeholder="56"
                 value={pesoRate}
-                onChange={(e) => setPesoRate((e.target.value))}
+                onChange={(e) => setPesoRate(e.target.value)}
                 slotProps={{
                   input: {
                     min: 0,
@@ -171,29 +174,31 @@ const POFormDetails = ({
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>{`${currencyUsed} ${fobTotal.toFixed(4)}`}</h5>{" "}
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(fobTotal)}`}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>{`${currencyUsed} ${netAmount.toFixed(4)}`}</h5>
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(netAmount)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${(landedTotal / pesoRate).toFixed(4)}`}</h5>
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(landedTotal / pesoRate)}`}</h5>
             </FormControl>
           </div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
-              <h5>₱{(fobTotal * pesoRate).toFixed(4)}</h5>{" "}
+              <h5>
+                ₱{addCommaToNumberWithFourPlaces(fobTotal * pesoRate)}
+              </h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{(netAmount * pesoRate).toFixed(4)}</h5>
+              <h5>₱{addCommaToNumberWithFourPlaces(netAmount * pesoRate)}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>₱{landedTotal.toFixed(4)}</h5>
+              <h5>₱{addCommaToNumberWithFourPlaces(landedTotal)}</h5>
             </FormControl>
           </div>
           <Divider />
