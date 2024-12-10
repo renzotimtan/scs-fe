@@ -57,7 +57,7 @@ const ViewWHModal = ({
       >
         <ModalClose variant="plain" sx={{ m: 1 }} />
         <Box>
-          <h3 className="mb-6">View Warehouse Stocks</h3>
+          <h3 className="mb-6">Stock Location</h3>
           <Card className="w-[100%] mr-7">
             <Sheet
               sx={{
