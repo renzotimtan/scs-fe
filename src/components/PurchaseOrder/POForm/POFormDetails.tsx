@@ -140,7 +140,6 @@ const POFormDetails = ({
                     }
                     placeholder="Enter % or actual discount"
                     disabled={isEditDisabled}
-                    required
                   />
                 </FormControl>
                 <FormControl size="sm" sx={{ width: "48%" }}>
@@ -152,7 +151,6 @@ const POFormDetails = ({
                     }
                     placeholder="Enter % or actual discount"
                     disabled={isEditDisabled}
-                    required
                   />
                 </FormControl>
               </Stack>

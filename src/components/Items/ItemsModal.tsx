@@ -39,12 +39,12 @@ const ItemsModal = ({
       status: row?.status ?? "",
       category: row?.category ?? "",
       brand: row?.brand ?? "",
-      acquisition_cost: row?.acquisition_cost ?? 0,
-      net_cost_before_tax: row?.net_cost_before_tax ?? 0,
+      acquisition_cost: row?.acquisition_cost,
+      net_cost_before_tax: row?.net_cost_before_tax,
       currency: row?.currency ?? "",
-      rate: row?.rate ?? 0,
-      srp: row?.srp ?? 0,
-      last_sale_price: row?.last_sale_price ?? 0,
+      rate: row?.rate,
+      srp: row?.srp,
+      last_sale_price: row?.last_sale_price,
       total_on_stock: row?.total_on_stock ?? 0,
       total_available: row?.total_available ?? 0,
       total_allocated: row?.total_allocated ?? 0,
@@ -278,7 +278,6 @@ const ItemsModal = ({
                       }}
                       value={item?.last_sale_price}
                       onChange={handleChange}
-                      required
                     />
                   </FormControl>
                 </Stack>

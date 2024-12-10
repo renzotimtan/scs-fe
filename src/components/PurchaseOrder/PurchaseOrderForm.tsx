@@ -46,8 +46,8 @@ const PurchaseOrderForm = ({
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [discounts, setDiscounts] = useState({
-    supplier: ["0", "0", "0"],
-    transaction: ["0", "0", "0"],
+    supplier: ["", "", ""],
+    transaction: ["", "", ""],
   });
   const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [status, setStatus] = useState("unposted");

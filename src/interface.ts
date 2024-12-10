@@ -8,12 +8,12 @@ export interface Item {
   status: string;
   category: string;
   brand: string;
-  acquisition_cost: number;
-  net_cost_before_tax: number;
+  acquisition_cost?: number;
+  net_cost_before_tax?: number;
   currency: string;
-  last_sale_price: number;
-  srp: number;
-  rate: number;
+  last_sale_price?: number;
+  srp?: number;
+  rate?: number;
   total_on_stock: number;
   total_available: number;
   total_allocated: number;
@@ -73,8 +73,8 @@ export interface Supplier {
   email: string;
   fax_number: string;
   currency: string;
-  discount_rate: number;
-  supplier_balance: number;
+  discount_rate?: number;
+  supplier_balance?: number;
   created_by: number;
   modified_by: number;
   date_created: string;
