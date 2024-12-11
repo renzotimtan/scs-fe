@@ -207,11 +207,11 @@ const StockTransferForm = ({
       const warehouseItem: WarehouseItem = {
         ...foundWarehouseItem,
         firstWarehouse: null,
-        firstWarehouseAmt: 0,
+        firstWarehouseAmt: null,
         secondWarehouse: null,
-        secondWarehouseAmt: 0,
+        secondWarehouseAmt: null,
         thirdWarehouse: null,
-        thirdWarehouseAmt: 0,
+        thirdWarehouseAmt: null,
       };
 
       // We need to add the new item before the null item
@@ -243,11 +243,11 @@ const StockTransferForm = ({
               const result: WarehouseItem = {
                 ...warehouseItem,
                 firstWarehouse: null,
-                firstWarehouseAmt: 0,
+                firstWarehouseAmt: null,
                 secondWarehouse: null,
-                secondWarehouseAmt: 0,
+                secondWarehouseAmt: null,
                 thirdWarehouse: null,
-                thirdWarehouseAmt: 0,
+                thirdWarehouseAmt: null,
               };
 
               if (foundDetails) {
@@ -289,11 +289,11 @@ const StockTransferForm = ({
               return {
                 ...warehouseItem,
                 firstWarehouse: null,
-                firstWarehouseAmt: 0,
+                firstWarehouseAmt: null,
                 secondWarehouse: null,
-                secondWarehouseAmt: 0,
+                secondWarehouseAmt: null,
                 thirdWarehouse: null,
-                thirdWarehouseAmt: 0,
+                thirdWarehouseAmt: null,
               };
             }
           }),
@@ -329,21 +329,21 @@ const StockTransferForm = ({
         if (warehouseItem.firstWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.firstWarehouse.id,
-            quantity: warehouseItem.firstWarehouseAmt,
+            quantity: (warehouseItem.firstWarehouseAmt || 0),
           });
         }
 
         if (warehouseItem.secondWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.secondWarehouse.id,
-            quantity: warehouseItem.secondWarehouseAmt,
+            quantity: (warehouseItem.secondWarehouseAmt || 0),
           });
         }
 
         if (warehouseItem.thirdWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.thirdWarehouse.id,
-            quantity: warehouseItem.thirdWarehouseAmt,
+            quantity: (warehouseItem.thirdWarehouseAmt || 0),
           });
         }
 
@@ -374,7 +374,7 @@ const StockTransferForm = ({
         // Handle the response, update state, etc.
       } catch (error: any) {
         console.log(error);
-        toast.error(`Error: ${error?.response?.data?.detail}`);
+        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
       }
     }
   };
@@ -403,7 +403,7 @@ const StockTransferForm = ({
         // Handle the response, update state, etc.
       } catch (error: any) {
         console.log(error);
-        toast.error(`Error: ${error?.response?.data?.detail}`);
+        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
       }
     }
   };

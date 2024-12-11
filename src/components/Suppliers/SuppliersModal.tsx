@@ -77,7 +77,7 @@ const SuppliersModal = ({
       setSupplier(generateSupplier());
       setOpen(false);
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 

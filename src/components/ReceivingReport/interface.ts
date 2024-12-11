@@ -49,7 +49,7 @@ export interface RRFormDetailsProps {
   transactionDate: string;
   setTransactionDate: Dispatch<SetStateAction<string>>;
   pesoRate: number | string;
-  setPesoRate: Dispatch<SetStateAction<number>>;
+  setPesoRate: Dispatch<SetStateAction<number | string>>;
   currencyUsed: string;
   setCurrencyUsed: Dispatch<SetStateAction<string>>;
   remarks: string;
@@ -134,6 +134,6 @@ export interface POItemValues {
 export interface Expense {
   id: string;
   expense: string;
-  amount: number;
+  amount: number | undefined;
   comments: string;
 }

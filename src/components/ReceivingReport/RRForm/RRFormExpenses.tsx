@@ -28,7 +28,7 @@ const RRFormExpenses = ({
 }): JSX.Element => {
   useEffect(() => {
     const totalExpense = expenses.reduce(
-      (acc, expense) => acc + expense.amount,
+      (acc, expense) => acc + Number(expense.amount || 0),
       0,
     );
     setTotalExpense(totalExpense);
@@ -148,8 +148,8 @@ const RRFormExpenses = ({
                       )
                     }
                     value={expense.amount}
+                    placeholder="0"
                     disabled={isEditDisabled}
-                    required
                   />
                 </td>
                 <td>

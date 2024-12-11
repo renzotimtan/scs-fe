@@ -47,7 +47,7 @@ const PurchaseOrderForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
-  const [pesoRate, setPesoRate] = useState<number>(56);
+  const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -221,7 +221,7 @@ const PurchaseOrderForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 
@@ -256,7 +256,7 @@ const PurchaseOrderForm = ({
       toast.success("Save successful!");
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 

@@ -229,6 +229,7 @@ const STFormTable = ({
                         },
                       }}
                       value={selectedWarehouseItems[index].firstWarehouseAmt}
+                      placeholder="0"
                       disabled={isEditDisabled}
                       required
                     />
@@ -265,6 +266,7 @@ const STFormTable = ({
                         },
                       }}
                       value={selectedWarehouseItems[index].secondWarehouseAmt}
+                      placeholder="0"
                       disabled={isEditDisabled}
                     />
                   )}
@@ -300,6 +302,7 @@ const STFormTable = ({
                         },
                       }}
                       value={selectedWarehouseItems[index].thirdWarehouseAmt}
+                      placeholder="0"
                       disabled={isEditDisabled}
                     />
                   )}

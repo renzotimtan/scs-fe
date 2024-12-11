@@ -83,7 +83,7 @@ const SelectSDRModal = ({
                   <thead>
                     <tr>
                       <th>Check</th>
-                      <th>PO No.</th>
+                      <th>SDR No.</th>
                       <th>Ref No.</th>
                       <th>Trans. Date</th>
                     </tr>

@@ -206,11 +206,11 @@ export interface WarehouseItem {
   date_modified: string;
 
   firstWarehouse?: any;
-  firstWarehouseAmt?: number;
+  firstWarehouseAmt?: number | null;
   secondWarehouse?: any;
-  secondWarehouseAmt?: number;
+  secondWarehouseAmt?: number | null;
   thirdWarehouse?: any;
-  thirdWarehouseAmt?: number;
+  thirdWarehouseAmt?: number | null;
 
   // Hack fix
   id?: number | null;

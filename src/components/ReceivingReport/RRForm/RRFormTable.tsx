@@ -11,6 +11,7 @@ const RRFormTable = ({
   setServedAmt,
   setTotalNet,
   setTotalGross,
+  pesoRate,
   openEdit,
 }: RRFormTableProps): JSX.Element => {
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
@@ -245,7 +246,7 @@ const RRFormTable = ({
                     </td>
                     <td>{netPerRow[key]}</td>
                     <td>{PO.currency_used}</td>
-                    <td>{PO.peso_rate}</td>
+                    <td>{pesoRate}</td>
                   </tr>
                 );
               });

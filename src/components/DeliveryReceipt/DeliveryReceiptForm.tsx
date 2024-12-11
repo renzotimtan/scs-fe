@@ -135,7 +135,7 @@ const DeliveryReceiptForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 
@@ -181,7 +181,7 @@ const DeliveryReceiptForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 

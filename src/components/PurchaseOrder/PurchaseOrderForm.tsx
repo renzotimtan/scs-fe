@@ -260,7 +260,7 @@ const PurchaseOrderForm = ({
 
       await Promise.all(requests);
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 
@@ -316,7 +316,7 @@ const PurchaseOrderForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 
@@ -362,7 +362,7 @@ const PurchaseOrderForm = ({
       toast.success("Save successful!");
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
     }
   };
 

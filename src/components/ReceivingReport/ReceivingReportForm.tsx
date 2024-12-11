@@ -15,6 +15,7 @@ import type {
   RRFormProps,
   DeliveryReceipt,
 } from "../../interface";
+import { Expense } from "./interface";
 
 const ReceivingReportForm = ({
   setOpen,
@@ -24,10 +25,10 @@ const ReceivingReportForm = ({
   title,
 }: RRFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
-  const initialExpense = {
+  const initialExpense: Expense = {
     id: uuid(),
     expense: "",
-    amount: 0,
+    amount: undefined,
     comments: "",
   };
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
@@ -43,7 +44,7 @@ const ReceivingReportForm = ({
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
-  const [pesoRate, setPesoRate] = useState<number>(56);
+  const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [amountDiscount, setAmountDiscount] = useState(0);
   const [totalGross, setTotalGross] = useState(0);
@@ -136,7 +137,7 @@ const ReceivingReportForm = ({
       transaction_date: transactionDate,
       supplier_id: selectedSupplier?.supplier_id,
       currency: currencyUsed,
-      rate: pesoRate,
+      rate: Number(pesoRate),
       total_expense: totalExpense,
       reference_number: referenceNumber,
       pct_net_cost: percentNetCost,
@@ -149,7 +150,7 @@ const ReceivingReportForm = ({
       expenses: expenses.map((expense) => {
         return {
           expense: expense.expense,
-          amount: expense.amount,
+          amount: expense.amount || 0,
           currency: "",
           comments: expense.comments,
           created_by: userId,
@@ -164,7 +165,9 @@ const ReceivingReportForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg}`,
+      );
     }
   };
 
@@ -188,7 +191,7 @@ const ReceivingReportForm = ({
         return {
           id: expense.id,
           expense: expense.expense,
-          amount: expense.amount,
+          amount: expense.amount || 0,
           currency: "",
           comments: expense.comments,
           modified_by: userId,
@@ -206,7 +209,10 @@ const ReceivingReportForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail}`);
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg}`,
+      );
+      console.log(error?.response?.data?.detail[0]?.msg);
     }
   };
 
@@ -262,6 +268,7 @@ const ReceivingReportForm = ({
         setTotalNet={setTotalNet}
         setTotalGross={setTotalGross}
         openEdit={openEdit}
+        pesoRate={pesoRate}
       />
       <Divider />
       <RRFormExpenses
