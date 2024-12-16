@@ -54,7 +54,7 @@ const ReceivingReportForm = ({
   const [totalExpense, setTotalExpense] = useState(0);
 
   const fobTotal = totalGross;
-  const netAmount = totalNet;
+  const netAmount = totalNet - amountDiscount;
   const landedTotal = netAmount * Number(pesoRate);
   const percentNetCost = isNaN(totalExpense / landedTotal)
     ? 0
@@ -269,6 +269,7 @@ const ReceivingReportForm = ({
         setTotalGross={setTotalGross}
         openEdit={openEdit}
         pesoRate={pesoRate}
+        percentNetCost={percentNetCost}
       />
       <Divider />
       <RRFormExpenses

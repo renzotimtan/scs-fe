@@ -4,6 +4,7 @@ import Table from "@mui/joy/Table";
 import type { RRFormTableProps } from "../interface";
 import { useEffect, useState } from "react";
 import type { POItems, PurchaseOrder } from "../../../interface";
+import { addCommaToNumberWithFourPlaces } from "../../../helper";
 
 const RRFormTable = ({
   selectedRow,
@@ -13,6 +14,7 @@ const RRFormTable = ({
   setTotalGross,
   pesoRate,
   openEdit,
+  percentNetCost
 }: RRFormTableProps): JSX.Element => {
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
   const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
@@ -183,6 +185,7 @@ const RRFormTable = ({
             <th style={{ width: 150 }}>NET Amount</th>
             <th style={{ width: 150 }}>Currency</th>
             <th style={{ width: 150 }}>Peso Rate</th>
+            <th style={{ width: 200 }}>NET Amount per Item (₱)</th>
           </tr>
         </thead>
         <tbody>
@@ -247,6 +250,7 @@ const RRFormTable = ({
                     <td>{netPerRow[key]}</td>
                     <td>{PO.currency_used}</td>
                     <td>{pesoRate}</td>
+                    <td>{addCommaToNumberWithFourPlaces(POItem.price * Number(pesoRate) * (1 + (percentNetCost / 100)))}</td>
                   </tr>
                 );
               });

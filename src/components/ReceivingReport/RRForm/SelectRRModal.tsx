@@ -16,7 +16,7 @@ const SelectSDRModal = ({
   unservedSDRs: PaginatedSDR | undefined;
   setSelectedSDRs: Dispatch<SetStateAction<DeliveryReceipt[]>>;
 }): JSX.Element => {
-  const [checkedSDRs, setCheckedSDRs] = useState<Record<string, boolean>>({});
+  const [checkedSDRs, setCheckedSDRs] = useState<Record<number, boolean>>({});
   const postedUnservedSDRs = unservedSDRs?.items.filter(
     (SDR) => SDR.status === "posted",
   );
@@ -25,26 +25,26 @@ const SelectSDRModal = ({
     const options: Record<string, boolean> = {};
     if (unservedSDRs?.items !== undefined)
       unservedSDRs.items.forEach((SDR) => {
-        options[SDR.reference_number] = false;
+        options[SDR.id] = false;
       });
     setCheckedSDRs(options);
   }, [unservedSDRs]);
 
-  const handleCheckboxChange = (referenceNumber: string): void => {
+  const handleCheckboxChange = (id: number): void => {
     setCheckedSDRs((prev) => ({
       ...prev,
-      [referenceNumber]: !prev[referenceNumber],
+      [id]: !prev[id],
     }));
   };
 
   const selectCheckedSDRs = (): void => {
     if (unservedSDRs?.items !== undefined) {
-      const selectedRefNos = Object.keys(checkedSDRs).filter(
-        (refNo) => checkedSDRs[refNo],
+      const selectedSDRIds = Object.keys(checkedSDRs).filter(
+        (id: string) => checkedSDRs[parseInt(id)],
       );
 
-      const selectedSDRs = unservedSDRs.items.filter((SDR) =>
-        selectedRefNos.includes(SDR.reference_number),
+      const selectedSDRs = unservedSDRs.items.filter((SDR: DeliveryReceipt) =>
+        selectedSDRIds.includes(String(SDR.id)),
       );
 
       setSelectedSDRs(selectedSDRs);
@@ -96,10 +96,8 @@ const SelectSDRModal = ({
                           <td>
                             <ListItem key={SDR.id}>
                               <Checkbox
-                                checked={!!checkedSDRs[SDR.reference_number]}
-                                onChange={() =>
-                                  handleCheckboxChange(SDR.reference_number)
-                                }
+                                checked={!!checkedSDRs[SDR.id]}
+                                onChange={() => handleCheckboxChange(SDR.id)}
                               />
                             </ListItem>
                           </td>

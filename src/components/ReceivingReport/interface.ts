@@ -100,6 +100,7 @@ export interface RRFormTableProps {
   setTotalGross: Dispatch<SetStateAction<number>>;
   openEdit: boolean;
   pesoRate: number | string;
+  percentNetCost: number;
 }
 
 export interface POPayload {
