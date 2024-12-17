@@ -68,7 +68,13 @@ const StockTransferForm = ({
       .get<PaginatedWarehouse>("/api/warehouses/")
       .then((response) => {
         setWarehouses(response.data);
-        setSelectedWarehouse(response.data.items[0]);
+
+        const receivingArea = response.data.items.find(
+          (warehouse) => warehouse.name === "Receiving Area",
+        );
+        if (receivingArea) {
+          setSelectedWarehouse(receivingArea);
+        }
       })
       .catch((error) => console.error("Error:", error));
 
