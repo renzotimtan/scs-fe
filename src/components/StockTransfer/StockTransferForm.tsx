@@ -143,11 +143,11 @@ const StockTransferForm = ({
   }, [selectedRow, warehouseItems]);
 
   useEffect(() => {
-    if (selectedWarehouse && selectedSupplier) {
+    if (selectedWarehouse) {
       // Fetch items for the selected warehouse and supplier
       const params: {
         warehouse_id: number;
-        supplier_id: number;
+        supplier_id?: number;
       } = {
         warehouse_id: selectedWarehouse.id,
         supplier_id: selectedSupplier?.supplier_id,
@@ -329,21 +329,21 @@ const StockTransferForm = ({
         if (warehouseItem.firstWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.firstWarehouse.id,
-            quantity: (warehouseItem.firstWarehouseAmt || 0),
+            quantity: warehouseItem.firstWarehouseAmt || 0,
           });
         }
 
         if (warehouseItem.secondWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.secondWarehouse.id,
-            quantity: (warehouseItem.secondWarehouseAmt || 0),
+            quantity: warehouseItem.secondWarehouseAmt || 0,
           });
         }
 
         if (warehouseItem.thirdWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.thirdWarehouse.id,
-            quantity: (warehouseItem.thirdWarehouseAmt || 0),
+            quantity: warehouseItem.thirdWarehouseAmt || 0,
           });
         }
 

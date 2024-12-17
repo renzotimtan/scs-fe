@@ -39,7 +39,7 @@ const STFormDetails = ({
   setSelectedWarehouseItems,
   warehouseItems,
   fetchMultipleItems,
-  handleRRNumChange
+  handleRRNumChange,
 }: STFormDetailsProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -48,6 +48,7 @@ const STFormDetails = ({
     if (value !== null) {
       if (value === "no") {
         setSelectedRR(null);
+        setSelectedSupplier(null);
       } else {
         // @ts-expect-error (Item object, unless its using the empty object)
         setSelectedWarehouseItems([{ id: null }]);
@@ -84,7 +85,7 @@ const STFormDetails = ({
                   size="sm"
                   className="w-[100%]"
                   placeholder="Select Supplier"
-                  disabled={isEditDisabled}
+                  disabled={isEditDisabled || rrTransfer === "no"}
                   required
                 />
               </div>
