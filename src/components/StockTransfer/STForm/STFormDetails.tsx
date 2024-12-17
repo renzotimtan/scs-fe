@@ -201,7 +201,6 @@ const STFormDetails = ({
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
-              required
             />
           </FormControl>
         </div>

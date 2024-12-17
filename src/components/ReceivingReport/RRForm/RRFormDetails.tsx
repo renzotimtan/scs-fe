@@ -221,36 +221,17 @@ const RRFormDetails = ({
       </Card>
       <Card className="w-[40%]">
         <div>
-          <div className="ml-5 grid grid-cols-3">
+          <div className="ml-5 grid grid-cols-2">
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>FOB Total</FormLabel>
-              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(fobTotal)}`}</h5>{" "}
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>NET Amount</FormLabel>
+              <FormLabel>Invoice Amount</FormLabel>
               <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(netAmount)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(landedTotal / Number(pesoRate))}`}</h5>
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>FOB Total</FormLabel>
-              <h5>
-                ₱{addCommaToNumberWithFourPlaces(fobTotal * Number(pesoRate))}
-              </h5>{" "}
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>NET Amount</FormLabel>
+              <FormLabel>Landed Total</FormLabel>
               <h5>
                 ₱{addCommaToNumberWithFourPlaces(netAmount * Number(pesoRate))}
               </h5>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>LANDED Total</FormLabel>
-              <h5>₱{addCommaToNumberWithFourPlaces(landedTotal)}</h5>
-            </FormControl>
-
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>% NET Cost</FormLabel>
               <h5>{addCommaToNumberWithFourPlaces(percentNetCost)}</h5>
