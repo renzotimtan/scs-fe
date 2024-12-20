@@ -55,6 +55,7 @@ export interface POFormTableProps {
   setNewPrices: Dispatch<SetStateAction<NewPriceInstance[]>>;
   isConfirmOpen: boolean;
   setIsConfirmOpen: Dispatch<SetStateAction<boolean>>;
+  selectedSupplier: Supplier | null
 }
 
 export interface POPayload {

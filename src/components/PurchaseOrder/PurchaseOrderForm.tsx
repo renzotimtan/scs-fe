@@ -437,6 +437,7 @@ const PurchaseOrderForm = ({
         setNewPrices={setNewPrices}
         isConfirmOpen={isConfirmOpen}
         setIsConfirmOpen={setIsConfirmOpen}
+        selectedSupplier={selectedSupplier}
       />
       <Divider />
       <div className="flex justify-end mt-4">

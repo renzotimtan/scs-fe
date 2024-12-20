@@ -25,6 +25,7 @@ const POFormTable = ({
   setNewPrices,
   isConfirmOpen,
   setIsConfirmOpen,
+  selectedSupplier,
 }: POFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -42,7 +43,11 @@ const POFormTable = ({
     index: number,
   ): void => {
     if (value !== undefined) {
-      const foundItem = items.find((item) => item.id === value);
+      const foundItem = items.find(
+        (item) =>
+          item.id === value &&
+          item.supplier_id === selectedSupplier?.supplier_id,
+      );
       if (foundItem === undefined) return;
 
       // Spread the found item and ensure all required properties are defined
