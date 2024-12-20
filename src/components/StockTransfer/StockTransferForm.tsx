@@ -380,7 +380,9 @@ const StockTransferForm = ({
         // Handle the response, update state, etc.
       } catch (error: any) {
         console.log(error);
-        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
+        toast.error(
+          `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+        );
       }
     }
   };
@@ -409,7 +411,9 @@ const StockTransferForm = ({
         // Handle the response, update state, etc.
       } catch (error: any) {
         console.log(error);
-        toast.error(`Error: ${error?.response?.data?.detail[0]?.msg}`);
+        toast.error(
+          `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+        );
       }
     }
   };

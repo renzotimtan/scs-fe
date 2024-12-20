@@ -260,7 +260,9 @@ const PurchaseOrderForm = ({
 
       await Promise.all(requests);
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+      );
     }
   };
 
@@ -316,7 +318,9 @@ const PurchaseOrderForm = ({
       setOpen(false);
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+      );
     }
   };
 
@@ -362,7 +366,9 @@ const PurchaseOrderForm = ({
       toast.success("Save successful!");
       // Handle the response, update state, etc.
     } catch (error: any) {
-      toast.error(`Error message: ${error?.response?.data?.detail[0]?.msg}`);
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+      );
     }
   };
 

@@ -38,12 +38,12 @@ const ItemForm = (): JSX.Element => {
 
     axiosInstance
       .get<PaginatedItems>(
-        `/api/items/?${convertToQueryParams({
+        `/api/aggregated/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
           sort_order: "desc",
-          search_term: "",
+          // search_term: "",
         })}`,
       )
       .then((response) => setItems(response.data))
@@ -54,12 +54,12 @@ const ItemForm = (): JSX.Element => {
     // Fetch items
     axiosInstance
       .get<PaginatedItems>(
-        `/api/items/?${convertToQueryParams({
+        `/api/aggregated/?${convertToQueryParams({
           page,
           limit: PAGE_LIMIT,
           sort_by: "id",
           sort_order: "desc",
-          search_term: "",
+          // search_term: "",
         })}`,
       )
       .then((response) => setItems(response.data))
@@ -108,7 +108,7 @@ const ItemForm = (): JSX.Element => {
       id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
-      supplier_id: newItem.supplier_id,
+      supplier_ids: [1],
       status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,

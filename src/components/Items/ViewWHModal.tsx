@@ -7,8 +7,8 @@ import axiosInstance from "../../utils/axiosConfig";
 
 import type {
   ViewWHModalProps,
-  WarehouseItem,
-  PaginatedWarehouseItems,
+  AggregatedWarehouseItem,
+  PaginatedAggregatedWarehouseItems,
 } from "../../interface";
 
 const ViewWHModal = ({
@@ -17,19 +17,21 @@ const ViewWHModal = ({
   row,
   type,
 }: ViewWHModalProps): JSX.Element => {
-  const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
+  const [warehouseItems, setWarehouseItems] = useState<AggregatedWarehouseItem[]>([]);
 
   useEffect(() => {
     if (type === "warehouse") {
       axiosInstance
-        .get<PaginatedWarehouseItems>(
-          `/api/warehouse_items?warehouse_id=${row?.id}`,
+        .get<PaginatedAggregatedWarehouseItems>(
+          `/api/warehouse_items/aggregated?warehouse_id=${row?.id}`,
         )
         .then((response) => setWarehouseItems(response.data.items))
         .catch((error) => console.error("Error:", error));
     } else if (type === "item") {
       axiosInstance
-        .get<PaginatedWarehouseItems>(`/api/warehouse_items?item_id=${row?.id}`)
+        .get<PaginatedAggregatedWarehouseItems>(
+          `/api/warehouse_items/aggregated?stock_code=${row?.stock_code}`,
+        )
         .then((response) => setWarehouseItems(response.data.items))
         .catch((error) => console.error("Error:", error));
     }
@@ -111,30 +113,22 @@ const ViewWHModal = ({
                     <th style={{ width: 100 }}>Allocated</th>
                     <th style={{ width: 100 }}>Purchased</th>
                     <th style={{ width: 100 }}>Sold</th>
-                    <th style={{ width: 250 }}>Created By</th>
-                    <th style={{ width: 250 }}>Date Created</th>
-                    <th style={{ width: 250 }}>Modified By</th>
-                    <th style={{ width: 250 }}>Date Modified</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {warehouseItems.map((warehouseItem) => (
+                  {warehouseItems.map((warehouseItem: AggregatedWarehouseItem) => (
                     <tr
-                      key={`${warehouseItem.warehouse_id}-${warehouseItem.item_id}`}
+                      key={`${warehouseItem.warehouse_id}-${warehouseItem.stock_code}`}
                     >
                       <td>
                         {type === "warehouse"
-                          ? warehouseItem.item.name
-                          : warehouseItem.warehouse.name}
+                          ? warehouseItem.item_name
+                          : warehouseItem.warehouse_name}
                       </td>
-                      <td>{warehouseItem.on_stock}</td>
-                      <td>{warehouseItem.allocated}</td>
-                      <td>{warehouseItem.purchased}</td>
-                      <td>{warehouseItem.sold}</td>
-                      <td>{warehouseItem.created_by}</td>
-                      <td>{warehouseItem.date_created}</td>
-                      <td>{warehouseItem.modified_by}</td>
-                      <td>{warehouseItem.date_modified}</td>
+                      <td>{warehouseItem.total_on_stock}</td>
+                      <td>{warehouseItem.total_allocated}</td>
+                      <td>{warehouseItem.total_purchased}</td>
+                      <td>{warehouseItem.total_sold}</td>
                     </tr>
                   ))}
                 </tbody>

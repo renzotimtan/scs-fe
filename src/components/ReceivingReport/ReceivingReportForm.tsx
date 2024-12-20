@@ -166,7 +166,7 @@ const ReceivingReportForm = ({
       // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(
-        `Error message: ${error?.response?.data?.detail[0]?.msg}`,
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
       );
     }
   };
@@ -210,9 +210,11 @@ const ReceivingReportForm = ({
       // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(
-        `Error message: ${error?.response?.data?.detail[0]?.msg}`,
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
       );
-      console.log(error?.response?.data?.detail[0]?.msg);
+      console.log(
+        error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail,
+      );
     }
   };
 

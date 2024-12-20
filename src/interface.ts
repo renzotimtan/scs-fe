@@ -122,6 +122,11 @@ export interface PaginatedWarehouseItems {
   items: WarehouseItem[];
 }
 
+export interface PaginatedAggregatedWarehouseItems {
+  total: number;
+  items: AggregatedWarehouseItem[];
+}
+
 export interface PaginatedPO {
   total: number;
   items: PurchaseOrder[];
@@ -186,7 +191,7 @@ export interface WarehousesModalProps {
 export interface ViewWHModalProps {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
-  row?: Item | Warehouse;
+  row?: any;
   type: string;
 }
 
@@ -215,6 +220,22 @@ export interface WarehouseItem {
   // Hack fix
   id?: number | null;
 }
+
+export interface AggregatedWarehouseItem {
+  warehouse_id: number;
+  warehouse_name: string;
+  stock_code: string;
+  item_name: string;
+  total_on_stock: number;
+  total_available: number;
+  total_allocated: number;
+  total_purchased: number;
+  total_sold: number;
+  total_reorder_level: number;
+  total_unserved_cpo: number;
+  total_unserved_spo: number;
+}
+
 
 export interface PurchaseOrder {
   id: number;
