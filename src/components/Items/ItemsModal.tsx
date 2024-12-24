@@ -21,6 +21,7 @@ import type {
   Item,
   PaginatedSuppliers,
   ItemsModalProps,
+  Supplier,
 } from "../../interface";
 
 const ItemsModal = ({
@@ -30,12 +31,27 @@ const ItemsModal = ({
   row,
   onSave,
 }: ItemsModalProps): JSX.Element => {
+  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+    total: 0,
+    items: [],
+  });
+
   const generateItem = (): Item => {
+    const suppliersList: Supplier[] = new Array(6).fill(null);
+    const supplierIds =
+      row?.suppliers?.map((supplier) => supplier?.supplier_id ?? null) ?? [];
+    const foundSuppliers = suppliers.items.filter((supplier) =>
+      supplierIds.includes(supplier.supplier_id),
+    );
+    foundSuppliers.forEach((supplier, index) => {
+      suppliersList[index] = supplier;
+    });
+
     return {
       id: row?.id ?? 0,
       stock_code: row?.stock_code ?? "",
       name: row?.name ?? "",
-      supplier_id: row?.supplier_id ?? 0,
+      suppliers: suppliersList,
       status: row?.status ?? "",
       category: row?.category ?? "",
       brand: row?.brand ?? "",
@@ -57,10 +73,6 @@ const ItemsModal = ({
   };
 
   const [item, setItem] = useState<Item>(generateItem());
-  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
-    total: 0,
-    items: [],
-  });
 
   useEffect(() => {
     setItem(generateItem());
@@ -115,6 +127,16 @@ const ItemsModal = ({
         `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
       );
     }
+  };
+
+  const handleModifySupplier = (
+    suppliersList: (Supplier | null)[],
+    index: number,
+    newSupplier: Supplier | null,
+  ) => {
+    const newList = [...suppliersList];
+    newList[index] = newSupplier;
+    return newList;
   };
 
   return (
@@ -370,31 +392,40 @@ const ItemsModal = ({
                 </Stack>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <FormControl size="sm" sx={{ mb: 1, width: "98%" }}>
-                    <FormLabel>Supplier</FormLabel>
-                    <Autocomplete
-                      placeholder="Select a supplier"
-                      options={suppliers.items.map((supplier) => supplier.name)}
-                      value={
-                        suppliers.items.find(
-                          (supplier) =>
-                            supplier.supplier_id === item.supplier_id,
-                        )?.name ?? ""
-                      }
-                      onChange={(event, newValue) => {
-                        const selectedSupplier = suppliers.items.find(
-                          (supplier) => supplier.name === newValue,
-                        );
-                        setItem({
-                          ...item,
-                          supplier_id:
-                            selectedSupplier != null
-                              ? selectedSupplier.supplier_id
-                              : 0,
-                        });
-                      }}
-                      sx={{ width: "100%" }}
-                      required
-                    />
+                    <FormLabel>Suppliers</FormLabel>
+                    <div className="grid grid-cols-3 gap-y-1 gap-x-4">
+                      {item?.suppliers?.map((supplier, index) => (
+                        <Autocomplete
+                          className="mb-3"
+                          placeholder="Select a supplier"
+                          options={suppliers.items}
+                          getOptionLabel={(option) => option.name}
+                          value={supplier}
+                          onChange={(event, newSupplier) => {
+                            if (
+                              newSupplier !== null &&
+                              item.suppliers
+                                ?.map((supplier) => supplier?.supplier_id)
+                                .includes(newSupplier?.supplier_id)
+                            ) {
+                              toast.error("Supplier has already been added");
+                              return;
+                            }
+
+                            setItem({
+                              ...item,
+                              suppliers: handleModifySupplier(
+                                item?.suppliers ?? [],
+                                index,
+                                newSupplier,
+                              ),
+                            });
+                          }}
+                          sx={{ width: "100%" }}
+                          required={index === 0}
+                        />
+                      ))}
+                    </div>
                   </FormControl>
                 </Stack>
               </div>

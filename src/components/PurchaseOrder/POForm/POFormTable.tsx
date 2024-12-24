@@ -55,9 +55,6 @@ const POFormTable = ({
         ...foundItem,
         price: foundItem.acquisition_cost ?? 0,
         volume: 1,
-        // on_stock: 0,
-        // allocated: 0,
-        // in_transit: 0,
       };
 
       // We need to add the new item before the null item
@@ -282,7 +279,6 @@ const POFormTable = ({
                     onBlur={(e) => {
                       if (
                         selectedItem.acquisition_cost !== selectedItem.price
-                        // && status === "posted"
                       ) {
                         setIndexOfModal(index);
                         setIsConfirmOpen(true);

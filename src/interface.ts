@@ -4,7 +4,8 @@ export interface Item {
   id: number;
   stock_code: string;
   name: string;
-  supplier_id: number;
+  supplier_id?: number;
+  suppliers?: (Supplier | null)[]
   status: string;
   category: string;
   brand: string;

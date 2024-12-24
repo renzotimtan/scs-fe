@@ -79,7 +79,10 @@ const ItemForm = (): JSX.Element => {
       id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
-      supplier_id: newItem.supplier_id,
+      supplier_ids:
+        newItem?.suppliers
+          ?.filter((supplier) => !!supplier)
+          .map((supplier) => supplier?.supplier_id) ?? [],
       status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,
@@ -108,7 +111,10 @@ const ItemForm = (): JSX.Element => {
       id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
-      supplier_ids: [1],
+      supplier_ids:
+        newItem?.suppliers
+          ?.filter((supplier) => !!supplier)
+          .map((supplier) => supplier?.supplier_id) ?? [],
       status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,
