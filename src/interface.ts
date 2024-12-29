@@ -5,7 +5,7 @@ export interface Item {
   stock_code: string;
   name: string;
   supplier_id?: number;
-  suppliers?: (Supplier | null)[]
+  suppliers?: (Supplier | null)[];
   status: string;
   category: string;
   brand: string;
@@ -42,6 +42,24 @@ export interface Item {
   on_stock?: number;
   in_transit?: number;
   allocated?: number;
+}
+
+export interface ViewStockHistory {
+  open: boolean;
+  setOpen: (isOpen: boolean) => void;
+  row?: Item;
+}
+
+export interface StockHistory {
+  transaction_type: string;
+  stock_code: string;
+  stock_description: string;
+  transaction_date: string;
+  transaction_number: number;
+  quantity_in: number;
+  quantity_out: number;
+  price: number;
+  amount: number;
 }
 
 export interface DeleteModalProps {
@@ -236,7 +254,6 @@ export interface AggregatedWarehouseItem {
   total_unserved_cpo: number;
   total_unserved_spo: number;
 }
-
 
 export interface PurchaseOrder {
   id: number;

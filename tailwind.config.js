@@ -14,6 +14,7 @@ module.exports = {
       "sidebar-light": "#DBE2EF",
       "sidebar-white": "#F9F7F7",
       "button-primary": "#0B6BCB",
+      "button-soft-primary": "#E3EFFB",
       "button-neutral": "#555E68",
       "button-warning": "#C41C1C",
       "delete-red": "#F7C5C5",
