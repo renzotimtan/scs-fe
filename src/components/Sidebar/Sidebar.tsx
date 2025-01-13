@@ -56,6 +56,11 @@ export default function Sidebar(): JSX.Element {
               link="/configuration/supplier"
             />
             <SidebarLink
+              Icon={GroupsRoundedIcon}
+              label="Customers"
+              link="/configuration/customer"
+            />
+            <SidebarLink
               Icon={WarehouseRoundedIcon}
               label="Warehouses"
               link="/configuration/warehouse"

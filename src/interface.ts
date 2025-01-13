@@ -113,6 +113,42 @@ export interface Supplier {
   };
 }
 
+export interface Customer {
+  customer_id: number;
+  code: string;
+  name: string;
+  building_address: string;
+  street_address: string;
+  city: string;
+  province: string;
+  country: string;
+  zip_code: string;
+  contact_person: string;
+  contact_number: string;
+  email: string;
+  fax_number: string;
+  currency: string;
+  discount_rate?: number;
+  customer_balance?: number;
+  created_by: number;
+  modified_by: number;
+  date_created: string;
+  date_modified: string;
+  notes: string;
+  creator?: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  modifier?: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+}
+
 export interface SuppliersModalProps {
   open: boolean;
   title: string;
@@ -121,9 +157,22 @@ export interface SuppliersModalProps {
   onSave: (newSupplier: Supplier) => Promise<void>;
 }
 
+export interface CustomersModalProps {
+  open: boolean;
+  title: string;
+  setOpen: (isOpen: boolean) => void;
+  row?: Customer;
+  onSave: (newCustomer: Customer) => Promise<void>;
+}
+
 export interface PaginatedSuppliers {
   total: number;
   items: Supplier[];
+}
+
+export interface PaginatedCustomers{
+  total: number;
+  items: Customer[];
 }
 
 export interface PaginatedItems {
