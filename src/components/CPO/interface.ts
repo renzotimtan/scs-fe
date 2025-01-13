@@ -6,7 +6,7 @@ import type {
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
-export interface POFormProps {
+export interface CPOFormProps {
   openEdit: boolean;
   selectedRow: PurchaseOrder | undefined;
   suppliers: PaginatedSuppliers;
@@ -30,20 +30,15 @@ export interface POFormProps {
   setReferenceNumber: Dispatch<SetStateAction<string>>;
   currencyUsed: string;
   setCurrencyUsed: Dispatch<SetStateAction<string>>;
-  pesoRate: number;
-  setPesoRate: Dispatch<SetStateAction<number>>;
+  pesoRate: number | string;
+  setPesoRate: Dispatch<SetStateAction<number | string>>;
 
   fobTotal: number;
   netAmount: number;
   landedTotal: number;
 }
 
-export interface NewPriceInstance {
-  id: number;
-  newPrice: number;
-}
-
-export interface POFormTableProps {
+export interface CPOFormTableProps {
   items: Item[];
   status: string;
   selectedRow: PurchaseOrder | undefined;
@@ -51,13 +46,12 @@ export interface POFormTableProps {
   setSelectedItems: Dispatch<SetStateAction<Item[]>>;
   indexOfModal: number;
   setIndexOfModal: Dispatch<SetStateAction<number>>;
-  newPrices: NewPriceInstance[];
-  setNewPrices: Dispatch<SetStateAction<NewPriceInstance[]>>;
   isConfirmOpen: boolean;
   setIsConfirmOpen: Dispatch<SetStateAction<boolean>>;
+  selectedSupplier: Supplier | null
 }
 
-export interface POPayload {
+export interface CPOPayload {
   status: string;
   transaction_date: string;
   supplier_id: number;
@@ -85,7 +79,7 @@ export interface POPayload {
   }>;
 }
 
-export interface POItemValues {
+export interface CPOItemValues {
   item_id: number;
   volume: number;
   unserved_spo: number;

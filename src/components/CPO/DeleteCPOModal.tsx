@@ -4,7 +4,7 @@ import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
 import type { DeleteModalProps } from "../../interface";
 
-const DeletePurchaseOrderModal = ({
+const DeleteCPOModal = ({
   open,
   title,
   setOpen,
@@ -36,7 +36,7 @@ const DeletePurchaseOrderModal = ({
             <h4 className="mb-6">{title}</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to archive this Purchase Order?
+                Are you sure you want to archive this Customer Purchase Order?
               </p>
             </div>
             <div className="flex justify-end mt-5">
@@ -67,4 +67,4 @@ const DeletePurchaseOrderModal = ({
   );
 };
 
-export default DeletePurchaseOrderModal;
+export default DeleteCPOModal;

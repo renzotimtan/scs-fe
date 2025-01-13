@@ -1,37 +1,35 @@
-import POFormDetails from "./CustomerPOForm/CPOFormDetails";
-import POFormTable from "./CustomerPOForm/CPOFormTable";
+import CPOFormDetails from "./CPOForm/CPOFormDetails";
+import CPOFormTable from "./CPOForm/CPOFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
-import type { POPayload, POItemValues, NewPriceInstance } from "./interface";
+import type { CPOPayload, CPOItemValues } from "./interface";
 import type { User } from "../../pages/Login";
-import { calculateTotalWithDiscounts } from "./CustomerPOForm/helpers";
+import {
+  areDiscountsValid,
+  calculateTotalWithDiscounts,
+} from "./CPOForm/helpers";
 import type {
-  PurchaseOrderFormProps,
+  CPOFormProps,
   Supplier,
   Item,
   PaginatedSuppliers,
   PaginatedItems,
 } from "../../interface";
 
-const INITIAL_DISCOUNTS = {
-  supplier: ["0", "0", "0"],
-  transaction: ["0", "0", "0"],
-};
-
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
-const PurchaseOrderForm = ({
+const CPOForm = ({
   setOpen,
   openCreate,
   openEdit,
   selectedRow,
   title,
-}: PurchaseOrderFormProps): JSX.Element => {
+}: CPOFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -47,6 +45,10 @@ const PurchaseOrderForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
+  const [discounts, setDiscounts] = useState({
+    supplier: ["", "", ""],
+    transaction: ["", "", ""],
+  });
   const [pesoRate, setPesoRate] = useState<number | string>(56);
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
@@ -55,7 +57,6 @@ const PurchaseOrderForm = ({
   const [userId, setUserId] = useState<number | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [indexOfModal, setIndexOfModal] = useState(0);
-  const [newPrices, setNewPrices] = useState<NewPriceInstance[]>([]);
 
   useEffect(() => {
     // Fetch suppliers
@@ -75,6 +76,18 @@ const PurchaseOrderForm = ({
     // Set fields for Edit
     if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
       setCurrencyUsed(selectedRow?.currency_used ?? "USD");
+      setDiscounts({
+        supplier: [
+          selectedRow?.supplier_discount_1 ?? 0,
+          selectedRow?.supplier_discount_2 ?? 0,
+          selectedRow?.supplier_discount_3 ?? 0,
+        ],
+        transaction: [
+          selectedRow?.transaction_discount_1 ?? 0,
+          selectedRow?.transaction_discount_2 ?? 0,
+          selectedRow?.transaction_discount_3 ?? 0,
+        ],
+      });
       setPesoRate(selectedRow?.peso_rate ?? 56);
       setStatus(selectedRow?.status ?? "pending");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
@@ -92,9 +105,9 @@ const PurchaseOrderForm = ({
   }, [selectedRow]);
 
   useEffect(() => {
-    // Set POItems only after items exist for edit
+    // Set CPOItems only after items exist for edit
     if (selectedRow !== undefined && items.length > 0) {
-      getAllPOItems();
+      getAllCPOItems();
     }
   }, [items]);
 
@@ -113,16 +126,22 @@ const PurchaseOrderForm = ({
   }, [selectedSupplier]);
 
   const createPayload = (
-    itemPayload: POItemValues[],
+    itemPayload: CPOItemValues[],
     isEdit: boolean,
-  ): POPayload => {
-    const payload: any = {
+  ): CPOPayload => {
+    const payload: CPOPayload = {
       status,
       transaction_date: transactionDate,
       supplier_id: selectedSupplier?.supplier_id ?? 0,
       fob_total: fobTotal,
       currency_used: currencyUsed,
-      peso_rate: pesoRate,
+      supplier_discount_1: discounts.supplier[0],
+      supplier_discount_2: discounts.supplier[1],
+      supplier_discount_3: discounts.supplier[2],
+      transaction_discount_1: discounts.transaction[0],
+      transaction_discount_2: discounts.transaction[1],
+      transaction_discount_3: discounts.transaction[2],
+      peso_rate: Number(pesoRate),
       net_amount: netAmount,
       reference_number: referenceNumber,
       landed_total: landedTotal,
@@ -156,27 +175,27 @@ const PurchaseOrderForm = ({
   }, 0);
 
   const subtotalAfterSupplierDiscounts = calculateTotalWithDiscounts(
-    INITIAL_DISCOUNTS.supplier,
+    discounts.supplier,
     fobTotal,
   );
   const netAmount = calculateTotalWithDiscounts(
-    INITIAL_DISCOUNTS.transaction,
+    discounts.transaction,
     subtotalAfterSupplierDiscounts,
   );
-  const landedTotal = netAmount * pesoRate;
+  const landedTotal = netAmount * Number(pesoRate);
 
-  const getAllPOItems = (): void => {
-    const POItems = selectedRow?.items;
-    if (POItems === undefined) return;
+  const getAllCPOItems = (): void => {
+    const CPOItems = selectedRow?.items;
+    if (CPOItems === undefined) return;
 
     // If selected supplier is different from the selected row supplier (i.e. user edited supplier)
-    // make PO blank
+    // make CPO blank
     if (selectedRow?.supplier.supplier_id !== selectedSupplier?.supplier_id) {
       setSelectedItems(INITIAL_SELECTED_ITEMS);
       return;
     }
 
-    const selectedItems = POItems.map((item) => {
+    const selectedItems = CPOItems.map((item) => {
       const id = item.item_id;
       const foundItem = items.find((i) => i.id === id);
 
@@ -192,18 +211,32 @@ const PurchaseOrderForm = ({
       return modifiedItem;
     });
 
+    // Sort items
+    selectedItems.sort((a, b) => {
+      const stockCodeA = a.stock_code ?? ""; // Default to empty string if undefined
+      const stockCodeB = b.stock_code ?? ""; // Default to empty string if undefined
+      return stockCodeA.localeCompare(stockCodeB);
+    });
+
     // @ts-expect-error (Used null instead of undefined.)
     selectedItems?.push({ id: null });
     setSelectedItems(selectedItems);
   };
 
-  const handleCreatePurchaseOrder = async (): Promise<void> => {
+  const handleCreateCPO = async (): Promise<void> => {
     if (selectedItems.length === 1) {
       toast.error("Error: No Items Selected");
       return;
     }
 
-    const itemPayload: POItemValues[] = selectedItems
+    if (!areDiscountsValid(discounts)) {
+      toast.error(
+        "Error: Discounts must be a positive number with or without %",
+      );
+      return;
+    }
+
+    const itemPayload: CPOItemValues[] = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
@@ -227,19 +260,26 @@ const PurchaseOrderForm = ({
     }
   };
 
-  const handleEditPurchaseOrder = async (): Promise<void> => {
+  const handleEditCPO = async (): Promise<void> => {
     if (selectedItems.length === 1) {
       toast.error("Error: No Items Selected");
       return;
     }
 
-    const itemPayload: POItemValues[] = selectedItems
+    if (!areDiscountsValid(discounts)) {
+      toast.error(
+        "Error: Discounts must be a positive number with or without %",
+      );
+      return;
+    }
+
+    const itemPayload: CPOItemValues[] = selectedItems
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
-        volume: item.volume,
-        price: item.price,
-        unserved_spo: item.volume,
+        volume: Number(item.volume),
+        price: Number(item.price),
+        unserved_spo: Number(item.volume),
         total_price: Number(item.volume) * Number(item.price),
 
         // Fields needed only for edit
@@ -269,8 +309,12 @@ const PurchaseOrderForm = ({
     setItems([]);
     setSelectedItems(INITIAL_SELECTED_ITEMS);
     setCurrencyUsed("USD");
+    setDiscounts({
+      supplier: ["0", "0", "0"],
+      transaction: ["0", "0", "0"],
+    });
     setPesoRate(56);
-    setStatus("pending");
+    setStatus("unposted");
     setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");
@@ -280,8 +324,8 @@ const PurchaseOrderForm = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (openCreate) await handleCreatePurchaseOrder();
-        if (openEdit) await handleEditPurchaseOrder();
+        if (openCreate) await handleCreateCPO();
+        if (openEdit) await handleEditCPO();
       }}
       onKeyDown={(e): void => {
         if (isConfirmOpen && e.key === "Enter") {
@@ -292,7 +336,7 @@ const PurchaseOrderForm = ({
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
       </div>
-      <POFormDetails
+      <CPOFormDetails
         openEdit={openEdit}
         selectedRow={selectedRow}
         suppliers={suppliers}
@@ -304,6 +348,8 @@ const PurchaseOrderForm = ({
         setStatus={setStatus}
         transactionDate={transactionDate}
         setTransactionDate={setTransactionDate}
+        discounts={discounts}
+        setDiscounts={setDiscounts}
         remarks={remarks}
         setRemarks={setRemarks}
         referenceNumber={referenceNumber}
@@ -317,7 +363,7 @@ const PurchaseOrderForm = ({
         netAmount={netAmount}
         landedTotal={landedTotal}
       />
-      <POFormTable
+      <CPOFormTable
         items={items}
         status={status}
         selectedRow={selectedRow}
@@ -325,10 +371,9 @@ const PurchaseOrderForm = ({
         setSelectedItems={setSelectedItems}
         indexOfModal={indexOfModal}
         setIndexOfModal={setIndexOfModal}
-        newPrices={newPrices}
-        setNewPrices={setNewPrices}
         isConfirmOpen={isConfirmOpen}
         setIsConfirmOpen={setIsConfirmOpen}
+        selectedSupplier={selectedSupplier}
       />
       <Divider />
       <div className="flex justify-end mt-4">
@@ -358,4 +403,4 @@ const PurchaseOrderForm = ({
   );
 };
 
-export default PurchaseOrderForm;
+export default CPOForm;

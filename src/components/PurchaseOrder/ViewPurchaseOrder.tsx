@@ -204,7 +204,7 @@ const ViewPurchaseOrder = ({
                   PO No.
                 </th>
                 <th style={{ width: 200 }}>Reference No.</th>
-                <th style={{ width: 300 }}>Status</th>
+                <th style={{ width: 150 }}>Status</th>
                 <th style={{ width: 300 }}>Supplier</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
                 <th style={{ width: 150 }}>Currency Used</th>

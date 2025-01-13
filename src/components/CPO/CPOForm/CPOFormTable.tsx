@@ -1,23 +1,18 @@
-import { Input, Button, Select, Option, Sheet } from "@mui/joy";
-import ConfirmationModal from "../ConfirmationModal";
+import { Input, Button, Sheet, Autocomplete } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
 import type { Item } from "../../../interface";
-import type { POFormTableProps } from "../interface";
+import type { CPOFormTableProps } from "../interface";
 
-const POFormTable = ({
+const CPOFormTable = ({
   items,
-  status,
   selectedRow,
   selectedItems,
   setSelectedItems,
-  indexOfModal,
   setIndexOfModal,
-  newPrices,
-  setNewPrices,
-  isConfirmOpen,
   setIsConfirmOpen,
-}: POFormTableProps): JSX.Element => {
+  selectedSupplier,
+}: CPOFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
   const handleRemoveItem = (index: number): void => {
@@ -34,7 +29,11 @@ const POFormTable = ({
     index: number,
   ): void => {
     if (value !== undefined) {
-      const foundItem = items.find((item) => item.id === value);
+      const foundItem = items.find(
+        (item) =>
+          item.id === value &&
+          item.supplier_id === selectedSupplier?.supplier_id,
+      );
       if (foundItem === undefined) return;
 
       // Spread the found item and ensure all required properties are defined
@@ -49,6 +48,12 @@ const POFormTable = ({
         (selectedItem: Item) => selectedItem.id !== null,
       );
       newSelectedItems[index] = item;
+
+      // Sort by Stock Code
+      newSelectedItems.sort((a, b) => {
+        return a.stock_code.localeCompare(b.stock_code);
+      });
+
       // @ts-expect-error (Used null instead of undefined.)
       newSelectedItems.push({ id: null });
 
@@ -80,26 +85,13 @@ const POFormTable = ({
     setSelectedItems(newSelectedItems);
   };
 
-  const handlePriceChange = (selectedItem: Item, index: number): void => {
-    // Add to new price list (This will be sent to BE on SAVE)
-    if (selectedItem?.price !== undefined && selectedItem?.id !== undefined) {
-      setNewPrices([
-        ...newPrices,
-        {
-          id: selectedItem.id,
-          newPrice: selectedItem.price,
-        },
-      ]);
-    }
-  };
-
   return (
     <Sheet
       sx={{
         "--TableCell-height": "40px",
         // the number is the amount of the header rows.
         "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-        "--Table-firstColumnWidth": "150px",
+        "--Table-firstColumnWidth": "200px",
         "--Table-lastColumnWidth": "86px",
         // background needs to have transparency to show the scrolling shadows
         "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -151,15 +143,13 @@ const POFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              Selected Item
+              Name
             </th>
             <th style={{ width: 200 }}>Stock Code</th>
-            <th style={{ width: 200 }}>Name</th>
-            <th style={{ width: 150 }}>Order Qty.</th>
+            <th style={{ width: 200 }}>Last Purchase Price</th>
+            <th style={{ width: 150 }}>Volume</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
-            <th style={{ width: 150 }}>Available</th>
-            <th style={{ width: 150 }}>Allocated</th>
             <th
               aria-label="last"
               style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -169,50 +159,58 @@ const POFormTable = ({
         <tbody>
           {selectedItems.map((selectedItem: Item, index: number) => (
             <tr key={`${selectedItem.id}-${index}`}>
-              {/* Modal for confirming price change */}
-              {indexOfModal === index && isConfirmOpen && (
-                <ConfirmationModal
-                  open={isConfirmOpen}
-                  setOpen={setIsConfirmOpen}
-                  // Add function here that will change the price of acquisition cost
-                  onConfirm={() => handlePriceChange(selectedItem, index)}
-                  // When cancelled, revert back original price
-                  onCancel={() =>
-                    addItemPrice(String(selectedItem.acquisition_cost), index)
-                  }
-                  itemName={selectedItem.name}
-                />
-              )}
-
               <td style={{ zIndex: 1 }}>
-                <Select
+                <Autocomplete
+                  placeholder="Select Stock"
+                  options={items}
+                  getOptionLabel={(item) => item.name ?? ""}
                   onChange={(event, value) => {
                     if (value !== null) {
-                      fetchSelectedItem(event, value, index);
+                      fetchSelectedItem(event, value.id, index);
                     }
                   }}
-                  className="mt-1 border-0"
-                  size="sm"
-                  placeholder="Select Item"
-                  value={selectedItem.id}
+                  value={selectedItem}
                   disabled={isEditDisabled}
-                >
-                  {items.map((item: Item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
+                  size="sm"
+                  slotProps={{
+                    listbox: {
+                      sx: {
+                        width: 300, // Increase the width
+                        fontSize: "13px",
+                      },
+                    },
+                  }}
+                />
               </td>
-              <td>{selectedItem?.stock_code}</td>
-              <td>{selectedItem?.name}</td>
+              <td>
+                <Autocomplete
+                  placeholder="Select Stock"
+                  options={items}
+                  getOptionLabel={(item) => item.stock_code ?? ""}
+                  onChange={(event, value) => {
+                    if (value !== null) {
+                      fetchSelectedItem(event, value.id, index);
+                    }
+                  }}
+                  value={selectedItem}
+                  disabled={isEditDisabled}
+                  size="sm"
+                  slotProps={{
+                    listbox: {
+                      sx: {
+                        width: 300, // Increase the width
+                        fontSize: "13px",
+                      },
+                    },
+                  }}
+                />
+              </td>
+              <td>{selectedItem?.acquisition_cost}</td>
               <td style={{ zIndex: 2 }}>
                 {selectedItem?.id !== null && (
                   <Input
                     type="number"
-                    onChange={(e) =>
-                      addItemVolume(e.target.value, index)
-                    }
+                    onChange={(e) => addItemVolume(e.target.value, index)}
                     slotProps={{
                       input: {
                         min: 0,
@@ -235,13 +233,10 @@ const POFormTable = ({
                         step: ".01",
                       },
                     }}
-                    onChange={(e) =>
-                      addItemPrice(e.target.value, index)
-                    }
+                    onChange={(e) => addItemPrice(e.target.value, index)}
                     onBlur={(e) => {
                       if (
                         selectedItem.acquisition_cost !== selectedItem.price
-                        // && status === "posted"
                       ) {
                         setIndexOfModal(index);
                         setIsConfirmOpen(true);
@@ -255,8 +250,6 @@ const POFormTable = ({
                 {selectedItem?.id !== null &&
                   Number(selectedItem?.price) * Number(selectedItem?.volume)}
               </td>
-              <td>{0}</td>
-              <td>{0}</td>
               <td>
                 {selectedItem?.id !== null && (
                   <Button
@@ -279,4 +272,4 @@ const POFormTable = ({
   );
 };
 
-export default POFormTable;
+export default CPOFormTable;

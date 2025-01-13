@@ -1,27 +1,28 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeletePurchaseOrderModal from "./DeletePurchaseOrderModal";
+import DeleteCPOModal from "./DeleteCPOModal";
 import { toast } from "react-toastify";
 import type {
-  ViewPurchaseOrderProps,
-  PaginatedPO,
+  ViewCPOProps,
+  PaginatedCPO,
   PaginationQueryParams,
 } from "../../interface";
 
 import { Pagination } from "@mui/material";
 
 import { convertToQueryParams } from "../../helper";
+import { addCommaToNumberWithFourPlaces } from "../../helper";
 
 const PAGE_LIMIT = 10;
 
-const ViewPurchaseOrder = ({
+const ViewCPO = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewPurchaseOrderProps): JSX.Element => {
-  const [purchaseOrders, setPurchaseOrders] = useState<PaginatedPO>({
+}: ViewCPOProps): JSX.Element => {
+  const [CPOs, setCPOs] = useState<PaginatedCPO>({
     total: 0,
     items: [],
   });
@@ -44,10 +45,10 @@ const ViewPurchaseOrder = ({
     }
 
     axiosInstance
-      .get<PaginatedPO>(
-        `/api/purchase_orders/?${convertToQueryParams(payload)}`,
+      .get<PaginatedCPO>(
+        `/api/customer_purchase_orders/?${convertToQueryParams(payload)}`,
       )
-      .then((response) => setPurchaseOrders(response.data))
+      .then((response) => setCPOs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
@@ -57,8 +58,8 @@ const ViewPurchaseOrder = ({
   ): void => {
     setPage(value);
     axiosInstance
-      .get<PaginatedPO>(
-        `/api/purchase_orders/?${convertToQueryParams({
+      .get<PaginatedCPO>(
+        `/api/customer_purchase_orders/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -66,7 +67,7 @@ const ViewPurchaseOrder = ({
           search_term: searchTerm,
         })}`,
       )
-      .then((response) => setPurchaseOrders(response.data))
+      .then((response) => setCPOs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
@@ -75,13 +76,13 @@ const ViewPurchaseOrder = ({
     getAllPO();
   }, []);
 
-  const handleDeletePurchaseOrder = async (): Promise<void> => {
+  const handleDeleteCPO = async (): Promise<void> => {
     if (selectedRow !== undefined) {
       const url = `/api/purchase_orders/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Archive successful!");
-        setPurchaseOrders((prevPO) => ({
+        setCPOs((prevPO) => ({
           ...prevPO,
           items: prevPO.items.map((PO) =>
             PO.id === selectedRow.id ? { ...PO, status: "archived" } : PO,
@@ -98,7 +99,7 @@ const ViewPurchaseOrder = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Purchase Order</h2>
+          <h2>Customer Purchase Order</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -106,7 +107,7 @@ const ViewPurchaseOrder = ({
               setOpenCreate(true);
             }}
           >
-            Add Purchase Order
+            Add Customer Purchase Order
           </Button>
         </Box>
         <Box className="flex items-center mb-6">
@@ -200,15 +201,15 @@ const ViewPurchaseOrder = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  Customer PO No.
+                  PO No.
                 </th>
                 <th style={{ width: 200 }}>Reference No.</th>
-                <th style={{ width: 300 }}>Status</th>
+                <th style={{ width: 150 }}>Status</th>
                 <th style={{ width: 300 }}>Customer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>Net Amount</th>
-                <th style={{ width: 150 }}>FOB Total</th>
-                <th style={{ width: 150 }}>Landed Total</th>
+                <th style={{ width: 150 }}>Price Level</th>
+                <th style={{ width: 150 }}>Gross Total</th>
+                <th style={{ width: 150 }}>Net Total</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -221,27 +222,27 @@ const ViewPurchaseOrder = ({
               </tr>
             </thead>
             <tbody>
-              {purchaseOrders.items.map((purchaseOrder) => (
+              {CPOs.items.map((CPO) => (
                 <tr
-                  key={purchaseOrder.id}
+                  key={CPO.id}
                   onDoubleClick={() => {
                     setOpenEdit(true);
-                    setSelectedRow(purchaseOrder);
+                    setSelectedRow(CPO);
                   }}
                 >
-                  <td>{purchaseOrder.id}</td>
-                  <td>{purchaseOrder.reference_number}</td>
-                  <td className="capitalize">{purchaseOrder.status}</td>
-                  <td>{purchaseOrder?.supplier?.name}</td>
-                  <td>{purchaseOrder.transaction_date}</td>
-                  <td>{purchaseOrder.net_amount}</td>
-                  <td>{purchaseOrder.fob_total}</td>
-                  <td>{purchaseOrder.landed_total}</td>
-                  <td>{purchaseOrder.remarks}</td>
-                  <td>{purchaseOrder?.creator?.username}</td>
-                  <td>{purchaseOrder?.modifier?.username}</td>
-                  <td>{purchaseOrder.date_created}</td>
-                  <td>{purchaseOrder.date_modified}</td>
+                  <td>{CPO.id}</td>
+                  <td>{CPO.reference_number}</td>
+                  <td className="capitalize">{CPO.status}</td>
+                  <td>{CPO?.customer?.name}</td>
+                  <td>{CPO.transaction_date}</td>
+                  <td>{CPO.price_level}</td>
+                  <td>{addCommaToNumberWithFourPlaces(CPO.gross_total)}</td>
+                  <td>{addCommaToNumberWithFourPlaces(CPO.net_total)}</td>
+                  <td>{CPO.remarks}</td>
+                  <td>{CPO?.creator?.username}</td>
+                  <td>{CPO?.modifier?.username}</td>
+                  <td>{CPO.date_created}</td>
+                  <td>{CPO.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -251,10 +252,10 @@ const ViewPurchaseOrder = ({
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(purchaseOrder);
+                          setSelectedRow(CPO);
                         }}
                       >
-                        {purchaseOrder.status !== "unposted" ? "View" : "Edit"}
+                        {CPO.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -263,9 +264,9 @@ const ViewPurchaseOrder = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(purchaseOrder);
+                          setSelectedRow(CPO);
                         }}
-                        disabled={purchaseOrder.status !== "unposted"}
+                        disabled={CPO.status !== "unposted"}
                       >
                         Archive
                       </Button>
@@ -279,21 +280,21 @@ const ViewPurchaseOrder = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.ceil(purchaseOrders.total / PAGE_LIMIT)}
+          count={Math.ceil(CPOs.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeletePurchaseOrderModal
+      <DeleteCPOModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Archive Purchase Order"
-        onDelete={handleDeletePurchaseOrder}
+        title="Archive Customer Purchase Order"
+        onDelete={handleDeleteCPO}
       />
     </>
   );
 };
 
-export default ViewPurchaseOrder;
+export default ViewCPO;

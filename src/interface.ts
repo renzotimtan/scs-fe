@@ -200,6 +200,12 @@ export interface PaginatedPO {
   items: PurchaseOrder[];
 }
 
+export interface PaginatedCPO {
+  total: number;
+  items: CPO[];
+}
+
+
 export interface PaginatedSDR {
   total: number;
   items: DeliveryReceipt[];
@@ -350,6 +356,50 @@ export interface PurchaseOrderFormProps {
   title: string;
 }
 
+export interface CPO {
+  id: number;
+  customer_id: number;
+  status: string;
+  price_level: number;
+  transaction_date: string;
+  customer_discount_1: string;
+  transaction_discount_1: string;
+  customer_discount_2: string;
+  transaction_discount_2: string;
+  customer_discount_3: string;
+  transaction_discount_3: string;
+  net_total: number;
+  gross_total: number;
+  reference_number: string;
+  remarks: string;
+  customer: Customer;
+  created_by: number;
+  modified_by: number;
+  creator: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  date_created: string;
+  modifier: {
+    full_name: string;
+    username: string;
+    email: string;
+    id: number;
+  };
+  date_modified: string;
+  items: CPOItems[];
+}
+
+export interface CPOFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: CPO;
+  title: string;
+}
+
 export interface SDRFormProps {
   setOpen: (isOpen: boolean) => void;
   openCreate: boolean;
@@ -380,6 +430,13 @@ export interface ViewPurchaseOrderProps {
   selectedRow: PurchaseOrder | undefined;
   setSelectedRow: (purchaseOrder: PurchaseOrder) => void;
 }
+
+export interface ViewCPOProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: CPO | undefined;
+  setSelectedRow: (cpo: CPO) => void;
+}
 export interface ViewDeliveryReceiptProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
@@ -399,6 +456,26 @@ export interface ViewStockTransferProps {
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: StockTransfer | undefined;
   setSelectedRow: (stockTransfer: StockTransfer) => void;
+}
+
+export interface CPOItems {
+  // Discrepancy between item_id, id
+  item_id: number;
+  id: number;
+
+  customer_purchase_order_id: number;
+  volume: number;
+  price: number;
+  total_price: number;
+  on_stock: number;
+  in_transit: number;
+  allocated: number;
+  unserved_spo: number;
+  item: Item;
+
+  temp_in_transit: number;
+  temp_on_stock: number;
+  temp_allocated: number;
 }
 
 export interface POItems {

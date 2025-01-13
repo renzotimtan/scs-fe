@@ -1,17 +1,17 @@
 import { useState } from "react";
-import CustomerPurchaseOrderForm from "../../components/CustomerPurchaseOrder/CustomerPurchaseOrderForm";
-import ViewCustomerPurchaseOrder from "../../components/CustomerPurchaseOrder/ViewCPurchaseOrder";
-import type { PurchaseOrder } from "../../interface";
+import CPOForm from "../../components/CPO/CPOForm";
+import ViewCPO from "../../components/CPO/ViewCPO";
+import type { CPO } from "../../interface";
 
-const CustomerPurchaseOrderMenu = (): JSX.Element => {
+const CPOMenu = (): JSX.Element => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<PurchaseOrder | undefined>();
+  const [selectedRow, setSelectedRow] = useState<CPO | undefined>();
 
   return (
     <div>
       {openCreate && (
-        <CustomerPurchaseOrderForm
+        <CPOForm
           setOpen={setOpenCreate}
           openCreate={openCreate}
           openEdit={openEdit}
@@ -20,7 +20,7 @@ const CustomerPurchaseOrderMenu = (): JSX.Element => {
       )}
 
       {openEdit && (
-        <CustomerPurchaseOrderForm
+        <CPOForm
           setOpen={setOpenEdit}
           openCreate={openCreate}
           openEdit={openEdit}
@@ -30,7 +30,7 @@ const CustomerPurchaseOrderMenu = (): JSX.Element => {
       )}
 
       {!openEdit && !openCreate && (
-        <ViewCustomerPurchaseOrder
+        <ViewCPO
           setOpenCreate={setOpenCreate}
           setOpenEdit={setOpenEdit}
           selectedRow={selectedRow}
@@ -41,4 +41,4 @@ const CustomerPurchaseOrderMenu = (): JSX.Element => {
   );
 };
 
-export default CustomerPurchaseOrderMenu;
+export default CPOMenu;

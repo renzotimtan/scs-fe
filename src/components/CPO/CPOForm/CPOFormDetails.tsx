@@ -14,14 +14,12 @@ import {
 } from "@mui/joy";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
-import {
-  formatToDateTime,
-  addCommaToNumberWithFourPlaces,
-} from "../../../helper";
+import { formatToDateTime, addCommaToNumberWithFourPlaces } from "../../../helper";
+import type { CPOFormProps } from "../interface";
 
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
 
-const POFormDetails = ({
+const CPOFormDetails = ({
   openEdit,
   selectedRow,
   suppliers,
@@ -34,6 +32,8 @@ const POFormDetails = ({
   setStatus,
   transactionDate,
   setTransactionDate,
+  discounts,
+  setDiscounts,
   remarks,
   setRemarks,
   referenceNumber,
@@ -47,9 +47,19 @@ const POFormDetails = ({
   fobTotal,
   netAmount,
   landedTotal,
-}: any): JSX.Element => {
+}: CPOFormProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
+
+  const handleDiscountChange = (
+    type: "supplier" | "transaction",
+    index: number,
+    value: string,
+  ): void => {
+    const newDiscounts = { ...discounts };
+    newDiscounts[type][index] = value;
+    setDiscounts(newDiscounts);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -58,7 +68,7 @@ const POFormDetails = ({
           <div className="flex justify-between items-center mb-2">
             {openEdit && (
               <div>
-                <h4>PO No. {selectedRow?.id}</h4>
+                <h4>CPO No. {selectedRow?.id}</h4>
               </div>
             )}
             <Button
@@ -72,7 +82,7 @@ const POFormDetails = ({
           </div>
           <Divider />
           <FormControl size="sm" sx={{ mb: 1, mt: 2 }}>
-            <FormLabel>Customer</FormLabel>
+            <FormLabel>Supplier</FormLabel>
             <div className="flex">
               <Autocomplete
                 options={suppliers.items}
@@ -80,6 +90,7 @@ const POFormDetails = ({
                 value={selectedSupplier}
                 onChange={(event, newValue) => {
                   setSelectedSupplier(newValue);
+                  // @ts-expect-error (Item object, unless its using the empty object)
                   setSelectedItems(INITIAL_SELECTED_ITEMS);
                 }}
                 size="sm"
@@ -117,6 +128,34 @@ const POFormDetails = ({
               />
             </FormControl>
           </Stack>
+          <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
+            {discounts.supplier.map((discount: string, index: number) => (
+              <Stack key={`discount-row-${index}`} direction="row" spacing={2}>
+                <FormControl size="sm" sx={{ width: "48%" }}>
+                  <FormLabel>{`Supplier Discount ${index + 1}`}</FormLabel>
+                  <Input
+                    value={discount}
+                    onChange={(e) =>
+                      handleDiscountChange("supplier", index, e.target.value)
+                    }
+                    placeholder="Enter % or actual discount"
+                    disabled={isEditDisabled}
+                  />
+                </FormControl>
+                <FormControl size="sm" sx={{ width: "48%" }}>
+                  <FormLabel>{`Transaction Discount ${index + 1}`}</FormLabel>
+                  <Input
+                    value={discounts.transaction[index]}
+                    onChange={(e) =>
+                      handleDiscountChange("transaction", index, e.target.value)
+                    }
+                    placeholder="Enter % or actual discount"
+                    disabled={isEditDisabled}
+                  />
+                </FormControl>
+              </Stack>
+            ))}
+          </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Currency Used</FormLabel>
@@ -144,7 +183,9 @@ const POFormDetails = ({
                 size="sm"
                 placeholder="56"
                 value={pesoRate}
-                onChange={(e) => setPesoRate(e.target.value)}
+                onChange={(e) => {
+                  setPesoRate(e.target.value);
+                }}
                 slotProps={{
                   input: {
                     min: 0,
@@ -156,17 +197,6 @@ const POFormDetails = ({
               />
             </FormControl>
           </Stack>
-          <FormControl size="sm" sx={{ mb: 3 }}>
-            <FormLabel>Remarks</FormLabel>
-            <Textarea
-              minRows={3}
-              placeholder="Remarks"
-              onChange={(e) => setRemarks(e.target.value)}
-              value={remarks}
-              disabled={isEditDisabled}
-              required
-            />
-          </FormControl>
         </div>
       </Card>
       <Card className="w-[40%]">
@@ -182,19 +212,19 @@ const POFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(landedTotal / pesoRate)}`}</h5>
+              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(landedTotal / Number(pesoRate))}`}</h5>
             </FormControl>
           </div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>FOB Total</FormLabel>
               <h5>
-                ₱{addCommaToNumberWithFourPlaces(fobTotal * pesoRate)}
+                ₱{addCommaToNumberWithFourPlaces(fobTotal * Number(pesoRate))}
               </h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{addCommaToNumberWithFourPlaces(netAmount * pesoRate)}</h5>
+              <h5>₱{addCommaToNumberWithFourPlaces(netAmount * Number(pesoRate))}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>
@@ -241,10 +271,20 @@ const POFormDetails = ({
               required
             />
           </FormControl>
+          <FormControl size="sm" sx={{ mb: 3 }}>
+            <FormLabel>Remarks</FormLabel>
+            <Textarea
+              minRows={7}
+              placeholder="Remarks"
+              onChange={(e) => setRemarks(e.target.value)}
+              value={remarks}
+              disabled={isEditDisabled}
+            />
+          </FormControl>
         </div>
       </Card>
     </Box>
   );
 };
 
-export default POFormDetails;
+export default CPOFormDetails;
