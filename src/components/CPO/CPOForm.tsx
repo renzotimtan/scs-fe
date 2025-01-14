@@ -9,14 +9,14 @@ import { toast } from "react-toastify";
 import type { CPOPayload, CPOItemValues } from "./interface";
 import type { User } from "../../pages/Login";
 import {
-  areDiscountsValid,
+  areCustomerDiscountsValid as areDiscountsValid,
   calculateTotalWithDiscounts,
 } from "./CPOForm/helpers";
 import type {
   CPOFormProps,
-  Supplier,
+  Customer,
   Item,
-  PaginatedSuppliers,
+  PaginatedCustomers,
   PaginatedItems,
 } from "../../interface";
 
@@ -33,23 +33,24 @@ const CPOForm = ({
   const currentDate = new Date().toISOString().split("T")[0];
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
-  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+  const [customers, setCustomers] = useState<PaginatedCustomers>({
     total: 0,
     items: [],
   });
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<any>(
     INITIAL_SELECTED_ITEMS,
   );
-  const [currencyUsed, setCurrencyUsed] = useState<string>("USD");
   const [discounts, setDiscounts] = useState({
-    supplier: ["", "", ""],
+    customer: ["", "", ""],
     transaction: ["", "", ""],
   });
-  const [pesoRate, setPesoRate] = useState<number | string>(56);
+
+  const [priceLevel, setPriceLevel] = useState("1");
+
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -59,10 +60,10 @@ const CPOForm = ({
   const [indexOfModal, setIndexOfModal] = useState(0);
 
   useEffect(() => {
-    // Fetch suppliers
+    // Fetch customers
     axiosInstance
-      .get<PaginatedSuppliers>("/api/suppliers/")
-      .then((response) => setSuppliers(response.data))
+      .get<PaginatedCustomers>("/api/customers/")
+      .then((response) => setCustomers(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
@@ -74,13 +75,12 @@ const CPOForm = ({
 
   useEffect(() => {
     // Set fields for Edit
-    if (selectedRow !== null && selectedRow?.supplier_id !== undefined) {
-      setCurrencyUsed(selectedRow?.currency_used ?? "USD");
+    if (selectedRow !== null && selectedRow?.customer_id !== undefined) {
       setDiscounts({
-        supplier: [
-          selectedRow?.supplier_discount_1 ?? 0,
-          selectedRow?.supplier_discount_2 ?? 0,
-          selectedRow?.supplier_discount_3 ?? 0,
+        customer: [
+          selectedRow?.customer_discount_1 ?? 0,
+          selectedRow?.customer_discount_2 ?? 0,
+          selectedRow?.customer_discount_3 ?? 0,
         ],
         transaction: [
           selectedRow?.transaction_discount_1 ?? 0,
@@ -88,17 +88,17 @@ const CPOForm = ({
           selectedRow?.transaction_discount_3 ?? 0,
         ],
       });
-      setPesoRate(selectedRow?.peso_rate ?? 56);
       setStatus(selectedRow?.status ?? "pending");
+      setPriceLevel(selectedRow?.price_level ?? "1");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
 
-      // Get Supplier for Edit
+      // Get Customer for Edit
       axiosInstance
-        .get<Supplier>(`/api/suppliers/${selectedRow?.supplier_id}`)
+        .get<Customer>(`/api/customers/${selectedRow?.customer_id}`)
         .then((response) => {
-          setSelectedSupplier(response.data);
+          setSelectedCustomer(response.data);
         })
         .catch((error) => console.error("Error:", error));
     }
@@ -112,18 +112,14 @@ const CPOForm = ({
   }, [items]);
 
   useEffect(() => {
-    if (selectedSupplier !== null) {
-      // Fetch items for the selected supplier
-      axiosInstance
-        .get<PaginatedItems>(
-          `/api/items?supplier_id=${selectedSupplier.supplier_id}`,
-        )
-        .then((response) => {
-          setItems(response.data.items);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedSupplier]);
+    // Fetch items for the selected customer
+    axiosInstance
+      .get<PaginatedItems>(`/api/items`)
+      .then((response) => {
+        setItems(response.data.items);
+      })
+      .catch((error) => console.error("Error:", error));
+  }, [selectedCustomer]);
 
   const createPayload = (
     itemPayload: CPOItemValues[],
@@ -132,33 +128,25 @@ const CPOForm = ({
     const payload: CPOPayload = {
       status,
       transaction_date: transactionDate,
-      supplier_id: selectedSupplier?.supplier_id ?? 0,
-      fob_total: fobTotal,
-      currency_used: currencyUsed,
-      supplier_discount_1: discounts.supplier[0],
-      supplier_discount_2: discounts.supplier[1],
-      supplier_discount_3: discounts.supplier[2],
+      customer_id: selectedCustomer?.customer_id ?? 0,
+      price_level: priceLevel,
+      gross_total: grossTotal,
+      customer_discount_1: discounts.customer[0],
+      customer_discount_2: discounts.customer[1],
+      customer_discount_3: discounts.customer[2],
       transaction_discount_1: discounts.transaction[0],
       transaction_discount_2: discounts.transaction[1],
       transaction_discount_3: discounts.transaction[2],
-      peso_rate: Number(pesoRate),
-      net_amount: netAmount,
+      net_total: netTotal,
       reference_number: referenceNumber,
-      landed_total: landedTotal,
       remarks,
       items: itemPayload,
     };
 
-    if (isEdit) {
-      payload.modified_by = 1;
-    } else {
-      payload.created_by = 1;
-    }
-
     return payload;
   };
 
-  const fobTotal: number = selectedItems.reduce((acc: number, item: Item) => {
+  const grossTotal: number = selectedItems.reduce((acc: number, item: Item) => {
     // Explicitly check for a valid number on id, and ensure price and volume are greater than zero.
     if (
       typeof item.id === "number" && // Check that id is a number.
@@ -174,23 +162,22 @@ const CPOForm = ({
     return acc;
   }, 0);
 
-  const subtotalAfterSupplierDiscounts = calculateTotalWithDiscounts(
-    discounts.supplier,
-    fobTotal,
+  const subtotalAfterCustomerDiscounts = calculateTotalWithDiscounts(
+    discounts.customer,
+    grossTotal,
   );
-  const netAmount = calculateTotalWithDiscounts(
+  const netTotal = calculateTotalWithDiscounts(
     discounts.transaction,
-    subtotalAfterSupplierDiscounts,
+    subtotalAfterCustomerDiscounts,
   );
-  const landedTotal = netAmount * Number(pesoRate);
 
   const getAllCPOItems = (): void => {
     const CPOItems = selectedRow?.items;
     if (CPOItems === undefined) return;
 
-    // If selected supplier is different from the selected row supplier (i.e. user edited supplier)
+    // If selected customer is different from the selected row customer (i.e. user edited customer)
     // make CPO blank
-    if (selectedRow?.supplier.supplier_id !== selectedSupplier?.supplier_id) {
+    if (selectedRow?.customer.customer_id !== selectedCustomer?.customer_id) {
       setSelectedItems(INITIAL_SELECTED_ITEMS);
       return;
     }
@@ -305,15 +292,14 @@ const CPOForm = ({
   };
 
   const resetForm = (): void => {
-    setSelectedSupplier(null);
+    setSelectedCustomer(null);
     setItems([]);
     setSelectedItems(INITIAL_SELECTED_ITEMS);
-    setCurrencyUsed("USD");
     setDiscounts({
-      supplier: ["0", "0", "0"],
+      customer: ["0", "0", "0"],
       transaction: ["0", "0", "0"],
     });
-    setPesoRate(56);
+    setPriceLevel("1");
     setStatus("unposted");
     setTransactionDate(currentDate);
     setReferenceNumber("");
@@ -339,10 +325,10 @@ const CPOForm = ({
       <CPOFormDetails
         openEdit={openEdit}
         selectedRow={selectedRow}
-        suppliers={suppliers}
+        customers={customers}
         // Fields
-        selectedSupplier={selectedSupplier}
-        setSelectedSupplier={setSelectedSupplier}
+        selectedCustomer={selectedCustomer}
+        setSelectedCustomer={setSelectedCustomer}
         setSelectedItems={setSelectedItems}
         status={status}
         setStatus={setStatus}
@@ -354,14 +340,11 @@ const CPOForm = ({
         setRemarks={setRemarks}
         referenceNumber={referenceNumber}
         setReferenceNumber={setReferenceNumber}
-        currencyUsed={currencyUsed}
-        setCurrencyUsed={setCurrencyUsed}
-        pesoRate={pesoRate}
-        setPesoRate={setPesoRate}
+        priceLevel={priceLevel}
+        setPriceLevel={setPriceLevel}
         // Summary Amounts
-        fobTotal={fobTotal}
-        netAmount={netAmount}
-        landedTotal={landedTotal}
+        netTotal={netTotal}
+        grossTotal={grossTotal}
       />
       <CPOFormTable
         items={items}
@@ -373,7 +356,7 @@ const CPOForm = ({
         setIndexOfModal={setIndexOfModal}
         isConfirmOpen={isConfirmOpen}
         setIsConfirmOpen={setIsConfirmOpen}
-        selectedSupplier={selectedSupplier}
+        selectedCustomer={selectedCustomer}
       />
       <Divider />
       <div className="flex justify-end mt-4">

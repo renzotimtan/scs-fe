@@ -43,11 +43,7 @@ const POFormTable = ({
     index: number,
   ): void => {
     if (value !== undefined) {
-      const foundItem = items.find(
-        (item) =>
-          item.id === value &&
-          item.supplier_id === selectedSupplier?.supplier_id,
-      );
+      const foundItem = items.find((item) => item.id === value);
       if (foundItem === undefined) return;
 
       // Spread the found item and ensure all required properties are defined

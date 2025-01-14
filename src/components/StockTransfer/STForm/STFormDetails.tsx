@@ -197,7 +197,7 @@ const STFormDetails = ({
           <FormControl size="sm" sx={{ mb: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
-              minRows={3}
+              minRows={1}
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}

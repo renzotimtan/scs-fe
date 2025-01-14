@@ -310,7 +310,7 @@ const SuppliersModal = ({
                     <FormLabel>Notes</FormLabel>
                     <Textarea
                       size="sm"
-                      minRows={5}
+                      minRows={1}
                       name="notes"
                       value={supplier.notes}
                       onChange={handleChange}

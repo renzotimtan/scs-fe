@@ -360,7 +360,7 @@ export interface CPO {
   id: number;
   customer_id: number;
   status: string;
-  price_level: number;
+  price_level: string;
   transaction_date: string;
   customer_discount_1: string;
   transaction_discount_1: string;

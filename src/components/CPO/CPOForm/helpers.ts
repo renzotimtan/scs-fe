@@ -12,6 +12,20 @@ export const areDiscountsValid = (discounts: {
   return isSupplierValid && isTransactionValid;
 };
 
+export const areCustomerDiscountsValid = (discounts: {
+  customer: string[];
+  transaction: string[];
+}): boolean => {
+  const isCustomerValid = discounts.customer.every(
+    (str) => /^(?:\d+|\d+%?)?$/.test(str), // Allows an empty string
+  );
+  const isTransactionValid = discounts.transaction.every(
+    (str) => /^(?:\d+|\d+%?)?$/.test(str), // Allows an empty string
+  );
+
+  return isCustomerValid && isTransactionValid;
+};
+
 export const calculateDiscount = (
   discountStr: string,
   total: number,

@@ -1,4 +1,4 @@
-import { Input, Button, Sheet, Autocomplete } from "@mui/joy";
+import { Input, Button, Sheet, Autocomplete, Select, Option } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
 import type { Item } from "../../../interface";
@@ -11,7 +11,7 @@ const CPOFormTable = ({
   setSelectedItems,
   setIndexOfModal,
   setIsConfirmOpen,
-  selectedSupplier,
+  selectedCustomer,
 }: CPOFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -29,11 +29,7 @@ const CPOFormTable = ({
     index: number,
   ): void => {
     if (value !== undefined) {
-      const foundItem = items.find(
-        (item) =>
-          item.id === value &&
-          item.supplier_id === selectedSupplier?.supplier_id,
-      );
+      const foundItem = items.find((item) => item.id === value);
       if (foundItem === undefined) return;
 
       // Spread the found item and ensure all required properties are defined
@@ -146,8 +142,8 @@ const CPOFormTable = ({
               Name
             </th>
             <th style={{ width: 200 }}>Stock Code</th>
-            <th style={{ width: 200 }}>Last Purchase Price</th>
-            <th style={{ width: 150 }}>Volume</th>
+            <th style={{ width: 200 }}>P-Type</th>
+            <th style={{ width: 150 }}>Order Qty</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
             <th
@@ -205,7 +201,19 @@ const CPOFormTable = ({
                   }}
                 />
               </td>
-              <td>{selectedItem?.acquisition_cost}</td>
+              <td style={{ zIndex: 2 }}>
+                <Select
+                  // onChange={(event, value) => {
+                  //   if (value !== null) setPriceLevel(value);
+                  // }}
+                  size="sm"
+                  value={null}
+                  disabled={isEditDisabled}
+                  placeholder="Select P-Type"
+                >
+                  <Option value="regular">Regular</Option>
+                </Select>
+              </td>
               <td style={{ zIndex: 2 }}>
                 {selectedItem?.id !== null && (
                   <Input
@@ -222,33 +230,11 @@ const CPOFormTable = ({
                   />
                 )}
               </td>
-              <td style={{ zIndex: 2 }}>
-                {selectedItem?.id !== null && (
-                  <Input
-                    type="number"
-                    value={selectedItem.price}
-                    slotProps={{
-                      input: {
-                        min: 0,
-                        step: ".01",
-                      },
-                    }}
-                    onChange={(e) => addItemPrice(e.target.value, index)}
-                    onBlur={(e) => {
-                      if (
-                        selectedItem.acquisition_cost !== selectedItem.price
-                      ) {
-                        setIndexOfModal(index);
-                        setIsConfirmOpen(true);
-                      }
-                    }}
-                    disabled={isEditDisabled}
-                  />
-                )}
-              </td>
+              <td>{selectedItem?.acquisition_cost}</td>
               <td>
                 {selectedItem?.id !== null &&
-                  Number(selectedItem?.price) * Number(selectedItem?.volume)}
+                  Number(selectedItem?.acquisition_cost) *
+                    Number(selectedItem?.volume)}
               </td>
               <td>
                 {selectedItem?.id !== null && (
