@@ -37,6 +37,7 @@ const CPOFormTable = ({
         ...foundItem,
         price: foundItem.acquisition_cost ?? 0,
         volume: 1,
+        p_type: "regular",
       };
 
       // We need to add the new item before the null item
@@ -69,10 +70,10 @@ const CPOFormTable = ({
     setSelectedItems(newSelectedItems);
   };
 
-  const addItemPrice = (value: string, index: number): void => {
+  const addPType = (value: string, index: number): void => {
     const newSelectedItems = selectedItems.map((item: Item, i: number) => {
       if (i === index) {
-        return { ...item, price: value };
+        return { ...item, p_type: value };
       }
 
       return item;
@@ -146,6 +147,7 @@ const CPOFormTable = ({
             <th style={{ width: 150 }}>Order Qty</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
+            <th style={{ width: 150 }}>Allocated</th>
             <th
               aria-label="last"
               style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -202,17 +204,19 @@ const CPOFormTable = ({
                 />
               </td>
               <td style={{ zIndex: 2 }}>
-                <Select
-                  // onChange={(event, value) => {
-                  //   if (value !== null) setPriceLevel(value);
-                  // }}
-                  size="sm"
-                  value={null}
-                  disabled={isEditDisabled}
-                  placeholder="Select P-Type"
-                >
-                  <Option value="regular">Regular</Option>
-                </Select>
+                {selectedItem.id && (
+                  <Select
+                    onChange={(event, value) => {
+                      if (value !== null) addPType(value, index);
+                    }}
+                    size="sm"
+                    value={selectedItem.p_type}
+                    disabled={isEditDisabled}
+                    placeholder="Select P-Type"
+                  >
+                    <Option value="regular">Regular</Option>
+                  </Select>
+                )}
               </td>
               <td style={{ zIndex: 2 }}>
                 {selectedItem?.id !== null && (
@@ -222,6 +226,7 @@ const CPOFormTable = ({
                     slotProps={{
                       input: {
                         min: 0,
+                        max: selectedItem.total_allocated,
                       },
                     }}
                     value={selectedItem.volume}
@@ -236,6 +241,7 @@ const CPOFormTable = ({
                   Number(selectedItem?.acquisition_cost) *
                     Number(selectedItem?.volume)}
               </td>
+              <td>{selectedItem.total_allocated}</td>
               <td>
                 {selectedItem?.id !== null && (
                   <Button

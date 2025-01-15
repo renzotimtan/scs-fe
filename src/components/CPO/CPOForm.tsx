@@ -71,6 +71,14 @@ const CPOForm = ({
       .get<User>("/users/me/")
       .then((response) => setUserId(response.data.id))
       .catch((error) => console.error("Error fetching user ID:", error));
+
+    // Fetch items
+    axiosInstance
+      .get<PaginatedItems>(`/api/items`)
+      .then((response) => {
+        setItems(response.data.items);
+      })
+      .catch((error) => console.error("Error:", error));
   }, []);
 
   useEffect(() => {
@@ -110,16 +118,6 @@ const CPOForm = ({
       getAllCPOItems();
     }
   }, [items]);
-
-  useEffect(() => {
-    // Fetch items for the selected customer
-    axiosInstance
-      .get<PaginatedItems>(`/api/items`)
-      .then((response) => {
-        setItems(response.data.items);
-      })
-      .catch((error) => console.error("Error:", error));
-  }, [selectedCustomer]);
 
   const createPayload = (
     itemPayload: CPOItemValues[],
@@ -190,9 +188,8 @@ const CPOForm = ({
         ...foundItem,
         price: item.price,
         volume: item.volume,
-        on_stock: item.on_stock,
         allocated: item.allocated,
-        in_transit: item.in_transit,
+        p_type: item.p_type,
       };
 
       return modifiedItem;
@@ -227,6 +224,7 @@ const CPOForm = ({
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
+        p_type: item.p_type,
         volume: item.volume,
         unserved_spo: item.volume,
         price: item.price,
@@ -235,7 +233,7 @@ const CPOForm = ({
 
     const payload = createPayload(itemPayload, false);
     try {
-      await axiosInstance.post("/api/purchase_orders/", payload);
+      await axiosInstance.post("/api/customer_purchase_orders/", payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);
@@ -264,21 +262,17 @@ const CPOForm = ({
       .filter((item: Item) => item.id !== null)
       .map((item: Item) => ({
         item_id: item.id,
+        p_type: item.p_type,
         volume: Number(item.volume),
         price: Number(item.price),
         unserved_spo: Number(item.volume),
         total_price: Number(item.volume) * Number(item.price),
-
-        // Fields needed only for edit
-        on_stock: item.on_stock,
-        allocated: item.allocated,
-        in_transit: item.in_transit,
       }));
 
     const payload = createPayload(itemPayload, true);
     try {
       await axiosInstance.put(
-        `/api/purchase_orders/${selectedRow?.id}`,
+        `/api/customer_purchase_orders/${selectedRow?.id}`,
         payload,
       );
       setOpen(false);

@@ -42,6 +42,7 @@ export interface Item {
   on_stock?: number;
   in_transit?: number;
   allocated?: number;
+  p_type?: string;
 }
 
 export interface ViewStockHistory {
@@ -170,7 +171,7 @@ export interface PaginatedSuppliers {
   items: Supplier[];
 }
 
-export interface PaginatedCustomers{
+export interface PaginatedCustomers {
   total: number;
   items: Customer[];
 }
@@ -204,7 +205,6 @@ export interface PaginatedCPO {
   total: number;
   items: CPO[];
 }
-
 
 export interface PaginatedSDR {
   total: number;
@@ -467,11 +467,10 @@ export interface CPOItems {
   volume: number;
   price: number;
   total_price: number;
-  on_stock: number;
-  in_transit: number;
   allocated: number;
   unserved_spo: number;
   item: Item;
+  p_type: string;
 
   temp_in_transit: number;
   temp_on_stock: number;

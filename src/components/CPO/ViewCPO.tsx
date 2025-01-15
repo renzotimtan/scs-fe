@@ -78,16 +78,16 @@ const ViewCPO = ({
 
   const handleDeleteCPO = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/purchase_orders/${selectedRow.id}`;
+      const url = `/api/customer_purchase_orders/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Archive successful!");
-        setCPOs((prevPO) => ({
-          ...prevPO,
-          items: prevPO.items.map((PO) =>
-            PO.id === selectedRow.id ? { ...PO, status: "archived" } : PO,
+        setCPOs((prevCPO) => ({
+          ...prevCPO,
+          items: prevCPO.items.map((CPO) =>
+            CPO.id === selectedRow.id ? { ...CPO, status: "archived" } : CPO,
           ),
-          total: prevPO.total,
+          total: prevCPO.total,
         }));
       } catch (error: any) {
         toast.error(`Error message: ${error.response.data.detail}`);

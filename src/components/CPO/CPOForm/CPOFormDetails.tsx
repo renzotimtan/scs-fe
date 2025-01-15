@@ -90,8 +90,6 @@ const CPOFormDetails = ({
                   value={selectedCustomer}
                   onChange={(event, newValue) => {
                     setSelectedCustomer(newValue);
-                    // @ts-expect-error (Item object, unless its using the empty object)
-                    setSelectedItems(INITIAL_SELECTED_ITEMS);
                   }}
                   size="sm"
                   className="w-[100%]"

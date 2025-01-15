@@ -65,17 +65,12 @@ export interface CPOPayload {
   gross_total: number;
   reference_number: string;
   remarks: string;
-  items: Array<{
-    item_id: number;
-    volume: number;
-    unserved_spo: number;
-    price: number;
-    total_price: number;
-  }>;
+  items: CPOItemValues[];
 }
 
 export interface CPOItemValues {
   item_id: number;
+  p_type: string;
   volume: number;
   unserved_spo: number;
   price: number;
