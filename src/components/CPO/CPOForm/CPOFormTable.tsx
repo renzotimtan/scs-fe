@@ -147,7 +147,7 @@ const CPOFormTable = ({
             <th style={{ width: 150 }}>Order Qty</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
-            <th style={{ width: 150 }}>Allocated</th>
+            <th style={{ width: 150 }}>On Stock</th>
             <th
               aria-label="last"
               style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -226,7 +226,7 @@ const CPOFormTable = ({
                     slotProps={{
                       input: {
                         min: 0,
-                        max: selectedItem.total_allocated,
+                        max: selectedItem.total_on_stock,
                       },
                     }}
                     value={selectedItem.volume}
@@ -241,7 +241,7 @@ const CPOFormTable = ({
                   Number(selectedItem?.acquisition_cost) *
                     Number(selectedItem?.volume)}
               </td>
-              <td>{selectedItem.total_allocated}</td>
+              <td>{selectedItem.total_on_stock}</td>
               <td>
                 {selectedItem?.id !== null && (
                   <Button
