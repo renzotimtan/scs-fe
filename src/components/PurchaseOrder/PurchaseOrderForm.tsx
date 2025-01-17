@@ -189,13 +189,6 @@ const PurchaseOrderForm = ({
     const POItems = selectedRow?.items;
     if (POItems === undefined) return;
 
-    // If selected supplier is different from the selected row supplier (i.e. user edited supplier)
-    // make PO blank
-    if (selectedRow?.supplier.supplier_id !== selectedSupplier?.supplier_id) {
-      setSelectedItems(INITIAL_SELECTED_ITEMS);
-      return;
-    }
-
     const selectedItems = POItems.map((item) => {
       const id = item.item_id;
       const foundItem = items.find((i) => i.id === id);
