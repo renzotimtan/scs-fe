@@ -153,10 +153,8 @@ const StockTransferForm = ({
       // Fetch items for the selected warehouse and supplier
       const params: {
         warehouse_id: number;
-        supplier_id?: number;
       } = {
         warehouse_id: selectedWarehouse.id,
-        supplier_id: selectedSupplier?.supplier_id,
       };
       axiosInstance
         .get(`/api/warehouse_items?${convertToQueryParams(params)}`)
@@ -175,7 +173,7 @@ const StockTransferForm = ({
         })
         .catch((error) => console.error("Error:", error));
     }
-  }, [selectedWarehouse, selectedSupplier, rrTransfer]);
+  }, [selectedWarehouse, rrTransfer]);
 
   const handleRRNumChange = (newValue: ReceivingReport) => {
     setSelectedRR(newValue);

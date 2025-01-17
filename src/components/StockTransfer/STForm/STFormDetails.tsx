@@ -81,6 +81,7 @@ const STFormDetails = ({
                     setSelectedSupplier(newValue);
                     // @ts-expect-error (Item object, unless its using the empty object)
                     setSelectedWarehouseItems([{ id: null }]);
+                    setSelectedRR(null);
                   }}
                   size="sm"
                   className="w-[100%]"
@@ -158,7 +159,7 @@ const STFormDetails = ({
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Receiving Report"
-                disabled={rrTransfer === "no"}
+                disabled={rrTransfer === "no" || !selectedSupplier}
               />
             </FormControl>
           </Stack>

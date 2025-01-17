@@ -23,9 +23,11 @@ const STFormTable = ({
 
   const addWarehouseToTransfer = (
     index: number,
-    newValue: Warehouse,
+    newValue: Warehouse | null,
     warehousePosition: number,
   ) => {
+    if (!newValue) return;
+
     const newWarehouseItem = {
       ...selectedWarehouseItems[index],
     };
@@ -201,10 +203,14 @@ const STFormTable = ({
                   {selectedItem?.id !== null && (
                     <Autocomplete
                       options={warehouses.items.filter(
-                        (warehouseItem) => warehouseItem.id,
+                        (warehouse) => warehouse.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItems[index].firstWarehouse}
+                      value={warehouses.items.find(
+                        (warehouse) =>
+                          warehouse.id ===
+                          selectedWarehouseItems[index].firstWarehouse?.id,
+                      )}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 1);
                       }}
@@ -239,10 +245,14 @@ const STFormTable = ({
                   {selectedItem?.id !== null && (
                     <Autocomplete
                       options={warehouses.items.filter(
-                        (warehouseItem) => warehouseItem.id,
+                        (warehouse) => warehouse.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItems[index].secondWarehouse}
+                      value={warehouses.items.find(
+                        (warehouse) =>
+                          warehouse.id ===
+                          selectedWarehouseItems[index].secondWarehouse?.id,
+                      )}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 2);
                       }}
@@ -275,10 +285,14 @@ const STFormTable = ({
                   {selectedItem?.id !== null && (
                     <Autocomplete
                       options={warehouses.items.filter(
-                        (warehouseItem) => warehouseItem.id,
+                        (warehouse) => warehouse.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItems[index].thirdWarehouse}
+                      value={warehouses.items.find(
+                        (warehouse) =>
+                          warehouse.id ===
+                          selectedWarehouseItems[index].thirdWarehouse?.id,
+                      )}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 3);
                       }}
