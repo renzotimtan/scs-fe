@@ -38,7 +38,7 @@ const ItemForm = (): JSX.Element => {
 
     axiosInstance
       .get<PaginatedItems>(
-        `/api/aggregated/?${convertToQueryParams({
+        `/api/items/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -54,7 +54,7 @@ const ItemForm = (): JSX.Element => {
     // Fetch items
     axiosInstance
       .get<PaginatedItems>(
-        `/api/aggregated/?${convertToQueryParams({
+        `/api/items/?${convertToQueryParams({
           page,
           limit: PAGE_LIMIT,
           sort_by: "id",
