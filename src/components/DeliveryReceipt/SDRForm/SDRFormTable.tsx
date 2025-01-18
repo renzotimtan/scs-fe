@@ -278,7 +278,7 @@ const SDRFormTable = ({
                   )}
                   <td>
                     {status === "posted"
-                      ? POItem.volume - servedAmt[key]
+                      ? POItem.unserved_spo
                       : openEdit
                         ? POItem.unserved_spo + POItem.in_transit
                         : POItem.unserved_spo}
