@@ -14,7 +14,10 @@ import {
 } from "@mui/joy";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
-import { formatToDateTime, addCommaToNumberWithFourPlaces } from "../../../helper";
+import {
+  formatToDateTime,
+  addCommaToNumberWithFourPlaces,
+} from "../../../helper";
 import type { POFormProps } from "../interface";
 
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
@@ -189,7 +192,7 @@ const POFormDetails = ({
                 slotProps={{
                   input: {
                     min: 0,
-                    step: ".01",
+                    step: ".0001",
                   },
                 }}
                 disabled={isEditDisabled}
@@ -224,7 +227,9 @@ const POFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>NET Amount</FormLabel>
-              <h5>₱{addCommaToNumberWithFourPlaces(netAmount * Number(pesoRate))}</h5>
+              <h5>
+                ₱{addCommaToNumberWithFourPlaces(netAmount * Number(pesoRate))}
+              </h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>LANDED Total</FormLabel>

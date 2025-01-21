@@ -27,7 +27,6 @@ const ItemForm = (): JSX.Element => {
   const [openWH, setOpenWH] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Item>();
-  const [userId, setUserId] = useState<number | null>(null);
 
   const [page, setPage] = useState(1);
   const changePage = (
@@ -64,25 +63,14 @@ const ItemForm = (): JSX.Element => {
       )
       .then((response) => setItems(response.data))
       .catch((error) => console.error("Error:", error));
-
-    // Fetch user ID
-    axiosInstance
-      .get<User>("/users/me/")
-      .then((response) => setUserId(response.data.id))
-      .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
   const handleSaveItem = async (newItem: Item): Promise<void> => {
     const url = `/api/items/${newItem.id}`;
 
     const payload = {
-      id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
-      supplier_ids:
-        newItem?.suppliers
-          ?.filter((supplier) => !!supplier)
-          .map((supplier) => supplier?.supplier_id) ?? [],
       status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,
@@ -92,7 +80,6 @@ const ItemForm = (): JSX.Element => {
       rate: newItem.rate,
       last_sale_price: newItem.last_sale_price,
       srp: newItem.srp,
-      modified_by: userId,
     };
 
     const response = await axiosInstance.put(url, payload);
@@ -108,13 +95,8 @@ const ItemForm = (): JSX.Element => {
 
   const handleCreateItem = async (newItem: Item): Promise<void> => {
     const payload = {
-      id: newItem.id,
       stock_code: newItem.stock_code,
       name: newItem.name,
-      supplier_ids:
-        newItem?.suppliers
-          ?.filter((supplier) => !!supplier)
-          .map((supplier) => supplier?.supplier_id) ?? [],
       status: newItem.status,
       category: newItem.category,
       brand: newItem.brand,
@@ -124,7 +106,6 @@ const ItemForm = (): JSX.Element => {
       rate: newItem.rate,
       last_sale_price: newItem.last_sale_price,
       srp: newItem.srp,
-      created_by: userId,
     };
     const response = await axiosInstance.post("/api/items/", payload);
 

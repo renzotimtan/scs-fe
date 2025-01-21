@@ -131,16 +131,6 @@ const ItemsModal = ({
     }
   };
 
-  const handleModifySupplier = (
-    suppliersList: (Supplier | null)[],
-    index: number,
-    newSupplier: Supplier | null,
-  ) => {
-    const newList = [...suppliersList];
-    newList[index] = newSupplier;
-    return newList;
-  };
-
   return (
     <>
       <Modal
@@ -247,7 +237,7 @@ const ItemsModal = ({
                         slotProps={{
                           input: {
                             min: 0,
-                            step: ".01",
+                            step: ".0001",
                           },
                         }}
                         value={item?.acquisition_cost}
@@ -265,7 +255,7 @@ const ItemsModal = ({
                         slotProps={{
                           input: {
                             min: 0,
-                            step: ".01",
+                            step: ".0001",
                           },
                         }}
                         value={item?.net_cost_before_tax}
@@ -282,7 +272,7 @@ const ItemsModal = ({
                         slotProps={{
                           input: {
                             min: 0,
-                            step: ".01",
+                            step: ".0001",
                           },
                         }}
                         value={item?.srp}
@@ -300,7 +290,7 @@ const ItemsModal = ({
                         slotProps={{
                           input: {
                             min: 0,
-                            step: ".01",
+                            step: ".0001",
                           },
                         }}
                         value={item?.last_sale_price}
@@ -336,7 +326,7 @@ const ItemsModal = ({
                         slotProps={{
                           input: {
                             min: 0,
-                            step: ".01",
+                            step: ".0001",
                           },
                         }}
                         value={item?.rate}
@@ -391,44 +381,6 @@ const ItemsModal = ({
                         value={item?.total_purchased}
                         disabled
                       />
-                    </FormControl>
-                  </Stack>
-                  <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                    <FormControl size="sm" sx={{ mb: 1, width: "98%" }}>
-                      <FormLabel>Suppliers</FormLabel>
-                      <div className="grid grid-cols-3 gap-y-1 gap-x-4">
-                        {item?.suppliers?.map((supplier, index) => (
-                          <Autocomplete
-                            className="mb-3"
-                            placeholder="Select a supplier"
-                            options={suppliers.items}
-                            getOptionLabel={(option) => option.name}
-                            value={supplier}
-                            onChange={(event, newSupplier) => {
-                              if (
-                                newSupplier !== null &&
-                                item.suppliers
-                                  ?.map((supplier) => supplier?.supplier_id)
-                                  .includes(newSupplier?.supplier_id)
-                              ) {
-                                toast.error("Supplier has already been added");
-                                return;
-                              }
-
-                              setItem({
-                                ...item,
-                                suppliers: handleModifySupplier(
-                                  item?.suppliers ?? [],
-                                  index,
-                                  newSupplier,
-                                ),
-                              });
-                            }}
-                            sx={{ width: "100%" }}
-                            required={index === 0}
-                          />
-                        ))}
-                      </div>
                     </FormControl>
                   </Stack>
                 </div>
