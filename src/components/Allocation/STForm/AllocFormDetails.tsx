@@ -98,7 +98,7 @@ const STFormDetails = ({
       </Card>
       <Card className="w-[40%]">
         <div>
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2.5 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1.7 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">

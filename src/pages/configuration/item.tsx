@@ -25,7 +25,6 @@ const ItemForm = (): JSX.Element => {
   });
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openWH, setOpenWH] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Item>();
 
@@ -185,7 +184,7 @@ const ItemForm = (): JSX.Element => {
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "240px",
+            "--Table-lastColumnWidth": "150px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -305,18 +304,6 @@ const ItemForm = (): JSX.Element => {
                       <Button
                         size="sm"
                         variant="plain"
-                        color="primary"
-                        className="bg-primary"
-                        onClick={() => {
-                          setOpenWH(true);
-                          setSelectedRow(item);
-                        }}
-                      >
-                        Locations
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="plain"
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
@@ -372,12 +359,6 @@ const ItemForm = (): JSX.Element => {
         setOpen={setOpenDelete}
         title="Delete Stock"
         onDelete={handleDeleteItem}
-      />
-      <ViewWHModal
-        open={openWH}
-        setOpen={setOpenWH}
-        row={selectedRow}
-        type="item"
       />
     </>
   );

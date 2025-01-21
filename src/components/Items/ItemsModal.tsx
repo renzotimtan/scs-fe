@@ -17,6 +17,7 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { AVAILABLE_CURRENCIES } from "../../constants";
 import { toast } from "react-toastify";
+import ViewWHModal from "../../components/Items/ViewWHModal";
 import type {
   Item,
   PaginatedSuppliers,
@@ -37,7 +38,7 @@ const ItemsModal = ({
     items: [],
   });
   const [openStockHistory, setOpenStockHistory] = useState(false);
-
+  const [openWH, setOpenWH] = useState(false);
   const generateItem = (): Item => {
     const suppliersList: Supplier[] = new Array(6).fill(null);
     const supplierIds =
@@ -386,6 +387,16 @@ const ItemsModal = ({
                 </div>
               </Card>
               <div className="flex justify-end mt-5">
+                <Button
+                  size="sm"
+                  variant="soft"
+                  className="ml-4 w-[100px] bg-button-soft-primary"
+                  onClick={() => {
+                    setOpenWH(true);
+                  }}
+                >
+                  Locations
+                </Button>
                 {title === "Edit Stock" && (
                   <Button
                     onClick={() => setOpenStockHistory(true)}
@@ -414,6 +425,7 @@ const ItemsModal = ({
         setOpen={setOpenStockHistory}
         row={row}
       />
+      <ViewWHModal open={openWH} setOpen={setOpenWH} row={row} type="item" />
     </>
   );
 };
