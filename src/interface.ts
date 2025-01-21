@@ -429,6 +429,14 @@ export interface STFormProps {
   title: string;
 }
 
+export interface AllocFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: Alloc;
+  title: string;
+}
+
 export interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;

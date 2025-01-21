@@ -10,14 +10,13 @@ import {
   Box,
   Autocomplete,
 } from "@mui/joy";
-import type { STFormDetailsProps } from "../interface";
+import type { AllocFormDetailsProps } from "../interface";
 import { formatToDateTime } from "../../../helper";
 import { ReceivingReport } from "../../../interface";
 
 const STFormDetails = ({
   openEdit,
   selectedRow,
-
   // Fields
   status,
   setStatus,
@@ -25,37 +24,12 @@ const STFormDetails = ({
   setTransactionDate,
   remarks,
   setRemarks,
-  rrTransfer,
-  setRRTransfer,
-  warehouses,
-  selectedWarehouse,
-  setSelectedWarehouse,
-  receivingReports,
-  selectedRR,
-  setSelectedRR,
-  suppliers,
-  selectedSupplier,
-  setSelectedSupplier,
-  setSelectedWarehouseItems,
-  warehouseItems,
-  fetchMultipleItems,
-  handleRRNumChange,
-}: STFormDetailsProps): JSX.Element => {
+  customers,
+  selectedCustomer,
+  setSelectedCustomer,
+}: AllocFormDetailsProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
-
-  const handleRRTransferChange = (value: string | null) => {
-    if (value !== null) {
-      if (value === "no") {
-        setSelectedRR(null);
-        setSelectedSupplier(null);
-      } else {
-        // @ts-expect-error (Item object, unless its using the empty object)
-        setSelectedWarehouseItems([{ id: null }]);
-      }
-      setRRTransfer(value);
-    }
-  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -71,45 +45,23 @@ const STFormDetails = ({
 
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>Supplier</FormLabel>
+              <FormLabel>Customer</FormLabel>
               <div className="flex">
                 <Autocomplete
-                  options={suppliers.items}
+                  options={customers.items}
                   getOptionLabel={(option) => option.name}
-                  value={selectedSupplier}
+                  value={selectedCustomer}
                   onChange={(event, newValue) => {
-                    setSelectedSupplier(newValue);
-                    // @ts-expect-error (Item object, unless its using the empty object)
-                    setSelectedWarehouseItems([{ id: null }]);
-                    setSelectedRR(null);
+                    setSelectedCustomer(newValue);
                   }}
                   size="sm"
                   className="w-[100%]"
-                  placeholder="Select Supplier"
-                  disabled={isEditDisabled || rrTransfer === "no"}
+                  placeholder="Select Customer"
+                  disabled={isEditDisabled}
                   required
                 />
               </div>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>From Warehouse</FormLabel>
-              <Autocomplete
-                options={warehouses.items}
-                getOptionLabel={(option) => option.name}
-                value={selectedWarehouse}
-                onChange={(event, newValue) => {
-                  setSelectedWarehouse(newValue);
-                  // @ts-expect-error (Item object, unless its using the empty object)
-                  setSelectedWarehouseItems([{ id: null }]);
-                }}
-                size="sm"
-                className="w-[100%]"
-                placeholder="Select Warehouse"
-                required
-              />
-            </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Status</FormLabel>
               <Select
@@ -123,6 +75,8 @@ const STFormDetails = ({
                 <Option value="unposted">Unposted</Option>
               </Select>
             </FormControl>
+          </Stack>
+          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Transaction Date</FormLabel>
               <Input
@@ -132,34 +86,13 @@ const STFormDetails = ({
                 required
               />
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>RR Transfer</FormLabel>
-              <Select
-                onChange={(_, value) => handleRRTransferChange(value)}
-                size="sm"
-                value={rrTransfer}
-              >
-                <Option value="yes">Yes</Option>
-                <Option value="no">No</Option>
-              </Select>
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>RR Ref No.</FormLabel>
-              <Autocomplete
-                options={receivingReports.items}
-                getOptionLabel={(option) => option.reference_number}
-                value={selectedRR}
-                onChange={(_, newValue) => {
-                  if (newValue !== null) {
-                    handleRRNumChange(newValue);
-                  }
-                }}
-                size="sm"
-                className="w-[100%]"
-                placeholder="Select Receiving Report"
-                disabled={rrTransfer === "no" || !selectedSupplier}
+              <FormLabel>Remarks</FormLabel>
+              <Textarea
+                minRows={1}
+                placeholder="Remarks"
+                onChange={(e) => setRemarks(e.target.value)}
+                value={remarks}
               />
             </FormControl>
           </Stack>
@@ -195,15 +128,6 @@ const STFormDetails = ({
               </p>
             </FormControl>
           </Stack>
-          <FormControl size="sm" sx={{ mb: 3 }}>
-            <FormLabel>Remarks</FormLabel>
-            <Textarea
-              minRows={1}
-              placeholder="Remarks"
-              onChange={(e) => setRemarks(e.target.value)}
-              value={remarks}
-            />
-          </FormControl>
         </div>
       </Card>
     </Box>

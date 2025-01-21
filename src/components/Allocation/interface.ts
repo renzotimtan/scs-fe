@@ -5,12 +5,13 @@ import type {
   Warehouse,
   WarehouseItem,
   StockTransfer,
-  Supplier,
-  PaginatedSuppliers,
+  Customer,
+  PaginatedCustomers,
+  Alloc,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
-export interface STFormDetailsProps {
+export interface AllocFormDetailsProps {
   openEdit: boolean;
   selectedRow: any;
   status: string;
@@ -19,33 +20,16 @@ export interface STFormDetailsProps {
   setTransactionDate: (transactionDate: string) => void;
   remarks: string;
   setRemarks: (remarks: string) => void;
-  rrTransfer: string;
-  setRRTransfer: (rrTransfer: string) => void;
   warehouses: PaginatedWarehouse;
-  selectedWarehouse: Warehouse | null;
-  setSelectedWarehouse: (warehouse: Warehouse | null) => void;
-  receivingReports: PaginatedRR;
-  selectedRR: ReceivingReport | null;
-  setSelectedRR: (receivingReport: ReceivingReport | null) => void;
-  suppliers: PaginatedSuppliers;
-  selectedSupplier: Supplier | null;
-  setSelectedSupplier: Dispatch<SetStateAction<Supplier | null>>;
-  setSelectedWarehouseItems: Dispatch<SetStateAction<WarehouseItem[]>>;
-  warehouseItems: WarehouseItem[];
-  fetchMultipleItems: (POItems: any) => void;
-  handleRRNumChange: (RR: ReceivingReport) => void;
+  customers: PaginatedCustomers;
+  selectedCustomer: Customer | null;
+  setSelectedCustomer: Dispatch<SetStateAction<Customer | null>>;
 }
 
-export interface STFormTableProps {
-  selectedWarehouse: Warehouse | null;
-  selectedRow: StockTransfer | undefined;
+export interface AllocFormTableProps {
+  selectedRow: Alloc | undefined;
   warehouses: PaginatedWarehouse;
-  selectedWarehouseItems: any;
-  setSelectedWarehouseItems: (warehouseItems: any) => void;
-  warehouseItems: WarehouseItem[];
-  setWarehouseItems: (warehouseItems: WarehouseItem[]) => void;
-  fetchSelectedItem: (value: number, index: number) => void;
-  selectedSupplier: Supplier | null;
+  selectedCustomer: Customer | null;
 }
 
 interface Destinations {
@@ -53,7 +37,7 @@ interface Destinations {
   quantity: number;
 }
 
-export interface STFormPayload {
+export interface AllocFormPayload {
   warehouse_id: number;
   item_id: number;
   product_name: string;

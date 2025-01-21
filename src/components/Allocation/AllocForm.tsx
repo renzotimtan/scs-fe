@@ -9,56 +9,37 @@ import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
 import type {
   PaginatedWarehouse,
-  Warehouse,
-  PaginatedRR,
-  ReceivingReport,
-  STFormProps,
   WarehouseItem,
   Item,
-  Supplier,
-  PaginatedSuppliers,
+  Customer,
+  PaginatedCustomers,
+  AllocFormProps,
 } from "../../interface";
 import { convertToQueryParams } from "../../helper";
-import { STFormPayload } from "./interface";
+import { AllocFormPayload } from "./interface";
 
-const StockTransferForm = ({
+const AllocForm = ({
   setOpen,
   openCreate,
   openEdit,
   selectedRow,
   title,
-}: STFormProps): JSX.Element => {
+}: AllocFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [remarks, setRemarks] = useState("");
-  const [receivingReports, setReceivingReports] = useState<PaginatedRR>({
-    total: 0,
-    items: [],
-  });
-  const [selectedRR, setSelectedRR] = useState<ReceivingReport | null>(null);
-  const [rrTransfer, setRRTransfer] = useState("no");
   const [userId, setUserId] = useState<number | null>(null);
   const [warehouses, setWarehouses] = useState<PaginatedWarehouse>({
     total: 0,
     items: [],
   });
-  const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(
-    null,
-  );
 
-  //  Initialize state of selectedWarehouseItem outside of component to avoid creating new object on each render
-  const INITIAL_SELECTED_ITEMS = [{ id: null }];
-
-  const [selectedWarehouseItems, setSelectedWarehouseItems] = useState<any>(
-    INITIAL_SELECTED_ITEMS,
-  );
-  const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
-  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+  const [customers, setCustomers] = useState<PaginatedCustomers>({
     total: 0,
     items: [],
   });
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
 
@@ -68,28 +49,13 @@ const StockTransferForm = ({
       .get<PaginatedWarehouse>("/api/warehouses/")
       .then((response) => {
         setWarehouses(response.data);
-
-        const receivingArea = response.data.items.find(
-          (warehouse) => warehouse.name === "Receiving Area",
-        );
-        if (receivingArea) {
-          setSelectedWarehouse(receivingArea);
-        }
       })
       .catch((error) => console.error("Error:", error));
 
-    // Fetch suppliers
+    // Fetch customers
     axiosInstance
-      .get<PaginatedSuppliers>("/api/suppliers/")
-      .then((response) => setSuppliers(response.data))
-      .catch((error) => console.error("Error:", error));
-
-    // Fetch RR
-    axiosInstance
-      .get<PaginatedRR>("/api/receiving-reports/?status=posted")
-      .then((response) => {
-        setReceivingReports(response.data);
-      })
+      .get<PaginatedCustomers>("/api/customers/")
+      .then((response) => setCustomers(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch user ID
@@ -99,323 +65,73 @@ const StockTransferForm = ({
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
-  const filteredReceivingReports = useMemo(() => {
-    if (selectedSupplier != null) {
-      const filteredItems = receivingReports.items.filter(
-        (rr) => rr.supplier_id === selectedSupplier.supplier_id,
-      );
-      return {
-        total: filteredItems.length,
-        items: filteredItems,
-      };
-    }
-    return receivingReports;
-  }, [selectedSupplier, receivingReports]);
-
   useEffect(() => {
     // Fill in fields for Edit
     if (selectedRow) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
-      setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
-
-      axiosInstance
-        .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
-        .then((response) => {
-          setSelectedSupplier(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
-
-      axiosInstance
-        .get<Warehouse>(`/api/warehouses/${selectedRow.from_warehouse_id}`)
-        .then((response) => {
-          setSelectedWarehouse(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
     }
   }, [selectedRow]);
 
-  useEffect(() => {
-    if (selectedRow && selectedRow.rr_transfer && warehouseItems.length > 0) {
-      axiosInstance
-        .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
-        .then((response) => {
-          const selectedReceivingReport = response.data;
-          handleRRNumChange(selectedReceivingReport);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedRow, warehouseItems]);
+  const handleCreateAlloc = async () => {
+    const payload = {
+      status,
+      transaction_date: transactionDate,
+      remarks,
+      customer_id: selectedCustomer?.customer_id ?? null,
+    };
 
-  useEffect(() => {
-    if (selectedWarehouse) {
-      // Fetch items for the selected warehouse and supplier
-      const params: {
-        warehouse_id: number;
-      } = {
-        warehouse_id: selectedWarehouse.id,
-      };
-      axiosInstance
-        .get(`/api/warehouse_items?${convertToQueryParams(params)}`)
-        .then((response) => {
-          const tempWarehouseItems = response.data.items;
-          setWarehouseItems(tempWarehouseItems);
-
-          if (rrTransfer === "no") {
-            fetchMultipleItems(
-              tempWarehouseItems.map(
-                (warehouseItem: WarehouseItem) => warehouseItem.item_id,
-              ),
-              tempWarehouseItems,
-            );
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedWarehouse, rrTransfer]);
-
-  const handleRRNumChange = (newValue: ReceivingReport) => {
-    setSelectedRR(newValue);
-
-    const addedPOItems: any = [];
-
-    newValue?.sdrs.forEach((SDR) => {
-      SDR.purchase_orders.forEach((PO) => {
-        PO.items.forEach((POItem) => {
-          if (!addedPOItems.includes(POItem.item_id)) {
-            addedPOItems.push(POItem.item_id);
-          }
-        });
-      });
-    });
-
-    fetchMultipleItems(addedPOItems);
-  };
-
-  const fetchSelectedItem = (value: number, index: number): void => {
-    if (value !== undefined) {
-      const foundWarehouseItem = warehouseItems.find(
-        (warehouseItem) => warehouseItem.item_id === value,
+    try {
+      await axiosInstance.post("/api/stock-transfers/", payload);
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      console.log(error);
+      toast.error(
+        `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
       );
+    }
+  };
 
-      if (foundWarehouseItem === undefined) return;
-
-      for (const warehouseItem of selectedWarehouseItems) {
-        if (warehouseItem?.item_id === foundWarehouseItem.item_id) {
-          toast.error("Item has already been added");
-          return;
-        }
-      }
-
-      const warehouseItem: WarehouseItem = {
-        ...foundWarehouseItem,
-        firstWarehouse: null,
-        firstWarehouseAmt: null,
-        secondWarehouse: null,
-        secondWarehouseAmt: null,
-        thirdWarehouse: null,
-        thirdWarehouseAmt: null,
-      };
-
-      // We need to add the new item before the null item
-      const newSelectedWarehouseItem = selectedWarehouseItems.filter(
-        (selectedItem: Item) => selectedItem.id !== null,
+  const fetchCPOwithUnserved = async () => {
+    try {
+      await axiosInstance.post("/api/stock-transfers/", payload);
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      console.log(error);
+      toast.error(
+        `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
       );
-      newSelectedWarehouseItem[index] = warehouseItem;
-      newSelectedWarehouseItem.push({ id: null });
-
-      setSelectedWarehouseItems(newSelectedWarehouseItem);
     }
   };
 
-  const fetchMultipleItems = async (
-    POItems: any,
-    items: WarehouseItem[] = warehouseItems,
-  ) => {
-    if (POItems.length > 0) {
-      const foundWarehouseItems = await Promise.all(
-        items
-          .filter((warehouseItem) => {
-            return (
-              POItems.includes(warehouseItem.item_id) &&
-              warehouseItem.on_stock !== 0
-            );
-          })
-          .map(async (warehouseItem) => {
-            if (selectedRow !== null && selectedRow !== undefined) {
-              const foundDetails = selectedRow.stock_transfer_details.find(
-                (std) => std.stock_code === warehouseItem.item.stock_code,
-              );
-              const result: WarehouseItem = {
-                ...warehouseItem,
-                firstWarehouse: null,
-                firstWarehouseAmt: null,
-                secondWarehouse: null,
-                secondWarehouseAmt: null,
-                thirdWarehouse: null,
-                thirdWarehouseAmt: null,
-              };
+  const handleEditAlloc = async () => {
+    const payload = {
+      status,
+      transaction_date: transactionDate,
+      remarks,
+    };
 
-              if (foundDetails) {
-                if (foundDetails.destinations.length >= 1) {
-                  result.firstWarehouse = warehouses.items.find(
-                    (warehouse) =>
-                      warehouse.id ===
-                      foundDetails.destinations[0].to_warehouse_id,
-                  );
-                  result.firstWarehouseAmt =
-                    foundDetails.destinations[0].quantity;
-                }
-
-                if (foundDetails.destinations.length >= 2) {
-                  result.secondWarehouse = warehouses.items.find(
-                    (warehouse) =>
-                      warehouse.id ===
-                      foundDetails.destinations[1].to_warehouse_id,
-                  );
-
-                  result.secondWarehouseAmt =
-                    foundDetails.destinations[1].quantity;
-                }
-
-                if (foundDetails.destinations.length >= 3) {
-                  result.thirdWarehouse = warehouses.items.find(
-                    (warehouse) =>
-                      warehouse.id ===
-                      foundDetails.destinations[2].to_warehouse_id,
-                  );
-
-                  result.thirdWarehouseAmt =
-                    foundDetails.destinations[2].quantity;
-                }
-              }
-
-              return result;
-            } else {
-              return {
-                ...warehouseItem,
-                firstWarehouse: null,
-                firstWarehouseAmt: null,
-                secondWarehouse: null,
-                secondWarehouseAmt: null,
-                thirdWarehouse: null,
-                thirdWarehouseAmt: null,
-              };
-            }
-          }),
+    try {
+      await axiosInstance.put(
+        `api/stock-transfers/${selectedRow?.id}`,
+        payload,
       );
-
-      if (foundWarehouseItems.length === 0) return;
-
-      // We need to add the new item before the null item
-      const newSelectedWarehouseItem = [];
-
-      foundWarehouseItems.forEach((warehouseItem, index) => {
-        newSelectedWarehouseItem[index] = warehouseItem;
-      });
-
-      newSelectedWarehouseItem.push({ id: null });
-      setSelectedWarehouseItems(newSelectedWarehouseItem);
-    }
-  };
-
-  const createStockTransferDetails = () => {
-    const results = [];
-
-    for (const warehouseItem of selectedWarehouseItems) {
-      if (warehouseItem?.id !== null && selectedWarehouse !== null) {
-        const result: STFormPayload = {
-          warehouse_id: selectedWarehouse.id,
-          item_id: warehouseItem.item_id,
-          product_name: warehouseItem.item.name,
-          stock_code: warehouseItem.item.stock_code,
-          destinations: [],
-        };
-
-        if (warehouseItem.firstWarehouse !== null) {
-          result.destinations.push({
-            to_warehouse_id: warehouseItem.firstWarehouse.id,
-            quantity: warehouseItem.firstWarehouseAmt || 0,
-          });
-        }
-
-        if (warehouseItem.secondWarehouse !== null) {
-          result.destinations.push({
-            to_warehouse_id: warehouseItem.secondWarehouse.id,
-            quantity: warehouseItem.secondWarehouseAmt || 0,
-          });
-        }
-
-        if (warehouseItem.thirdWarehouse !== null) {
-          result.destinations.push({
-            to_warehouse_id: warehouseItem.thirdWarehouse.id,
-            quantity: warehouseItem.thirdWarehouseAmt || 0,
-          });
-        }
-
-        results.push(result);
-      }
-    }
-    return results;
-  };
-
-  const handleCreateStockTransfer = async () => {
-    if (selectedWarehouse !== null) {
-      const payload = {
-        status,
-        transaction_date: transactionDate,
-        rr_transfer: rrTransfer,
-        rr_id: selectedRR?.id ?? null,
-        remarks,
-        supplier_id: selectedSupplier?.supplier_id ?? null,
-        from_warehouse_id: selectedWarehouse.id,
-        stock_transfer_details: createStockTransferDetails(),
-      };
-
-      try {
-        await axiosInstance.post("/api/stock-transfers/", payload);
-        toast.success("Save successful!");
-        resetForm();
-        setOpen(false);
-        // Handle the response, update state, etc.
-      } catch (error: any) {
-        console.log(error);
-        toast.error(
-          `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
-        );
-      }
-    }
-  };
-
-  const handleEditStockTransfer = async () => {
-    if (selectedWarehouse !== null) {
-      const payload = {
-        status,
-        transaction_date: transactionDate,
-        rr_transfer: rrTransfer,
-        rr_id: selectedRR?.id ?? null,
-        remarks,
-        supplier_id: selectedRR?.supplier_id ?? null,
-        from_warehouse_id: selectedWarehouse.id,
-        stock_transfer_details: createStockTransferDetails(),
-      };
-
-      try {
-        await axiosInstance.put(
-          `api/stock-transfers/${selectedRow?.id}`,
-          payload,
-        );
-        toast.success("Save successful!");
-        resetForm();
-        setOpen(false);
-        // Handle the response, update state, etc.
-      } catch (error: any) {
-        console.log(error);
-        toast.error(
-          `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
-        );
-      }
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      console.log(error);
+      toast.error(
+        `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+      );
     }
   };
 
@@ -429,8 +145,8 @@ const StockTransferForm = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (openCreate) await handleCreateStockTransfer();
-        if (openEdit) await handleEditStockTransfer();
+        if (openCreate) await handleCreateAlloc();
+        if (openEdit) await handleEditAlloc();
       }}
     >
       <div className="flex justify-between">
@@ -445,32 +161,15 @@ const StockTransferForm = ({
         setTransactionDate={setTransactionDate}
         remarks={remarks}
         setRemarks={setRemarks}
-        rrTransfer={rrTransfer}
-        setRRTransfer={setRRTransfer}
         warehouses={warehouses}
-        selectedWarehouse={selectedWarehouse}
-        setSelectedWarehouse={setSelectedWarehouse}
-        receivingReports={filteredReceivingReports}
-        selectedRR={selectedRR}
-        setSelectedRR={setSelectedRR}
-        suppliers={suppliers}
-        selectedSupplier={selectedSupplier}
-        setSelectedSupplier={setSelectedSupplier}
-        setSelectedWarehouseItems={setSelectedWarehouseItems}
-        fetchMultipleItems={fetchMultipleItems}
-        warehouseItems={warehouseItems}
-        handleRRNumChange={handleRRNumChange}
+        customers={customers}
+        selectedCustomer={selectedCustomer}
+        setSelectedCustomer={setSelectedCustomer}
       />
       <STFormTable
-        selectedWarehouse={selectedWarehouse}
         selectedRow={selectedRow}
         warehouses={warehouses}
-        selectedWarehouseItems={selectedWarehouseItems}
-        setSelectedWarehouseItems={setSelectedWarehouseItems}
-        fetchSelectedItem={fetchSelectedItem}
-        warehouseItems={warehouseItems}
-        setWarehouseItems={setWarehouseItems}
-        selectedSupplier={selectedSupplier}
+        selectedCustomer={selectedCustomer}
       />
       <Divider />
       <div className="flex justify-end mt-4">
@@ -498,4 +197,4 @@ const StockTransferForm = ({
   );
 };
 
-export default StockTransferForm;
+export default AllocForm;
