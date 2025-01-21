@@ -237,7 +237,10 @@ const StockTransferForm = ({
       const foundWarehouseItems = await Promise.all(
         items
           .filter((warehouseItem) => {
-            return POItems.includes(warehouseItem.item_id);
+            return (
+              POItems.includes(warehouseItem.item_id) &&
+              warehouseItem.on_stock !== 0
+            );
           })
           .map(async (warehouseItem) => {
             if (selectedRow !== null && selectedRow !== undefined) {
