@@ -12,6 +12,7 @@ import {
 } from "@mui/joy";
 import type { STFormDetailsProps } from "../interface";
 import { formatToDateTime } from "../../../helper";
+import { ReceivingReport } from "../../../interface";
 
 const STFormDetails = ({
   openEdit,
@@ -32,7 +33,30 @@ const STFormDetails = ({
   receivingReports,
   selectedRR,
   setSelectedRR,
+  suppliers,
+  selectedSupplier,
+  setSelectedSupplier,
+  setSelectedWarehouseItems,
+  warehouseItems,
+  fetchMultipleItems,
+  handleRRNumChange,
 }: STFormDetailsProps): JSX.Element => {
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
+
+  const handleRRTransferChange = (value: string | null) => {
+    if (value !== null) {
+      if (value === "no") {
+        setSelectedRR(null);
+        setSelectedSupplier(null);
+      } else {
+        // @ts-expect-error (Item object, unless its using the empty object)
+        setSelectedWarehouseItems([{ id: null }]);
+      }
+      setRRTransfer(value);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <Card className="w-[60%] mr-7">
@@ -44,6 +68,47 @@ const STFormDetails = ({
               </div>
             )}
           </div>
+
+          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+              <FormLabel>Supplier</FormLabel>
+              <div className="flex">
+                <Autocomplete
+                  options={suppliers.items}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedSupplier}
+                  onChange={(event, newValue) => {
+                    setSelectedSupplier(newValue);
+                    // @ts-expect-error (Item object, unless its using the empty object)
+                    setSelectedWarehouseItems([{ id: null }]);
+                    setSelectedRR(null);
+                  }}
+                  size="sm"
+                  className="w-[100%]"
+                  placeholder="Select Supplier"
+                  disabled={isEditDisabled || rrTransfer === "no"}
+                  required
+                />
+              </div>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+              <FormLabel>From Warehouse</FormLabel>
+              <Autocomplete
+                options={warehouses.items}
+                getOptionLabel={(option) => option.name}
+                value={selectedWarehouse}
+                onChange={(event, newValue) => {
+                  setSelectedWarehouse(newValue);
+                  // @ts-expect-error (Item object, unless its using the empty object)
+                  setSelectedWarehouseItems([{ id: null }]);
+                }}
+                size="sm"
+                className="w-[100%]"
+                placeholder="Select Warehouse"
+                required
+              />
+            </FormControl>
+          </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>Status</FormLabel>
@@ -72,9 +137,7 @@ const STFormDetails = ({
             <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
               <FormLabel>RR Transfer</FormLabel>
               <Select
-                onChange={(event, value) => {
-                  if (value !== null) setRRTransfer(value);
-                }}
+                onChange={(_, value) => handleRRTransferChange(value)}
                 size="sm"
                 value={rrTransfer}
               >
@@ -89,33 +152,15 @@ const STFormDetails = ({
                 getOptionLabel={(option) => option.reference_number}
                 value={selectedRR}
                 onChange={(_, newValue) => {
-                  setSelectedRR(newValue);
+                  if (newValue !== null) {
+                    handleRRNumChange(newValue);
+                  }
                 }}
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Receiving Report"
+                disabled={rrTransfer === "no" || !selectedSupplier}
               />
-            </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>From Warehouse</FormLabel>
-              <Autocomplete
-                options={warehouses.items}
-                getOptionLabel={(option) => option.name}
-                value={selectedWarehouse}
-                onChange={(event, newValue) => {
-                  setSelectedWarehouse(newValue);
-                }}
-                size="sm"
-                className="w-[100%]"
-                placeholder="Select Warehouse"
-                required
-              />
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>Supplier</FormLabel>
-              <Input value={selectedRR?.supplier_id} disabled />
             </FormControl>
           </Stack>
         </div>
@@ -153,11 +198,10 @@ const STFormDetails = ({
           <FormControl size="sm" sx={{ mb: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
-              minRows={3}
+              minRows={1}
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
-              required
             />
           </FormControl>
         </div>

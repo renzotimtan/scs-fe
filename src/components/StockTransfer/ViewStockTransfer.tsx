@@ -142,7 +142,7 @@ const ViewStockTransfer = ({
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "150px",
+            "--Table-lastColumnWidth": "160px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -199,11 +199,10 @@ const ViewStockTransfer = ({
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   STR No.
                 </th>
-                <th style={{ width: 300 }}>Status</th>
+                <th style={{ width: 150 }}>Status</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
                 <th style={{ width: 150 }}>RR Transfer</th>
                 <th style={{ width: 150 }}>RR No.</th>
-                <th style={{ width: 150 }}>Supplier No.</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -229,7 +228,6 @@ const ViewStockTransfer = ({
                   <td>{stockTransfer.transaction_date}</td>
                   <td>{stockTransfer.rr_transfer ? "Yes" : "No"}</td>
                   <td>{stockTransfer?.rr_id ?? "N/A" }</td>
-                  <td>{stockTransfer?.supplier_id ?? "N/A" }</td>
                   <td>{stockTransfer.remarks}</td>
                   <td>{stockTransfer?.creator?.username}</td>
                   <td>{stockTransfer?.modifier?.username}</td>

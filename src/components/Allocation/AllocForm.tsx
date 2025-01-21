@@ -3,7 +3,7 @@ import STFormTable from "./STForm/AllocFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
@@ -15,8 +15,10 @@ import type {
   STFormProps,
   WarehouseItem,
   Item,
+  Supplier,
+  PaginatedSuppliers,
 } from "../../interface";
-
+import { convertToQueryParams } from "../../helper";
 import { STFormPayload } from "./interface";
 
 const StockTransferForm = ({
@@ -52,6 +54,13 @@ const StockTransferForm = ({
     INITIAL_SELECTED_ITEMS,
   );
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
+  const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
+    total: 0,
+    items: [],
+  });
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
 
   useEffect(() => {
     // Fetch warehouses
@@ -59,13 +68,25 @@ const StockTransferForm = ({
       .get<PaginatedWarehouse>("/api/warehouses/")
       .then((response) => {
         setWarehouses(response.data);
-        setSelectedWarehouse(response.data.items[0]);
+
+        const receivingArea = response.data.items.find(
+          (warehouse) => warehouse.name === "Receiving Area",
+        );
+        if (receivingArea) {
+          setSelectedWarehouse(receivingArea);
+        }
       })
+      .catch((error) => console.error("Error:", error));
+
+    // Fetch suppliers
+    axiosInstance
+      .get<PaginatedSuppliers>("/api/suppliers/")
+      .then((response) => setSuppliers(response.data))
       .catch((error) => console.error("Error:", error));
 
     // Fetch RR
     axiosInstance
-      .get<PaginatedRR>("/api/receiving-reports/")
+      .get<PaginatedRR>("/api/receiving-reports/?status=posted")
       .then((response) => {
         setReceivingReports(response.data);
       })
@@ -78,35 +99,88 @@ const StockTransferForm = ({
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
+  const filteredReceivingReports = useMemo(() => {
+    if (selectedSupplier != null) {
+      const filteredItems = receivingReports.items.filter(
+        (rr) => rr.supplier_id === selectedSupplier.supplier_id,
+      );
+      return {
+        total: filteredItems.length,
+        items: filteredItems,
+      };
+    }
+    return receivingReports;
+  }, [selectedSupplier, receivingReports]);
+
   useEffect(() => {
-    if (selectedRow !== null && selectedRow !== undefined) {
+    // Fill in fields for Edit
+    if (selectedRow) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
       setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
 
-      const selectedReceivingReport = receivingReports.items.find(
-        (rr: ReceivingReport) => rr.id == selectedRow.rr_id,
-      );
+      axiosInstance
+        .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
+        .then((response) => {
+          setSelectedSupplier(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
 
-      if (selectedReceivingReport !== undefined) {
-        setSelectedRR(selectedReceivingReport);
-      }
-
-      const selectedWarehouse = warehouses.items.find(
-        (warehouse: Warehouse) => warehouse.id == selectedRow.from_warehouse_id,
-      );
-
-      if (selectedWarehouse !== undefined) {
-        setSelectedWarehouse(selectedWarehouse);
-      }
+      axiosInstance
+        .get<Warehouse>(`/api/warehouses/${selectedRow.from_warehouse_id}`)
+        .then((response) => {
+          setSelectedWarehouse(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
     }
-  }, [selectedRow, warehouses, receivingReports]);
+  }, [selectedRow]);
 
   useEffect(() => {
+    if (selectedRow && selectedRow.rr_transfer && warehouseItems.length > 0) {
+      axiosInstance
+        .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
+        .then((response) => {
+          const selectedReceivingReport = response.data;
+          handleRRNumChange(selectedReceivingReport);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedRow, warehouseItems]);
+
+  useEffect(() => {
+    if (selectedWarehouse) {
+      // Fetch items for the selected warehouse and supplier
+      const params: {
+        warehouse_id: number;
+      } = {
+        warehouse_id: selectedWarehouse.id,
+      };
+      axiosInstance
+        .get(`/api/warehouse_items?${convertToQueryParams(params)}`)
+        .then((response) => {
+          const tempWarehouseItems = response.data.items;
+          setWarehouseItems(tempWarehouseItems);
+
+          if (rrTransfer === "no") {
+            fetchMultipleItems(
+              tempWarehouseItems.map(
+                (warehouseItem: WarehouseItem) => warehouseItem.item_id,
+              ),
+              tempWarehouseItems,
+            );
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [selectedWarehouse, rrTransfer]);
+
+  const handleRRNumChange = (newValue: ReceivingReport) => {
+    setSelectedRR(newValue);
+
     const addedPOItems: any = [];
 
-    selectedRR?.sdrs.forEach((SDR) => {
+    newValue?.sdrs.forEach((SDR) => {
       SDR.purchase_orders.forEach((PO) => {
         PO.items.forEach((POItem) => {
           if (!addedPOItems.includes(POItem.item_id)) {
@@ -117,7 +191,7 @@ const StockTransferForm = ({
     });
 
     fetchMultipleItems(addedPOItems);
-  }, [selectedRR]);
+  };
 
   const fetchSelectedItem = (value: number, index: number): void => {
     if (value !== undefined) {
@@ -137,11 +211,11 @@ const StockTransferForm = ({
       const warehouseItem: WarehouseItem = {
         ...foundWarehouseItem,
         firstWarehouse: null,
-        firstWarehouseAmt: 0,
+        firstWarehouseAmt: null,
         secondWarehouse: null,
-        secondWarehouseAmt: 0,
+        secondWarehouseAmt: null,
         thirdWarehouse: null,
-        thirdWarehouseAmt: 0,
+        thirdWarehouseAmt: null,
       };
 
       // We need to add the new item before the null item
@@ -155,23 +229,82 @@ const StockTransferForm = ({
     }
   };
 
-  const fetchMultipleItems = (POItems: any) => {
+  const fetchMultipleItems = async (
+    POItems: any,
+    items: WarehouseItem[] = warehouseItems,
+  ) => {
     if (POItems.length > 0) {
-      const foundWarehouseItems = warehouseItems
-        .filter((warehouseItem) => {
-          return POItems.includes(warehouseItem.item_id);
-        })
-        .map((warehouseItem) => {
-          return {
-            ...warehouseItem,
-            firstWarehouse: null,
-            firstWarehouseAmt: 0,
-            secondWarehouse: null,
-            secondWarehouseAmt: 0,
-            thirdWarehouse: null,
-            thirdWarehouseAmt: 0,
-          };
-        });
+      const foundWarehouseItems = await Promise.all(
+        items
+          .filter((warehouseItem) => {
+            return (
+              POItems.includes(warehouseItem.item_id) &&
+              warehouseItem.on_stock !== 0
+            );
+          })
+          .map(async (warehouseItem) => {
+            if (selectedRow !== null && selectedRow !== undefined) {
+              const foundDetails = selectedRow.stock_transfer_details.find(
+                (std) => std.stock_code === warehouseItem.item.stock_code,
+              );
+              const result: WarehouseItem = {
+                ...warehouseItem,
+                firstWarehouse: null,
+                firstWarehouseAmt: null,
+                secondWarehouse: null,
+                secondWarehouseAmt: null,
+                thirdWarehouse: null,
+                thirdWarehouseAmt: null,
+              };
+
+              if (foundDetails) {
+                if (foundDetails.destinations.length >= 1) {
+                  result.firstWarehouse = warehouses.items.find(
+                    (warehouse) =>
+                      warehouse.id ===
+                      foundDetails.destinations[0].to_warehouse_id,
+                  );
+                  result.firstWarehouseAmt =
+                    foundDetails.destinations[0].quantity;
+                }
+
+                if (foundDetails.destinations.length >= 2) {
+                  result.secondWarehouse = warehouses.items.find(
+                    (warehouse) =>
+                      warehouse.id ===
+                      foundDetails.destinations[1].to_warehouse_id,
+                  );
+
+                  result.secondWarehouseAmt =
+                    foundDetails.destinations[1].quantity;
+                }
+
+                if (foundDetails.destinations.length >= 3) {
+                  result.thirdWarehouse = warehouses.items.find(
+                    (warehouse) =>
+                      warehouse.id ===
+                      foundDetails.destinations[2].to_warehouse_id,
+                  );
+
+                  result.thirdWarehouseAmt =
+                    foundDetails.destinations[2].quantity;
+                }
+              }
+
+              return result;
+            } else {
+              return {
+                ...warehouseItem,
+                firstWarehouse: null,
+                firstWarehouseAmt: null,
+                secondWarehouse: null,
+                secondWarehouseAmt: null,
+                thirdWarehouse: null,
+                thirdWarehouseAmt: null,
+              };
+            }
+          }),
+      );
 
       if (foundWarehouseItems.length === 0) return;
 
@@ -203,21 +336,21 @@ const StockTransferForm = ({
         if (warehouseItem.firstWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.firstWarehouse.id,
-            quantity: warehouseItem.firstWarehouseAmt,
+            quantity: warehouseItem.firstWarehouseAmt || 0,
           });
         }
 
         if (warehouseItem.secondWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.secondWarehouse.id,
-            quantity: warehouseItem.secondWarehouseAmt,
+            quantity: warehouseItem.secondWarehouseAmt || 0,
           });
         }
 
         if (warehouseItem.thirdWarehouse !== null) {
           result.destinations.push({
             to_warehouse_id: warehouseItem.thirdWarehouse.id,
-            quantity: warehouseItem.thirdWarehouseAmt,
+            quantity: warehouseItem.thirdWarehouseAmt || 0,
           });
         }
 
@@ -235,7 +368,7 @@ const StockTransferForm = ({
         rr_transfer: rrTransfer,
         rr_id: selectedRR?.id ?? null,
         remarks,
-        supplier_id: selectedRR?.supplier_id ?? null,
+        supplier_id: selectedSupplier?.supplier_id ?? null,
         from_warehouse_id: selectedWarehouse.id,
         stock_transfer_details: createStockTransferDetails(),
       };
@@ -248,7 +381,40 @@ const StockTransferForm = ({
         // Handle the response, update state, etc.
       } catch (error: any) {
         console.log(error);
-        toast.error(`Error: ${error?.response?.data?.detail}`);
+        toast.error(
+          `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+        );
+      }
+    }
+  };
+
+  const handleEditStockTransfer = async () => {
+    if (selectedWarehouse !== null) {
+      const payload = {
+        status,
+        transaction_date: transactionDate,
+        rr_transfer: rrTransfer,
+        rr_id: selectedRR?.id ?? null,
+        remarks,
+        supplier_id: selectedRR?.supplier_id ?? null,
+        from_warehouse_id: selectedWarehouse.id,
+        stock_transfer_details: createStockTransferDetails(),
+      };
+
+      try {
+        await axiosInstance.put(
+          `api/stock-transfers/${selectedRow?.id}`,
+          payload,
+        );
+        toast.success("Save successful!");
+        resetForm();
+        setOpen(false);
+        // Handle the response, update state, etc.
+      } catch (error: any) {
+        console.log(error);
+        toast.error(
+          `Error: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+        );
       }
     }
   };
@@ -264,6 +430,7 @@ const StockTransferForm = ({
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateStockTransfer();
+        if (openEdit) await handleEditStockTransfer();
       }}
     >
       <div className="flex justify-between">
@@ -283,9 +450,16 @@ const StockTransferForm = ({
         warehouses={warehouses}
         selectedWarehouse={selectedWarehouse}
         setSelectedWarehouse={setSelectedWarehouse}
-        receivingReports={receivingReports}
+        receivingReports={filteredReceivingReports}
         selectedRR={selectedRR}
         setSelectedRR={setSelectedRR}
+        suppliers={suppliers}
+        selectedSupplier={selectedSupplier}
+        setSelectedSupplier={setSelectedSupplier}
+        setSelectedWarehouseItems={setSelectedWarehouseItems}
+        fetchMultipleItems={fetchMultipleItems}
+        warehouseItems={warehouseItems}
+        handleRRNumChange={handleRRNumChange}
       />
       <STFormTable
         selectedWarehouse={selectedWarehouse}
@@ -296,6 +470,7 @@ const StockTransferForm = ({
         fetchSelectedItem={fetchSelectedItem}
         warehouseItems={warehouseItems}
         setWarehouseItems={setWarehouseItems}
+        selectedSupplier={selectedSupplier}
       />
       <Divider />
       <div className="flex justify-end mt-4">

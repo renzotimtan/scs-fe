@@ -5,6 +5,7 @@ import type { Item, WarehouseItem, Warehouse } from "../../../interface";
 import { STFormTableProps } from "../interface";
 import axiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import { convertToQueryParams } from "../../../helper";
 
 const STFormTable = ({
   selectedWarehouse,
@@ -15,27 +16,18 @@ const STFormTable = ({
   warehouseItems,
   setWarehouseItems,
   fetchSelectedItem,
+  selectedSupplier,
 }: STFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
 
-  useEffect(() => {
-    if (selectedWarehouse !== null) {
-      // Fetch items for the selected warehouse
-      axiosInstance
-        .get(`/api/warehouse_items?warehouse_id=${selectedWarehouse?.id}`)
-        .then((response) => {
-          setWarehouseItems(response.data.items);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedWarehouse]);
-
   const addWarehouseToTransfer = (
     index: number,
-    newValue: Warehouse,
+    newValue: Warehouse | null,
     warehousePosition: number,
   ) => {
+    if (!newValue) return;
+
     const newWarehouseItem = {
       ...selectedWarehouseItems[index],
     };
@@ -89,7 +81,7 @@ const STFormTable = ({
         "--TableCell-height": "40px",
         // the number is the amount of the header rows.
         "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-        "--Table-firstColumnWidth": "150px",
+        "--Table-firstColumnWidth": "200px",
         "--Table-lastColumnWidth": "86px",
         // background needs to have transparency to show the scrolling shadows
         "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -136,10 +128,9 @@ const STFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              Selected Item
+              Product Name
             </th>
-            <th style={{ width: 200 }}>Stock No.</th>
-            <th style={{ width: 200 }}>Product Name</th>
+            <th style={{ width: 200 }}>Stock Code</th>
             <th style={{ width: 150 }}>Total Quantity</th>
             <th style={{ width: 200 }}>To Whse 1</th>
             <th style={{ width: 150 }}>Whse 1 Qty.</th>
@@ -158,39 +149,68 @@ const STFormTable = ({
             (selectedItem: WarehouseItem, index: number) => (
               <tr key={`${selectedItem.item_id}-${index}`}>
                 <td style={{ zIndex: 10 }}>
-                  <Select
+                  <Autocomplete
+                    placeholder="Select Stock"
+                    options={warehouseItems}
+                    getOptionLabel={(warehouseItem) =>
+                      warehouseItem.item?.name ?? ""
+                    }
                     onChange={(_, value) => {
                       if (value !== null) {
-                        fetchSelectedItem(value, index);
+                        fetchSelectedItem(value.item_id, index);
                       }
                     }}
-                    className="mt-1 border-0"
-                    size="sm"
-                    placeholder="Select Item"
-                    value={selectedItem.item_id}
+                    value={selectedItem}
                     disabled={isEditDisabled}
-                  >
-                    {warehouseItems.map((warehouseItem: WarehouseItem) => (
-                      <Option
-                        key={warehouseItem.item_id}
-                        value={warehouseItem.item_id}
-                      >
-                        {warehouseItem.item.name}
-                      </Option>
-                    ))}
-                  </Select>
+                    size="sm"
+                    slotProps={{
+                      listbox: {
+                        sx: {
+                          width: 300, // Increase the width
+                          fontSize: "13px",
+                        },
+                      },
+                    }}
+                  />
                 </td>
-                <td>{selectedItem?.item?.stock_code}</td>
-                <td>{selectedItem?.item?.name}</td>
+                <td>
+                  <Autocomplete
+                    placeholder="Select Stock"
+                    options={warehouseItems}
+                    getOptionLabel={(warehouseItem) =>
+                      warehouseItem.item?.stock_code ?? ""
+                    }
+                    onChange={(_, value) => {
+                      if (value !== null) {
+                        fetchSelectedItem(value.item_id, index);
+                      }
+                    }}
+                    value={selectedItem}
+                    disabled={isEditDisabled}
+                    size="sm"
+                    slotProps={{
+                      listbox: {
+                        sx: {
+                          width: 300, // Increase the width
+                          fontSize: "13px",
+                        },
+                      },
+                    }}
+                  />
+                </td>
                 <td>{selectedItem?.on_stock}</td>
                 <td>
                   {selectedItem?.id !== null && (
                     <Autocomplete
                       options={warehouses.items.filter(
-                        (warehouseItem) => warehouseItem.id,
+                        (warehouse) => warehouse.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItems[index].firstWarehouse}
+                      value={warehouses.items.find(
+                        (warehouse) =>
+                          warehouse.id ===
+                          selectedWarehouseItems[index].firstWarehouse?.id,
+                      )}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 1);
                       }}
@@ -206,11 +226,7 @@ const STFormTable = ({
                     <Input
                       type="number"
                       onChange={(e) =>
-                        addWarehouseAmtToTransfer(
-                          index,
-                          e.target.value,
-                          1,
-                        )
+                        addWarehouseAmtToTransfer(index, e.target.value, 1)
                       }
                       slotProps={{
                         input: {
@@ -219,6 +235,7 @@ const STFormTable = ({
                         },
                       }}
                       value={selectedWarehouseItems[index].firstWarehouseAmt}
+                      placeholder="0"
                       disabled={isEditDisabled}
                       required
                     />
@@ -228,10 +245,14 @@ const STFormTable = ({
                   {selectedItem?.id !== null && (
                     <Autocomplete
                       options={warehouses.items.filter(
-                        (warehouseItem) => warehouseItem.id,
+                        (warehouse) => warehouse.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItems[index].secondWarehouse}
+                      value={warehouses.items.find(
+                        (warehouse) =>
+                          warehouse.id ===
+                          selectedWarehouseItems[index].secondWarehouse?.id,
+                      )}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 2);
                       }}
@@ -246,11 +267,7 @@ const STFormTable = ({
                     <Input
                       type="number"
                       onChange={(e) =>
-                        addWarehouseAmtToTransfer(
-                          index,
-                          e.target.value,
-                          2,
-                        )
+                        addWarehouseAmtToTransfer(index, e.target.value, 2)
                       }
                       slotProps={{
                         input: {
@@ -259,6 +276,7 @@ const STFormTable = ({
                         },
                       }}
                       value={selectedWarehouseItems[index].secondWarehouseAmt}
+                      placeholder="0"
                       disabled={isEditDisabled}
                     />
                   )}
@@ -267,10 +285,14 @@ const STFormTable = ({
                   {selectedItem?.id !== null && (
                     <Autocomplete
                       options={warehouses.items.filter(
-                        (warehouseItem) => warehouseItem.id,
+                        (warehouse) => warehouse.id,
                       )}
                       getOptionLabel={(option) => option.name}
-                      value={selectedWarehouseItems[index].thirdWarehouse}
+                      value={warehouses.items.find(
+                        (warehouse) =>
+                          warehouse.id ===
+                          selectedWarehouseItems[index].thirdWarehouse?.id,
+                      )}
                       onChange={(event, newValue) => {
                         addWarehouseToTransfer(index, newValue, 3);
                       }}
@@ -285,11 +307,7 @@ const STFormTable = ({
                     <Input
                       type="number"
                       onChange={(e) =>
-                        addWarehouseAmtToTransfer(
-                          index,
-                          e.target.value,
-                          3,
-                        )
+                        addWarehouseAmtToTransfer(index, e.target.value, 3)
                       }
                       slotProps={{
                         input: {
@@ -298,6 +316,7 @@ const STFormTable = ({
                         },
                       }}
                       value={selectedWarehouseItems[index].thirdWarehouseAmt}
+                      placeholder="0"
                       disabled={isEditDisabled}
                     />
                   )}

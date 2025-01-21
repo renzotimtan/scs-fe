@@ -4,9 +4,9 @@ import axiosInstance from "../../utils/axiosConfig";
 import DeleteSTModal from "./DeleteAllocModal";
 import { toast } from "react-toastify";
 import type {
-  PaginatedST,
+  PaginatedAlloc,
   PaginationQueryParams,
-  ViewStockTransferProps,
+  ViewAllocProps,
 } from "../../interface";
 
 import { Pagination } from "@mui/material";
@@ -15,13 +15,13 @@ import { convertToQueryParams } from "../../helper";
 
 const PAGE_LIMIT = 10;
 
-const ViewStockTransfer = ({
+const ViewAlloc = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewStockTransferProps): JSX.Element => {
-  const [stockTransfers, setStockTransfers] = useState<PaginatedST>({
+}: ViewAllocProps): JSX.Element => {
+  const [allocs, setAllocs] = useState<PaginatedAlloc>({
     total: 0,
     items: [],
   });
@@ -44,10 +44,8 @@ const ViewStockTransfer = ({
     }
 
     axiosInstance
-      .get<PaginatedST>(
-        `/api/stock-transfers/?${convertToQueryParams(payload)}`,
-      )
-      .then((response) => setStockTransfers(response.data))
+      .get<PaginatedAlloc>(`/api/allocations/?${convertToQueryParams(payload)}`)
+      .then((response) => setAllocs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
@@ -57,7 +55,7 @@ const ViewStockTransfer = ({
   ): void => {
     setPage(value);
     axiosInstance
-      .get<PaginatedST>(
+      .get<PaginatedAlloc>(
         `/api/receiving-reports/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
@@ -66,7 +64,7 @@ const ViewStockTransfer = ({
           search_term: searchTerm,
         })}`,
       )
-      .then((response) => setStockTransfers(response.data))
+      .then((response) => setAllocs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
@@ -81,7 +79,7 @@ const ViewStockTransfer = ({
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setStockTransfers((prevST) => ({
+        setAllocs((prevST) => ({
           ...prevST,
           items: prevST.items.filter((ST) => ST.id !== selectedRow.id),
           total: prevST.total - 1,
@@ -142,7 +140,7 @@ const ViewStockTransfer = ({
             // the number is the amount of the header rows.
             "--TableHeader-height": "calc(1 * var(--TableCell-height))",
             "--Table-firstColumnWidth": "150px",
-            "--Table-lastColumnWidth": "150px",
+            "--Table-lastColumnWidth": "160px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
             "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -197,13 +195,11 @@ const ViewStockTransfer = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  STR No.
+                  Alloc No.
                 </th>
-                <th style={{ width: 300 }}>Status</th>
+                <th style={{ width: 150 }}>Status</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>RR Transfer</th>
-                <th style={{ width: 150 }}>RR No.</th>
-                <th style={{ width: 150 }}>Supplier No.</th>
+                <th style={{ width: 150 }}>Customer</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -216,25 +212,23 @@ const ViewStockTransfer = ({
               </tr>
             </thead>
             <tbody>
-              {stockTransfers.items.map((stockTransfer) => (
+              {allocs.items.map((alloc) => (
                 <tr
-                  key={stockTransfer.id}
+                  key={alloc.id}
                   onDoubleClick={() => {
                     setOpenEdit(true);
-                    setSelectedRow(stockTransfer);
+                    setSelectedRow(alloc);
                   }}
                 >
-                  <td>{stockTransfer.id}</td>
-                  <td className="capitalize">{stockTransfer.status}</td>
-                  <td>{stockTransfer.transaction_date}</td>
-                  <td>{stockTransfer.rr_transfer ? "Yes" : "No"}</td>
-                  <td>{stockTransfer?.rr_id ?? "N/A" }</td>
-                  <td>{stockTransfer?.supplier_id ?? "N/A" }</td>
-                  <td>{stockTransfer.remarks}</td>
-                  <td>{stockTransfer?.creator?.username}</td>
-                  <td>{stockTransfer?.modifier?.username}</td>
-                  <td>{stockTransfer.date_created}</td>
-                  <td>{stockTransfer.date_modified}</td>
+                  <td>{alloc?.id}</td>
+                  <td className="capitalize">{alloc.status}</td>
+                  <td>{alloc?.transaction_date}</td>
+                  <td>{alloc?.customer.name}</td>
+                  <td>{alloc?.remarks}</td>
+                  <td>{alloc?.creator?.username}</td>
+                  <td>{alloc?.modifier?.username}</td>
+                  <td>{alloc.date_created}</td>
+                  <td>{alloc.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -243,10 +237,10 @@ const ViewStockTransfer = ({
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(stockTransfer);
+                          setSelectedRow(alloc);
                         }}
                       >
-                        {stockTransfer.status !== "unposted" ? "View" : "Edit"}
+                        {alloc.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -255,9 +249,9 @@ const ViewStockTransfer = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(stockTransfer);
+                          setSelectedRow(alloc);
                         }}
-                        disabled={stockTransfer.status !== "unposted"}
+                        disabled={alloc.status !== "unposted"}
                       >
                         Archive
                       </Button>
@@ -271,7 +265,7 @@ const ViewStockTransfer = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.ceil(stockTransfers.total / PAGE_LIMIT)}
+          count={Math.ceil(allocs.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
@@ -288,4 +282,4 @@ const ViewStockTransfer = ({
   );
 };
 
-export default ViewStockTransfer;
+export default ViewAlloc;

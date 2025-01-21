@@ -221,6 +221,11 @@ export interface PaginatedST {
   items: StockTransfer[];
 }
 
+export interface PaginatedAlloc {
+  total: number;
+  items: Alloc[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -458,6 +463,13 @@ export interface ViewStockTransferProps {
   setSelectedRow: (stockTransfer: StockTransfer) => void;
 }
 
+export interface ViewAllocProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: Alloc | undefined;
+  setSelectedRow: (alloc: Alloc) => void;
+}
+
 export interface CPOItems {
   // Discrepancy between item_id, id
   item_id: number;
@@ -613,4 +625,20 @@ export interface StockTransfer {
   stock_transfer_details: StockTransferDetail[];
   creator: User;
   modifier: User;
+}
+
+export interface Alloc {
+  id: number;
+  status: string;
+  transaction_date: string;
+  customer: {
+    customer_id: number;
+    name: string;
+  };
+  remarks: string;
+  allocation_items: any;
+  creator: User;
+  modifier: User;
+  date_created: string;
+  date_modified: string;
 }
