@@ -19,6 +19,7 @@ import type {
   PaginatedCustomers,
   PaginatedItems,
 } from "../../interface";
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 
 //  Initialize state of selectedItems outside of component to avoid creating new object on each render
 const INITIAL_SELECTED_ITEMS = [{ id: null }];
@@ -315,6 +316,14 @@ const CPOForm = ({
     >
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
+        <Button
+          className="w-[130px] h-[35px] bg-button-neutral"
+          size="sm"
+          color="neutral"
+        >
+          <LocalPrintshopIcon className="mr-2" />
+          Print
+        </Button>
       </div>
       <CPOFormDetails
         openEdit={openEdit}

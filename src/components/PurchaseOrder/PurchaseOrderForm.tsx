@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import type { POPayload, POItemValues, NewPriceInstance } from "./interface";
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import type { User } from "../../pages/Login";
 import {
   areDiscountsValid,
@@ -390,6 +391,14 @@ const PurchaseOrderForm = ({
     >
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
+        <Button
+          className="w-[130px] h-[35px] bg-button-neutral"
+          size="sm"
+          color="neutral"
+        >
+          <LocalPrintshopIcon className="mr-2" />
+          Print
+        </Button>
       </div>
       <POFormDetails
         openEdit={openEdit}

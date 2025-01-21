@@ -12,7 +12,6 @@ import {
   Divider,
   Autocomplete,
 } from "@mui/joy";
-import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import type { RRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
@@ -105,37 +104,30 @@ const RRFormDetails = ({
                 <h4>RR No. {selectedRow?.id}</h4>
               </div>
             )}
-            <Button
-              className="w-[130px] h-[35px] bg-button-neutral"
-              size="sm"
-              color="neutral"
-            >
-              <LocalPrintshopIcon className="mr-2" />
-              Print
-            </Button>
           </div>
-          <Divider />
-          <FormControl size="sm" sx={{ mb: 1, mt: 2 }}>
-            <FormLabel>Supplier</FormLabel>
-            <div className="flex">
-              <Autocomplete
-                options={suppliers.items}
-                getOptionLabel={(option) => option.name}
-                value={selectedSupplier}
-                onChange={(event, newValue) => {
-                  setSelectedSupplier(newValue);
-                  setSelectedSDRs([]);
-                }}
-                size="sm"
-                className="w-[100%]"
-                placeholder="Select Supplier"
-                disabled={isEditDisabled}
-                required
-              />
-            </div>
-          </FormControl>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+          {openEdit && <Divider />}
+
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Supplier</FormLabel>
+              <div className="flex">
+                <Autocomplete
+                  options={suppliers.items}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedSupplier}
+                  onChange={(event, newValue) => {
+                    setSelectedSupplier(newValue);
+                    setSelectedSDRs([]);
+                  }}
+                  size="sm"
+                  className="w-[100%]"
+                  placeholder="Select Supplier"
+                  disabled={isEditDisabled}
+                  required
+                />
+              </div>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Status</FormLabel>
               <Select
                 onChange={(event, value) => {
@@ -148,7 +140,7 @@ const RRFormDetails = ({
                 <Option value="unposted">Unposted</Option>
               </Select>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Transaction Date</FormLabel>
               <Input
                 type="date"
@@ -158,9 +150,13 @@ const RRFormDetails = ({
                 required
               />
             </FormControl>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Amount Discounts Total</FormLabel>
+              <Textarea value={amountDiscount} disabled />
+            </FormControl>
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Currency Used</FormLabel>
               <Select
                 onChange={(event, value) => {
@@ -177,7 +173,7 @@ const RRFormDetails = ({
                 ))}
               </Select>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Philippine Peso Rate</FormLabel>
               <Input
                 startDecorator="₱"
@@ -196,14 +192,28 @@ const RRFormDetails = ({
                 required
               />
             </FormControl>
-          </Stack>
-          <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
-            <Stack direction="row" spacing={2}>
-              <FormControl size="sm" sx={{ width: "48%" }}>
-                <FormLabel>Amount Discounts Total</FormLabel>
-                <Textarea value={amountDiscount} disabled />
-              </FormControl>
-            </Stack>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Reference No.</FormLabel>
+              <Input
+                size="sm"
+                placeholder="Search"
+                onChange={(e) => setReferenceNumber(e.target.value)}
+                value={referenceNumber}
+                disabled
+                required
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Remarks</FormLabel>
+              <Textarea
+                minRows={1}
+                placeholder="Remarks"
+                onChange={(e) => setRemarks(e.target.value)}
+                value={remarks}
+                disabled={isEditDisabled}
+                required
+              />
+            </FormControl>
           </Stack>
           {!openEdit && (
             <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
@@ -244,56 +254,32 @@ const RRFormDetails = ({
             </FormControl>
           </div>
           <Divider />
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2.5 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.creator?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Created</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_created)}
               </p>
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Modified by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.modifier?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Modified</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_modified)}
               </p>
             </FormControl>
           </Stack>
-          <FormControl size="sm" sx={{ mb: 1, mt: 2.5 }}>
-            <FormLabel>Reference No.</FormLabel>
-            <Input
-              size="sm"
-              placeholder="Search"
-              onChange={(e) => setReferenceNumber(e.target.value)}
-              value={referenceNumber}
-              disabled
-              required
-            />
-          </FormControl>
-          <FormControl size="sm" sx={{ mb: 3 }}>
-            <FormLabel>Remarks</FormLabel>
-            <Textarea
-              minRows={1}
-              placeholder="Remarks"
-              onChange={(e) => setRemarks(e.target.value)}
-              value={remarks}
-              disabled={isEditDisabled}
-              required
-            />
-          </FormControl>
         </div>
       </Card>
     </Box>

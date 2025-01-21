@@ -5,6 +5,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
 import type { User } from "../../pages/Login";
 import type {
@@ -199,6 +200,14 @@ const DeliveryReceiptForm = ({
     >
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
+        <Button
+          className="w-[130px] h-[35px] bg-button-neutral"
+          size="sm"
+          color="neutral"
+        >
+          <LocalPrintshopIcon className="mr-2" />
+          Print
+        </Button>
       </div>
       <SDRFormDetails
         openEdit={openEdit}

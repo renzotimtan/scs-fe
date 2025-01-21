@@ -44,7 +44,7 @@ const STFormDetails = ({
           </div>
 
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Customer</FormLabel>
               <div className="flex">
                 <Autocomplete
@@ -62,7 +62,7 @@ const STFormDetails = ({
                 />
               </div>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Status</FormLabel>
               <Select
                 onChange={(event, value) => {
@@ -75,9 +75,7 @@ const STFormDetails = ({
                 <Option value="unposted">Unposted</Option>
               </Select>
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Transaction Date</FormLabel>
               <Input
                 type="date"
@@ -86,7 +84,7 @@ const STFormDetails = ({
                 required
               />
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Remarks</FormLabel>
               <Textarea
                 minRows={1}
@@ -100,28 +98,26 @@ const STFormDetails = ({
       </Card>
       <Card className="w-[40%]">
         <div>
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2.5 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.creator?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Created</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_created)}
               </p>
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Modified by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.modifier?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Modified</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_modified)}

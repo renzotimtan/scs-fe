@@ -70,7 +70,18 @@ const STFormDetails = ({
           </div>
 
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>RR Transfer</FormLabel>
+              <Select
+                onChange={(_, value) => handleRRTransferChange(value)}
+                size="sm"
+                value={rrTransfer}
+              >
+                <Option value="yes">Yes</Option>
+                <Option value="no">No</Option>
+              </Select>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Supplier</FormLabel>
               <div className="flex">
                 <Autocomplete
@@ -91,61 +102,7 @@ const STFormDetails = ({
                 />
               </div>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>From Warehouse</FormLabel>
-              <Autocomplete
-                options={warehouses.items}
-                getOptionLabel={(option) => option.name}
-                value={selectedWarehouse}
-                onChange={(event, newValue) => {
-                  setSelectedWarehouse(newValue);
-                  // @ts-expect-error (Item object, unless its using the empty object)
-                  setSelectedWarehouseItems([{ id: null }]);
-                }}
-                size="sm"
-                className="w-[100%]"
-                placeholder="Select Warehouse"
-                required
-              />
-            </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>Status</FormLabel>
-              <Select
-                onChange={(event, value) => {
-                  if (value !== null) setStatus(value);
-                }}
-                size="sm"
-                value={status}
-              >
-                <Option value="posted">Posted</Option>
-                <Option value="unposted">Unposted</Option>
-              </Select>
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>Transaction Date</FormLabel>
-              <Input
-                type="date"
-                value={transactionDate}
-                onChange={(e) => setTransactionDate(e.target.value)}
-                required
-              />
-            </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-              <FormLabel>RR Transfer</FormLabel>
-              <Select
-                onChange={(_, value) => handleRRTransferChange(value)}
-                size="sm"
-                value={rrTransfer}
-              >
-                <Option value="yes">Yes</Option>
-                <Option value="no">No</Option>
-              </Select>
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "46.5%" }}>
               <FormLabel>RR Ref No.</FormLabel>
               <Autocomplete
                 options={receivingReports.items}
@@ -163,32 +120,72 @@ const STFormDetails = ({
               />
             </FormControl>
           </Stack>
+
+          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Status</FormLabel>
+              <Select
+                onChange={(event, value) => {
+                  if (value !== null) setStatus(value);
+                }}
+                size="sm"
+                value={status}
+              >
+                <Option value="posted">Posted</Option>
+                <Option value="unposted">Unposted</Option>
+              </Select>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Transaction Date</FormLabel>
+              <Input
+                type="date"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+                required
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "46.5%" }}>
+              <FormLabel>From Warehouse</FormLabel>
+              <Autocomplete
+                options={warehouses.items}
+                getOptionLabel={(option) => option.name}
+                value={selectedWarehouse}
+                onChange={(event, newValue) => {
+                  setSelectedWarehouse(newValue);
+                  // @ts-expect-error (Item object, unless its using the empty object)
+                  setSelectedWarehouseItems([{ id: null }]);
+                }}
+                size="sm"
+                className="w-[100%]"
+                placeholder="Select Warehouse"
+                required
+              />
+            </FormControl>
+          </Stack>
         </div>
       </Card>
       <Card className="w-[40%]">
         <div>
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.creator?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Created</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_created)}
               </p>
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Modified by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.modifier?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Modified</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_modified)}

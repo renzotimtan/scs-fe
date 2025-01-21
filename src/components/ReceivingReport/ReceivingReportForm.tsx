@@ -16,6 +16,7 @@ import type {
   DeliveryReceipt,
 } from "../../interface";
 import { Expense } from "./interface";
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 
 const ReceivingReportForm = ({
   setOpen,
@@ -228,6 +229,14 @@ const ReceivingReportForm = ({
     >
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
+        <Button
+          className="w-[130px] h-[35px] bg-button-neutral"
+          size="sm"
+          color="neutral"
+        >
+          <LocalPrintshopIcon className="mr-2" />
+          Print
+        </Button>
       </div>
       <RRFormDetails
         openEdit={openEdit}

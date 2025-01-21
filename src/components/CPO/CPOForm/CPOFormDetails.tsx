@@ -12,7 +12,6 @@ import {
   Divider,
   Autocomplete,
 } from "@mui/joy";
-import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { AVAILABLE_CURRENCIES } from "../../../constants";
 import {
   formatToDateTime,
@@ -70,18 +69,10 @@ const CPOFormDetails = ({
                 <h4>CPO No. {selectedRow?.id}</h4>
               </div>
             )}
-            <Button
-              className="w-[130px] h-[35px] bg-button-neutral"
-              size="sm"
-              color="neutral"
-            >
-              <LocalPrintshopIcon className="mr-2" />
-              Print
-            </Button>
           </div>
-          <Divider />
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+          {openEdit && <Divider />}
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Customer</FormLabel>
               <div className="flex">
                 <Autocomplete
@@ -99,7 +90,7 @@ const CPOFormDetails = ({
                 />
               </div>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Price Level</FormLabel>
               <Select
                 onChange={(event, value) => {
@@ -114,9 +105,7 @@ const CPOFormDetails = ({
                 <Option value="3">3</Option>
               </Select>
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Status</FormLabel>
               <Select
                 onChange={(event, value) => {
@@ -132,7 +121,7 @@ const CPOFormDetails = ({
               </Select>
             </FormControl>
 
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Transaction Date</FormLabel>
               <Input
                 type="date"
@@ -143,33 +132,86 @@ const CPOFormDetails = ({
               />
             </FormControl>
           </Stack>
-          <Stack direction="column" spacing={2} sx={{ mb: 1 }}>
-            {discounts.customer.map((discount: string, index: number) => (
-              <Stack key={`discount-row-${index}`} direction="row" spacing={2}>
-                <FormControl size="sm" sx={{ width: "48%" }}>
-                  <FormLabel>{`Customer Discount ${index + 1}`}</FormLabel>
-                  <Input
-                    value={discount}
-                    onChange={(e) =>
-                      handleDiscountChange("customer", index, e.target.value)
-                    }
-                    placeholder="Enter % or actual discount"
-                    disabled={isEditDisabled}
-                  />
-                </FormControl>
-                <FormControl size="sm" sx={{ width: "48%" }}>
-                  <FormLabel>{`Transaction Discount ${index + 1}`}</FormLabel>
-                  <Input
-                    value={discounts.transaction[index]}
-                    onChange={(e) =>
-                      handleDiscountChange("transaction", index, e.target.value)
-                    }
-                    placeholder="Enter % or actual discount"
-                    disabled={isEditDisabled}
-                  />
-                </FormControl>
-              </Stack>
-            ))}
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2 }}>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Customer Discount 1</FormLabel>
+              <Input
+                value={discounts.customer[0]}
+                onChange={(e) =>
+                  handleDiscountChange("customer", 0, e.target.value)
+                }
+                placeholder="Enter % or actual discount"
+                disabled={isEditDisabled}
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Transaction Discount 1</FormLabel>
+              <Input
+                value={discounts.transaction[0]}
+                onChange={(e) =>
+                  handleDiscountChange("transaction", 0, e.target.value)
+                }
+                placeholder="Enter % or actual discount"
+                disabled={isEditDisabled}
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Customer Discount 2</FormLabel>
+              <Input
+                value={discounts.customer[1]}
+                onChange={(e) =>
+                  handleDiscountChange("customer", 1, e.target.value)
+                }
+                placeholder="Enter % or actual discount"
+                disabled={isEditDisabled}
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Transaction Discount 2</FormLabel>
+              <Input
+                value={discounts.transaction[1]}
+                onChange={(e) =>
+                  handleDiscountChange("transaction", 1, e.target.value)
+                }
+                placeholder="Enter % or actual discount"
+                disabled={isEditDisabled}
+              />
+            </FormControl>
+          </Stack>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2 }}>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Customer Discount 3</FormLabel>
+              <Input
+                value={discounts.customer[2]}
+                onChange={(e) =>
+                  handleDiscountChange("customer", 2, e.target.value)
+                }
+                placeholder="Enter % or actual discount"
+                disabled={isEditDisabled}
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Transaction Discount 3</FormLabel>
+              <Input
+                value={discounts.transaction[2]}
+                onChange={(e) =>
+                  handleDiscountChange("transaction", 2, e.target.value)
+                }
+                placeholder="Enter % or actual discount"
+                disabled={isEditDisabled}
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ width: "22%" }}>
+              <FormLabel>Reference No.</FormLabel>
+              <Input
+                size="sm"
+                placeholder="Search"
+                onChange={(e) => setReferenceNumber(e.target.value)}
+                value={referenceNumber}
+                disabled={isEditDisabled}
+                required
+              />
+            </FormControl>
           </Stack>
         </div>
       </Card>
@@ -186,46 +228,33 @@ const CPOFormDetails = ({
             </FormControl>
           </div>
           <Divider />
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 3.5 }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.creator?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Created</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_created)}
               </p>
             </FormControl>
-          </Stack>
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Modified by</FormLabel>
               <p className="text-sm">
                 {selectedRow?.modifier?.full_name ?? "-"}
               </p>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Date Modified</FormLabel>
               <p className="text-sm">
                 {formatToDateTime(selectedRow?.date_modified)}
               </p>
             </FormControl>
           </Stack>
-          <FormControl size="sm" sx={{ mb: 1, mt: 2.5 }}>
-            <FormLabel>Reference No.</FormLabel>
-            <Input
-              size="sm"
-              placeholder="Search"
-              onChange={(e) => setReferenceNumber(e.target.value)}
-              value={referenceNumber}
-              disabled={isEditDisabled}
-              required
-            />
-          </FormControl>
-          <FormControl size="sm" sx={{ mb: 3 }}>
+          <FormControl size="sm" sx={{ mb: 3, mt: 3 }}>
             <FormLabel>Remarks</FormLabel>
             <Textarea
               minRows={1}
