@@ -3,6 +3,7 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
+import { Input } from "@mui/joy";
 import WarehousesModal from "../../components/Warehouses/WarehousesModal";
 import DeleteWarehousesModal from "../../components/Warehouses/DeleteWarehouseModal";
 import ViewWHModal from "../../components/Items/ViewWHModal";
@@ -29,29 +30,10 @@ const WarehouseForm = (): JSX.Element => {
   const [selectedRow, setSelectedRow] = useState<Warehouse>();
   const [userId, setUserId] = useState<number | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const changePage = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ): void => {
-    setPage(value);
 
-    axiosInstance
-      .get<PaginatedWarehouse>(
-        `/api/warehouses/?${convertToQueryParams({
-          page: value,
-          limit: PAGE_LIMIT,
-          sort_by: "id",
-          sort_order: "desc",
-          search_term: "",
-        })}`,
-      )
-      .then((response) => setWarehouses(response.data))
-      .catch((error) => console.error("Error:", error));
-  };
-
-  useEffect(() => {
-    // Fetch warehouses
+  const getAllWarehouse = (page: number, search_term: string) => {
     axiosInstance
       .get<PaginatedWarehouse>(
         `/api/warehouses/?${convertToQueryParams({
@@ -59,12 +41,24 @@ const WarehouseForm = (): JSX.Element => {
           limit: PAGE_LIMIT,
           sort_by: "id",
           sort_order: "desc",
-          search_term: "",
+          search_term,
         })}`,
       )
       .then((response) => setWarehouses(response.data))
       .catch((error) => console.error("Error:", error));
+  };
 
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+    getAllWarehouse(value, searchTerm);
+  };
+
+  useEffect(() => {
+    // Fetch warehouses
+    getAllWarehouse(page, searchTerm);
     // Fetch user ID
     axiosInstance
       .get<User>("/users/me/")
@@ -150,6 +144,21 @@ const WarehouseForm = (): JSX.Element => {
             }}
           >
             Add Warehouse
+          </Button>
+        </Box>
+        <Box className="flex items-center mb-6">
+          <Input
+            size="sm"
+            placeholder="Name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            onClick={() => getAllWarehouse(page, searchTerm)}
+            className="ml-4 w-[80px] bg-button-primary"
+            size="sm"
+          >
+            Search
           </Button>
         </Box>
         <Sheet

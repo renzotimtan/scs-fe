@@ -5,6 +5,7 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
+import { Input } from "@mui/joy";
 import DeleteItemsModal from "../../components/Items/DeleteItemsModal";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
@@ -28,29 +29,10 @@ const ItemForm = (): JSX.Element => {
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Item>();
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const changePage = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ): void => {
-    setPage(value);
 
-    axiosInstance
-      .get<PaginatedItems>(
-        `/api/items/?${convertToQueryParams({
-          page: value,
-          limit: PAGE_LIMIT,
-          sort_by: "id",
-          sort_order: "desc",
-          // search_term: "",
-        })}`,
-      )
-      .then((response) => setItems(response.data))
-      .catch((error) => console.error("Error:", error));
-  };
-
-  useEffect(() => {
-    // Fetch items
+  const getAllStocks = (page: number, search_term: string) => {
     axiosInstance
       .get<PaginatedItems>(
         `/api/items/?${convertToQueryParams({
@@ -58,11 +40,24 @@ const ItemForm = (): JSX.Element => {
           limit: PAGE_LIMIT,
           sort_by: "id",
           sort_order: "desc",
-          // search_term: "",
+          search_term,
         })}`,
       )
       .then((response) => setItems(response.data))
       .catch((error) => console.error("Error:", error));
+  };
+
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+    getAllStocks(value, searchTerm);
+  };
+
+  useEffect(() => {
+    // Fetch items
+    getAllStocks(page, searchTerm);
   }, []);
 
   const handleSaveItem = async (newItem: Item): Promise<void> => {
@@ -165,6 +160,22 @@ const ItemForm = (): JSX.Element => {
             }}
           >
             Add Stock
+          </Button>
+        </Box>
+
+        <Box className="flex items-center mb-6">
+          <Input
+            size="sm"
+            placeholder="Stock Code or Description"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            onClick={() => getAllStocks(page, searchTerm)}
+            className="ml-4 w-[80px] bg-button-primary"
+            size="sm"
+          >
+            Search
           </Button>
         </Box>
 

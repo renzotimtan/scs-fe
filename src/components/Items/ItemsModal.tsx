@@ -386,14 +386,17 @@ const ItemsModal = ({
                 </div>
               </Card>
               <div className="flex justify-end mt-5">
-                <Button
-                  onClick={() => setOpenStockHistory(true)}
-                  className="ml-4 w-[130px] bg-button-soft-primary"
-                  size="sm"
-                  variant="soft"
-                >
-                  Stock History
-                </Button>
+                {title === "Edit Stock" && (
+                  <Button
+                    onClick={() => setOpenStockHistory(true)}
+                    className="ml-4 w-[130px] bg-button-soft-primary"
+                    size="sm"
+                    variant="soft"
+                  >
+                    Stock History
+                  </Button>
+                )}
+
                 <Button
                   type="submit"
                   className="ml-4 w-[130px] bg-button-primary"

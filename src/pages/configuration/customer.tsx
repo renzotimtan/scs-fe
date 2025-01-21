@@ -3,6 +3,7 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Table from "@mui/joy/Table";
 import Sheet from "@mui/joy/Sheet";
+import { Input } from "@mui/joy";
 import CustomersModal from "../../components/Customers/CustomersModal";
 import axiosInstance from "../../utils/axiosConfig";
 import type { User } from "../Login";
@@ -26,30 +27,11 @@ const CustomerForm = (): JSX.Element => {
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Customer>();
   const [userId, setUserId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [page, setPage] = useState(1);
-  const changePage = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ): void => {
-    setPage(value);
 
-    axiosInstance
-      .get<PaginatedCustomers>(
-        `/api/customers/?${convertToQueryParams({
-          page: value,
-          limit: PAGE_LIMIT,
-          sort_by: "customer_id",
-          sort_order: "desc",
-          search_term: "",
-        })}`,
-      )
-      .then((response) => setCustomers(response.data))
-      .catch((error) => console.error("Error:", error));
-  };
-
-  useEffect(() => {
-    // Fetch customers
+  const getAllCustomers = (page: number, search_term: string) => {
     axiosInstance
       .get<PaginatedCustomers>(
         `/api/customers/?${convertToQueryParams({
@@ -57,11 +39,24 @@ const CustomerForm = (): JSX.Element => {
           limit: PAGE_LIMIT,
           sort_by: "customer_id",
           sort_order: "desc",
-          search_term: "",
+          search_term,
         })}`,
       )
       .then((response) => setCustomers(response.data))
       .catch((error) => console.error("Error:", error));
+  };
+
+  const changePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ): void => {
+    setPage(value);
+    getAllCustomers(value, searchTerm);
+  };
+
+  useEffect(() => {
+    // Fetch customers
+    getAllCustomers(page, searchTerm);
 
     // Fetch user ID
     axiosInstance
@@ -170,6 +165,22 @@ const CustomerForm = (): JSX.Element => {
             }}
           >
             Add Customers
+          </Button>
+        </Box>
+
+        <Box className="flex items-center mb-6">
+          <Input
+            size="sm"
+            placeholder="Name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            onClick={() => getAllCustomers(page, searchTerm)}
+            className="ml-4 w-[80px] bg-button-primary"
+            size="sm"
+          >
+            Search
           </Button>
         </Box>
         <Sheet
