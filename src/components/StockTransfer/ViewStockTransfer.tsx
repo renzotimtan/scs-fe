@@ -58,7 +58,7 @@ const ViewStockTransfer = ({
     setPage(value);
     axiosInstance
       .get<PaginatedST>(
-        `/api/receiving-reports/?${convertToQueryParams({
+        `/api/stock-transfers/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",

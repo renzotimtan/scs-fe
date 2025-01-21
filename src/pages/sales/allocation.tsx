@@ -1,11 +1,12 @@
 import { useState } from "react";
 import AllocForm from "../../components/Allocation/AllocForm";
 import ViewAlloc from "../../components/Allocation/ViewAlloc";
+import { Alloc } from "../../interface";
 
 const AllocationMenu = (): JSX.Element => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [selectedRow, setSelectedRow] = useState();
+  const [selectedRow, setSelectedRow] = useState<Alloc | undefined>();
 
   return (
     <div>

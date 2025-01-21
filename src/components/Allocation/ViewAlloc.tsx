@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeleteSTModal from "./DeleteAllocModal";
 import { toast } from "react-toastify";
 import type {
   PaginatedAlloc,
@@ -12,6 +11,7 @@ import type {
 import { Pagination } from "@mui/material";
 
 import { convertToQueryParams } from "../../helper";
+import DeleteAllocModal from "./DeleteAllocModal";
 
 const PAGE_LIMIT = 10;
 
@@ -30,7 +30,7 @@ const ViewAlloc = ({
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
 
-  const getAllST = (): void => {
+  const getAllAlloc = (): void => {
     const payload: PaginationQueryParams = {
       page,
       limit: PAGE_LIMIT,
@@ -56,7 +56,7 @@ const ViewAlloc = ({
     setPage(value);
     axiosInstance
       .get<PaginatedAlloc>(
-        `/api/receiving-reports/?${convertToQueryParams({
+        `/api/allocations/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -69,20 +69,20 @@ const ViewAlloc = ({
   };
 
   useEffect(() => {
-    // Fetch STs
-    getAllST();
+    // Fetch Allocs
+    getAllAlloc();
   }, []);
 
-  const handleDeleteST = async (): Promise<void> => {
+  const handleDeleteAlloc = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/stock-transfers/${selectedRow.id}`;
+      const url = `/api/allocations/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setAllocs((prevST) => ({
-          ...prevST,
-          items: prevST.items.filter((ST) => ST.id !== selectedRow.id),
-          total: prevST.total - 1,
+        setAllocs((prevAlloc) => ({
+          ...prevAlloc,
+          items: prevAlloc.items.filter((Alloc) => Alloc.id !== selectedRow.id),
+          total: prevAlloc.total - 1,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -94,7 +94,7 @@ const ViewAlloc = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Stock Transfer</h2>
+          <h2>Allocation</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -102,7 +102,7 @@ const ViewAlloc = ({
               setOpenCreate(true);
             }}
           >
-            Add Stock Transfer
+            Add Allocation
           </Button>
         </Box>
         <Box className="flex items-center mb-6">
@@ -126,7 +126,7 @@ const ViewAlloc = ({
             <Option value="archived">Archived</Option>
           </Select>
           <Button
-            onClick={getAllST}
+            onClick={getAllAlloc}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >
@@ -272,11 +272,11 @@ const ViewAlloc = ({
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteSTModal
+      <DeleteAllocModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Archive Stock Transfer"
-        onDelete={handleDeleteST}
+        onDelete={handleDeleteAlloc}
       />
     </>
   );
