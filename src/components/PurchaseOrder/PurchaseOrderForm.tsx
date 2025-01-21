@@ -71,6 +71,14 @@ const PurchaseOrderForm = ({
       .get<User>("/users/me/")
       .then((response) => setUserId(response.data.id))
       .catch((error) => console.error("Error fetching user ID:", error));
+
+    // Fetch items
+    axiosInstance
+      .get<PaginatedItems>(`/api/items`)
+      .then((response) => {
+        setItems(response.data.items);
+      })
+      .catch((error) => console.error("Error:", error));
   }, []);
 
   useEffect(() => {
@@ -111,20 +119,6 @@ const PurchaseOrderForm = ({
       getAllPOItems();
     }
   }, [items]);
-
-  useEffect(() => {
-    if (selectedSupplier !== null) {
-      // Fetch items for the selected supplier
-      axiosInstance
-        .get<PaginatedItems>(
-          `/api/items?supplier_id=${selectedSupplier.supplier_id}`,
-        )
-        .then((response) => {
-          setItems(response.data.items);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedSupplier]);
 
   const createPayload = (
     itemPayload: POItemValues[],

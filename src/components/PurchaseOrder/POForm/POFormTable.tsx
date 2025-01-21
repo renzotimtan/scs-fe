@@ -166,9 +166,9 @@ const POFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              Name
+              Stock Code
             </th>
-            <th style={{ width: 200 }}>Stock Code</th>
+            <th style={{ width: 200 }}>Name</th>
             <th style={{ width: 200 }}>Last Purchase Price</th>
             <th style={{ width: 150 }}>Volume</th>
             <th style={{ width: 150 }}>Price</th>
@@ -197,11 +197,11 @@ const POFormTable = ({
                 />
               )}
 
-              <td style={{ zIndex: 1 }}>
+              <td>
                 <Autocomplete
-                  placeholder="Select Stock"
+                  placeholder="Select Stock Code"
                   options={items}
-                  getOptionLabel={(item) => item.name ?? ""}
+                  getOptionLabel={(item) => item.stock_code ?? ""}
                   onChange={(event, value) => {
                     if (value !== null) {
                       fetchSelectedItem(event, value.id, index);
@@ -220,11 +220,11 @@ const POFormTable = ({
                   }}
                 />
               </td>
-              <td>
+              <td style={{ zIndex: 1 }}>
                 <Autocomplete
-                  placeholder="Select Stock"
+                  placeholder="Select Stock Name"
                   options={items}
-                  getOptionLabel={(item) => item.stock_code ?? ""}
+                  getOptionLabel={(item) => item.name ?? ""}
                   onChange={(event, value) => {
                     if (value !== null) {
                       fetchSelectedItem(event, value.id, index);
