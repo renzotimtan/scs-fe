@@ -118,7 +118,6 @@ const AllocFormTable = ({
                     size="sm"
                     className="w-[100%]"
                     placeholder="Select Warehouse"
-                    required
                   />
                 </td>
                 <td style={{ width: 150 }}>
@@ -142,7 +141,6 @@ const AllocFormTable = ({
                     }}
                     placeholder="0"
                     disabled={isEditDisabled}
-                    required
                   />
                 </td>
                 <td style={{ width: 200 }}>
@@ -166,7 +164,6 @@ const AllocFormTable = ({
                     size="sm"
                     className="w-[100%]"
                     placeholder="Select Warehouse"
-                    required
                   />
                 </td>
                 <td style={{ width: 150 }}>
@@ -190,7 +187,6 @@ const AllocFormTable = ({
                     }}
                     placeholder="0"
                     disabled={isEditDisabled}
-                    required
                   />
                 </td>
                 <td style={{ width: 200 }}>
@@ -214,7 +210,6 @@ const AllocFormTable = ({
                     size="sm"
                     className="w-[100%]"
                     placeholder="Select Warehouse"
-                    required
                   />
                 </td>
                 <td style={{ width: 150 }}>
@@ -238,7 +233,6 @@ const AllocFormTable = ({
                     }}
                     placeholder="0"
                     disabled={isEditDisabled}
-                    required
                   />
                 </td>
                 <td

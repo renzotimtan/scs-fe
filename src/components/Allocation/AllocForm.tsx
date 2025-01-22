@@ -46,8 +46,6 @@ const AllocForm = ({
 
   const [CPOItems, setCPOItems] = useState<CPOItemFE[]>([]);
 
-
-
   useEffect(() => {
     // Fetch warehouses
     axiosInstance
@@ -150,23 +148,25 @@ const AllocForm = ({
           });
         }
 
+        if (warehouse_allocations.length < 1) return null;
+
         return {
           customer_purchase_order_id: cpoItem.id,
           item_id: cpoItem.item_id,
           warehouse_allocations,
         };
-      }),
+      }).filter((item) => !!item?.warehouse_allocations),
     };
 
-    return payload
+    return payload;
   };
 
-
   const handleCreateAlloc = async () => {
-    const payload = createPayload()
+    const payload = createPayload();
+    console.log(payload);
 
     try {
-      await axiosInstance.post("/api/stock-transfers/", payload);
+      await axiosInstance.post("/api/allocations/", payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);
