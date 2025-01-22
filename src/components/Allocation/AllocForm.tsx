@@ -46,6 +46,8 @@ const AllocForm = ({
 
   const [CPOItems, setCPOItems] = useState<CPOItemFE[]>([]);
 
+
+
   useEffect(() => {
     // Fetch warehouses
     axiosInstance
@@ -117,13 +119,51 @@ const AllocForm = ({
     }
   };
 
-  const handleCreateAlloc = async () => {
+  const createPayload = () => {
     const payload = {
       status,
-      transaction_date: transactionDate,
+      customer_id: selectedCustomer?.customer_id,
       remarks,
-      customer_id: selectedCustomer?.customer_id ?? null,
+      allocation_items: CPOItems.map((cpoItem: CPOItemFE) => {
+        // Construct warehouse_allocations array
+        const warehouse_allocations = [];
+
+        // Dynamically check and add warehouse allocations
+        if (cpoItem.warehouse_1 && cpoItem.warehouse_1_qty) {
+          warehouse_allocations.push({
+            warehouse_id: cpoItem.warehouse_1.id, // Assuming `warehouse_1` contains an `id`
+            allocated_qty: cpoItem.warehouse_1_qty,
+          });
+        }
+
+        if (cpoItem.warehouse_2 && cpoItem.warehouse_2_qty) {
+          warehouse_allocations.push({
+            warehouse_id: cpoItem.warehouse_2.id, // Assuming `warehouse_2` contains an `id`
+            allocated_qty: cpoItem.warehouse_2_qty,
+          });
+        }
+
+        if (cpoItem.warehouse_3 && cpoItem.warehouse_3_qty) {
+          warehouse_allocations.push({
+            warehouse_id: cpoItem.warehouse_3.id, // Assuming `warehouse_3` contains an `id`
+            allocated_qty: cpoItem.warehouse_3_qty,
+          });
+        }
+
+        return {
+          customer_purchase_order_id: cpoItem.id,
+          item_id: cpoItem.item_id,
+          warehouse_allocations,
+        };
+      }),
     };
+
+    return payload
+  };
+
+
+  const handleCreateAlloc = async () => {
+    const payload = createPayload()
 
     try {
       await axiosInstance.post("/api/stock-transfers/", payload);

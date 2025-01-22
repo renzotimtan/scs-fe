@@ -62,6 +62,9 @@ const StockTransferForm = ({
     null,
   );
 
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
+
   useEffect(() => {
     // Fetch warehouses
     axiosInstance
@@ -114,7 +117,11 @@ const StockTransferForm = ({
 
   useEffect(() => {
     // Fill in fields for Edit
-    if (selectedRow) {
+    if (
+      selectedRow &&
+      selectedRow?.supplier_id &&
+      selectedRow?.from_warehouse_id
+    ) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
@@ -163,6 +170,7 @@ const StockTransferForm = ({
           setWarehouseItems(tempWarehouseItems);
 
           if (rrTransfer === "no") {
+            // Fetch everything in the warehouse
             fetchMultipleItems(
               tempWarehouseItems.map(
                 (warehouseItem: WarehouseItem) => warehouseItem.item_id,
@@ -190,6 +198,7 @@ const StockTransferForm = ({
       });
     });
 
+    // Fetch items only part of the RR
     fetchMultipleItems(addedPOItems);
   };
 
@@ -457,8 +466,6 @@ const StockTransferForm = ({
         selectedSupplier={selectedSupplier}
         setSelectedSupplier={setSelectedSupplier}
         setSelectedWarehouseItems={setSelectedWarehouseItems}
-        fetchMultipleItems={fetchMultipleItems}
-        warehouseItems={warehouseItems}
         handleRRNumChange={handleRRNumChange}
       />
       <STFormTable
@@ -483,16 +490,18 @@ const StockTransferForm = ({
           }}
         >
           <DoDisturbIcon className="mr-2" />
-          Cancel
+          {isEditDisabled ? "Go Back" : "Cancel"}
         </Button>
-        <Button
-          type="submit"
-          className="ml-4 w-[130px] bg-button-primary"
-          size="sm"
-        >
-          <SaveIcon className="mr-2" />
-          Save
-        </Button>
+        {!isEditDisabled && (
+          <Button
+            type="submit"
+            className="ml-4 w-[130px] bg-button-primary"
+            size="sm"
+          >
+            <SaveIcon className="mr-2" />
+            Save
+          </Button>
+        )}
       </div>
     </form>
   );

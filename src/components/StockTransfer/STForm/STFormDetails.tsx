@@ -37,8 +37,6 @@ const STFormDetails = ({
   selectedSupplier,
   setSelectedSupplier,
   setSelectedWarehouseItems,
-  warehouseItems,
-  fetchMultipleItems,
   handleRRNumChange,
 }: STFormDetailsProps): JSX.Element => {
   const isEditDisabled =
@@ -52,6 +50,13 @@ const STFormDetails = ({
       } else {
         // @ts-expect-error (Item object, unless its using the empty object)
         setSelectedWarehouseItems([{ id: null }]);
+
+        const receivingArea = warehouses.items.find(
+          (warehouse) => warehouse.name === "Receiving Area",
+        );
+        if (receivingArea) {
+          setSelectedWarehouse(receivingArea);
+        }
       }
       setRRTransfer(value);
     }
@@ -76,6 +81,7 @@ const STFormDetails = ({
                 onChange={(_, value) => handleRRTransferChange(value)}
                 size="sm"
                 value={rrTransfer}
+                disabled={isEditDisabled}
               >
                 <Option value="yes">Yes</Option>
                 <Option value="no">No</Option>
@@ -130,6 +136,7 @@ const STFormDetails = ({
                 }}
                 size="sm"
                 value={status}
+                disabled={isEditDisabled}
               >
                 <Option value="posted">Posted</Option>
                 <Option value="unposted">Unposted</Option>
@@ -141,6 +148,7 @@ const STFormDetails = ({
                 type="date"
                 value={transactionDate}
                 onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -152,12 +160,11 @@ const STFormDetails = ({
                 value={selectedWarehouse}
                 onChange={(event, newValue) => {
                   setSelectedWarehouse(newValue);
-                  // @ts-expect-error (Item object, unless its using the empty object)
-                  setSelectedWarehouseItems([{ id: null }]);
                 }}
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Warehouse"
+                disabled={isEditDisabled || rrTransfer === "yes"}
                 required
               />
             </FormControl>
@@ -199,6 +206,7 @@ const STFormDetails = ({
               placeholder="Remarks"
               onChange={(e) => setRemarks(e.target.value)}
               value={remarks}
+              disabled={isEditDisabled}
             />
           </FormControl>
         </div>

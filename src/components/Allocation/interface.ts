@@ -34,6 +34,7 @@ export interface CPOItemFE {
   name: string; // The name of the item
   volume: number; // The total volume of the item
   alloc_qty: number; // Allocated quantity (volume - unserved_cpo)
+  item_id: number;
 
   // Allocations to warehouses
   warehouse_1: Warehouse | null; // Name or identifier for Warehouse 1

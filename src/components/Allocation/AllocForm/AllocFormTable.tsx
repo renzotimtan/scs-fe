@@ -85,7 +85,7 @@ const AllocFormTable = ({
         <tbody>
           {CPOItems.map((item) => {
             return (
-              <tr>
+              <tr key={`${item.id}-${item.item_id}`}>
                 <td
                   style={{
                     width: "var(--Table-firstColumnWidth)",
@@ -108,7 +108,8 @@ const AllocFormTable = ({
                       setCPOItems((prevCPOItems) =>
                         prevCPOItems.map(
                           (cpoItem) =>
-                            cpoItem.id === item.id
+                            cpoItem.id === item.id &&
+                            cpoItem.item_id === item.item_id
                               ? { ...cpoItem, warehouse_1: newValue } // Update the matching item
                               : cpoItem, // Keep other items unchanged
                         ),
@@ -127,7 +128,8 @@ const AllocFormTable = ({
                     onChange={(e) => {
                       setCPOItems((prevCPOItems) =>
                         prevCPOItems.map((cpoItem) =>
-                          cpoItem.id === item.id
+                          cpoItem.id === item.id &&
+                          cpoItem.item_id === item.item_id
                             ? { ...cpoItem, warehouse_1_qty: e.target.value } // Update the matching item
                             : cpoItem,
                         ),
@@ -154,7 +156,8 @@ const AllocFormTable = ({
                       setCPOItems((prevCPOItems) =>
                         prevCPOItems.map(
                           (cpoItem) =>
-                            cpoItem.id === item.id
+                            cpoItem.id === item.id &&
+                            cpoItem.item_id === item.item_id
                               ? { ...cpoItem, warehouse_2: newValue } // Update the matching item
                               : cpoItem, // Keep other items unchanged
                         ),
@@ -173,7 +176,8 @@ const AllocFormTable = ({
                     onChange={(e) => {
                       setCPOItems((prevCPOItems) =>
                         prevCPOItems.map((cpoItem) =>
-                          cpoItem.id === item.id
+                          cpoItem.id === item.id &&
+                          cpoItem.item_id === item.item_id
                             ? { ...cpoItem, warehouse_2_qty: e.target.value } // Update the matching item
                             : cpoItem,
                         ),
@@ -200,7 +204,8 @@ const AllocFormTable = ({
                       setCPOItems((prevCPOItems) =>
                         prevCPOItems.map(
                           (cpoItem) =>
-                            cpoItem.id === item.id
+                            cpoItem.id === item.id &&
+                            cpoItem.item_id === item.item_id
                               ? { ...cpoItem, warehouse_3: newValue } // Update the matching item
                               : cpoItem, // Keep other items unchanged
                         ),
@@ -219,7 +224,8 @@ const AllocFormTable = ({
                     onChange={(e) => {
                       setCPOItems((prevCPOItems) =>
                         prevCPOItems.map((cpoItem) =>
-                          cpoItem.id === item.id
+                          cpoItem.id === item.id &&
+                          cpoItem.item_id === item.item_id
                             ? { ...cpoItem, warehouse_3_qty: e.target.value } // Update the matching item
                             : cpoItem,
                         ),

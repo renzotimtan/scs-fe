@@ -31,8 +31,6 @@ export interface STFormDetailsProps {
   selectedSupplier: Supplier | null;
   setSelectedSupplier: Dispatch<SetStateAction<Supplier | null>>;
   setSelectedWarehouseItems: Dispatch<SetStateAction<WarehouseItem[]>>;
-  warehouseItems: WarehouseItem[];
-  fetchMultipleItems: (POItems: any) => void;
   handleRRNumChange: (RR: ReceivingReport) => void;
 }
 
