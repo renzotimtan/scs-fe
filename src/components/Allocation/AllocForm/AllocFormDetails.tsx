@@ -14,7 +14,7 @@ import type { AllocFormDetailsProps } from "../interface";
 import { formatToDateTime } from "../../../helper";
 import { ReceivingReport } from "../../../interface";
 
-const STFormDetails = ({
+const AllocFormDetails = ({
   openEdit,
   selectedRow,
   // Fields
@@ -27,6 +27,8 @@ const STFormDetails = ({
   customers,
   selectedCustomer,
   setSelectedCustomer,
+  getCPOsByCustomer,
+  setCPOItems,
 }: AllocFormDetailsProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -53,6 +55,11 @@ const STFormDetails = ({
                   value={selectedCustomer}
                   onChange={(event, newValue) => {
                     setSelectedCustomer(newValue);
+                    if (newValue) {
+                      getCPOsByCustomer(newValue?.customer_id);
+                    } else {
+                      setCPOItems([]);
+                    }
                   }}
                   size="sm"
                   className="w-[100%]"
@@ -130,4 +137,4 @@ const STFormDetails = ({
   );
 };
 
-export default STFormDetails;
+export default AllocFormDetails;

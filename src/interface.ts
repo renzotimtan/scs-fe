@@ -488,7 +488,7 @@ export interface CPOItems {
   price: number;
   total_price: number;
   allocated: number;
-  unserved_spo: number;
+  unserved_cpo: number;
   item: Item;
   p_type: string;
 
