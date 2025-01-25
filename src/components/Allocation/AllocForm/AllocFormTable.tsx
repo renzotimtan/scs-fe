@@ -85,164 +85,166 @@ const AllocFormTable = ({
         <tbody>
           {CPOItems.map((item) => {
             return (
-              <tr key={`${item.id}-${item.item_id}`}>
-                <td
-                  style={{
-                    width: "var(--Table-firstColumnWidth)",
-                    zIndex: 10,
-                  }}
-                >
-                  {item.id}
-                </td>
-                <td>{item.name}</td>
-                <td>{item.volume}</td>
-                <td>{item.alloc_qty}</td>
-                <td>
-                  <Autocomplete
-                    options={warehouses.items.filter(
-                      (warehouse) => warehouse.id,
-                    )}
-                    getOptionLabel={(option) => option.name}
-                    value={item.warehouse_1}
-                    onChange={(event, newValue) => {
-                      setCPOItems((prevCPOItems) =>
-                        prevCPOItems.map(
-                          (cpoItem) =>
+              item.volume !== item.alloc_qty && (
+                <tr key={`${item.id}-${item.item_id}`}>
+                  <td
+                    style={{
+                      width: "var(--Table-firstColumnWidth)",
+                      zIndex: 10,
+                    }}
+                  >
+                    {item.id}
+                  </td>
+                  <td>{item.name}</td>
+                  <td>{item.volume}</td>
+                  <td>{item.alloc_qty}</td>
+                  <td>
+                    <Autocomplete
+                      options={warehouses.items.filter(
+                        (warehouse) => warehouse.id,
+                      )}
+                      getOptionLabel={(option) => option.name}
+                      value={item.warehouse_1}
+                      onChange={(event, newValue) => {
+                        setCPOItems((prevCPOItems) =>
+                          prevCPOItems.map(
+                            (cpoItem) =>
+                              cpoItem.id === item.id &&
+                              cpoItem.item_id === item.item_id
+                                ? { ...cpoItem, warehouse_1: newValue } // Update the matching item
+                                : cpoItem, // Keep other items unchanged
+                          ),
+                        );
+                      }}
+                      size="sm"
+                      className="w-[100%]"
+                      placeholder="Select Warehouse"
+                      disabled={isEditDisabled}
+                    />
+                  </td>
+                  <td style={{ width: 150 }}>
+                    <Input
+                      type="number"
+                      value={item.warehouse_1_qty}
+                      onChange={(e) => {
+                        setCPOItems((prevCPOItems) =>
+                          prevCPOItems.map((cpoItem) =>
                             cpoItem.id === item.id &&
                             cpoItem.item_id === item.item_id
-                              ? { ...cpoItem, warehouse_1: newValue } // Update the matching item
-                              : cpoItem, // Keep other items unchanged
-                        ),
-                      );
-                    }}
-                    size="sm"
-                    className="w-[100%]"
-                    placeholder="Select Warehouse"
-                    disabled={isEditDisabled}
-                  />
-                </td>
-                <td style={{ width: 150 }}>
-                  <Input
-                    type="number"
-                    value={item.warehouse_1_qty}
-                    onChange={(e) => {
-                      setCPOItems((prevCPOItems) =>
-                        prevCPOItems.map((cpoItem) =>
-                          cpoItem.id === item.id &&
-                          cpoItem.item_id === item.item_id
-                            ? { ...cpoItem, warehouse_1_qty: e.target.value } // Update the matching item
-                            : cpoItem,
-                        ),
-                      );
-                    }}
-                    slotProps={{
-                      input: {
-                        min: 0,
-                      },
-                    }}
-                    placeholder="0"
-                    disabled={isEditDisabled}
-                  />
-                </td>
-                <td style={{ width: 200 }}>
-                  <Autocomplete
-                    options={warehouses.items.filter(
-                      (warehouse) => warehouse.id,
-                    )}
-                    getOptionLabel={(option) => option.name}
-                    value={item.warehouse_2}
-                    onChange={(event, newValue) => {
-                      setCPOItems((prevCPOItems) =>
-                        prevCPOItems.map(
-                          (cpoItem) =>
+                              ? { ...cpoItem, warehouse_1_qty: e.target.value } // Update the matching item
+                              : cpoItem,
+                          ),
+                        );
+                      }}
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
+                      placeholder="0"
+                      disabled={isEditDisabled}
+                    />
+                  </td>
+                  <td style={{ width: 200 }}>
+                    <Autocomplete
+                      options={warehouses.items.filter(
+                        (warehouse) => warehouse.id,
+                      )}
+                      getOptionLabel={(option) => option.name}
+                      value={item.warehouse_2}
+                      onChange={(event, newValue) => {
+                        setCPOItems((prevCPOItems) =>
+                          prevCPOItems.map(
+                            (cpoItem) =>
+                              cpoItem.id === item.id &&
+                              cpoItem.item_id === item.item_id
+                                ? { ...cpoItem, warehouse_2: newValue } // Update the matching item
+                                : cpoItem, // Keep other items unchanged
+                          ),
+                        );
+                      }}
+                      size="sm"
+                      className="w-[100%]"
+                      placeholder="Select Warehouse"
+                      disabled={isEditDisabled}
+                    />
+                  </td>
+                  <td style={{ width: 150 }}>
+                    <Input
+                      type="number"
+                      value={item.warehouse_2_qty}
+                      onChange={(e) => {
+                        setCPOItems((prevCPOItems) =>
+                          prevCPOItems.map((cpoItem) =>
                             cpoItem.id === item.id &&
                             cpoItem.item_id === item.item_id
-                              ? { ...cpoItem, warehouse_2: newValue } // Update the matching item
-                              : cpoItem, // Keep other items unchanged
-                        ),
-                      );
-                    }}
-                    size="sm"
-                    className="w-[100%]"
-                    placeholder="Select Warehouse"
-                    disabled={isEditDisabled}
-                  />
-                </td>
-                <td style={{ width: 150 }}>
-                  <Input
-                    type="number"
-                    value={item.warehouse_2_qty}
-                    onChange={(e) => {
-                      setCPOItems((prevCPOItems) =>
-                        prevCPOItems.map((cpoItem) =>
-                          cpoItem.id === item.id &&
-                          cpoItem.item_id === item.item_id
-                            ? { ...cpoItem, warehouse_2_qty: e.target.value } // Update the matching item
-                            : cpoItem,
-                        ),
-                      );
-                    }}
-                    slotProps={{
-                      input: {
-                        min: 0,
-                      },
-                    }}
-                    placeholder="0"
-                    disabled={isEditDisabled}
-                  />
-                </td>
-                <td style={{ width: 200 }}>
-                  <Autocomplete
-                    options={warehouses.items.filter(
-                      (warehouse) => warehouse.id,
-                    )}
-                    getOptionLabel={(option) => option.name}
-                    value={item.warehouse_3}
-                    onChange={(event, newValue) => {
-                      setCPOItems((prevCPOItems) =>
-                        prevCPOItems.map(
-                          (cpoItem) =>
+                              ? { ...cpoItem, warehouse_2_qty: e.target.value } // Update the matching item
+                              : cpoItem,
+                          ),
+                        );
+                      }}
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
+                      placeholder="0"
+                      disabled={isEditDisabled}
+                    />
+                  </td>
+                  <td style={{ width: 200 }}>
+                    <Autocomplete
+                      options={warehouses.items.filter(
+                        (warehouse) => warehouse.id,
+                      )}
+                      getOptionLabel={(option) => option.name}
+                      value={item.warehouse_3}
+                      onChange={(event, newValue) => {
+                        setCPOItems((prevCPOItems) =>
+                          prevCPOItems.map(
+                            (cpoItem) =>
+                              cpoItem.id === item.id &&
+                              cpoItem.item_id === item.item_id
+                                ? { ...cpoItem, warehouse_3: newValue } // Update the matching item
+                                : cpoItem, // Keep other items unchanged
+                          ),
+                        );
+                      }}
+                      size="sm"
+                      className="w-[100%]"
+                      placeholder="Select Warehouse"
+                      disabled={isEditDisabled}
+                    />
+                  </td>
+                  <td style={{ width: 150 }}>
+                    <Input
+                      type="number"
+                      value={item.warehouse_3_qty}
+                      onChange={(e) => {
+                        setCPOItems((prevCPOItems) =>
+                          prevCPOItems.map((cpoItem) =>
                             cpoItem.id === item.id &&
                             cpoItem.item_id === item.item_id
-                              ? { ...cpoItem, warehouse_3: newValue } // Update the matching item
-                              : cpoItem, // Keep other items unchanged
-                        ),
-                      );
-                    }}
-                    size="sm"
-                    className="w-[100%]"
-                    placeholder="Select Warehouse"
-                    disabled={isEditDisabled}
+                              ? { ...cpoItem, warehouse_3_qty: e.target.value } // Update the matching item
+                              : cpoItem,
+                          ),
+                        );
+                      }}
+                      slotProps={{
+                        input: {
+                          min: 0,
+                        },
+                      }}
+                      placeholder="0"
+                      disabled={isEditDisabled}
+                    />
+                  </td>
+                  <td
+                    aria-label="last"
+                    style={{ width: "var(--Table-lastColumnWidth)" }}
                   />
-                </td>
-                <td style={{ width: 150 }}>
-                  <Input
-                    type="number"
-                    value={item.warehouse_3_qty}
-                    onChange={(e) => {
-                      setCPOItems((prevCPOItems) =>
-                        prevCPOItems.map((cpoItem) =>
-                          cpoItem.id === item.id &&
-                          cpoItem.item_id === item.item_id
-                            ? { ...cpoItem, warehouse_3_qty: e.target.value } // Update the matching item
-                            : cpoItem,
-                        ),
-                      );
-                    }}
-                    slotProps={{
-                      input: {
-                        min: 0,
-                      },
-                    }}
-                    placeholder="0"
-                    disabled={isEditDisabled}
-                  />
-                </td>
-                <td
-                  aria-label="last"
-                  style={{ width: "var(--Table-lastColumnWidth)" }}
-                />
-              </tr>
+                </tr>
+              )
             );
           })}
         </tbody>
