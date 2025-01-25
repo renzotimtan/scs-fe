@@ -114,9 +114,7 @@ const AllocForm = ({
                 (warehouse) =>
                   warehouse.id === item.warehouse_allocations[0].warehouse_id,
               ) || null;
-            console.log(item.warehouse_allocations[0].warehouse_id);
-            console.log(warehouses.items);
-            console.log(warehouse_1);
+
             warehouse_1_qty = String(
               item.warehouse_allocations[0].allocated_qty,
             );
@@ -147,6 +145,7 @@ const AllocForm = ({
           return {
             id: item.customer_purchase_order_id,
             name: item.item.name,
+            cpo_existing_allocated: item.cpo_existing_allocated,
             volume,
             alloc_qty,
             item_id,

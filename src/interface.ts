@@ -640,6 +640,7 @@ export interface AllocItem {
   creator: User;
   customer_purchase_order: CPO;
   customer_purchase_order_id: number;
+  cpo_existing_allocated: number;
   date_created: string;
   date_modified: string;
   id: number;

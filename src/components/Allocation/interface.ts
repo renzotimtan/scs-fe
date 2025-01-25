@@ -35,6 +35,7 @@ export interface CPOItemFE {
   volume: number; // The total volume of the item
   alloc_qty: number; // Allocated quantity (volume - unserved_cpo)
   item_id: number;
+  cpo_existing_allocated?: number;
 
   // Allocations to warehouses
   warehouse_1: Warehouse | null; // Name or identifier for Warehouse 1

@@ -99,7 +99,9 @@ const AllocFormTable = ({
                   </td>
                   <td>{item.name}</td>
                   <td>{item.volume}</td>
-                  <td>{item.alloc_qty}</td>
+                  <td>
+                    {openCreate ? item.alloc_qty : item.cpo_existing_allocated}
+                  </td>
                   <td>
                     <Autocomplete
                       options={warehouses.items.filter(

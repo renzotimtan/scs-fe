@@ -40,7 +40,7 @@ const AllocFormDetails = ({
           <div className="flex justify-between items-center mb-2">
             {openEdit && (
               <div>
-                <h4>STR No. {selectedRow?.id}</h4>
+                <h4>Alloc No. {selectedRow?.id}</h4>
               </div>
             )}
           </div>
