@@ -12,6 +12,7 @@ const AllocFormTable = ({
   warehouses,
   CPOItems,
   setCPOItems,
+  openCreate,
 }: AllocFormTableProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -85,7 +86,8 @@ const AllocFormTable = ({
         <tbody>
           {CPOItems.map((item) => {
             return (
-              item.volume !== item.alloc_qty && (
+              ((openCreate && item.volume !== item.alloc_qty) ||
+                !openCreate) && (
                 <tr key={`${item.id}-${item.item_id}`}>
                   <td
                     style={{

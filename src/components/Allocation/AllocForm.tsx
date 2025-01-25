@@ -322,6 +322,7 @@ const AllocForm = ({
         selectedCustomer={selectedCustomer}
         CPOItems={CPOItems}
         setCPOItems={setCPOItems}
+        openCreate={openCreate}
       />
       <Divider />
       <div className="flex justify-end mt-4">

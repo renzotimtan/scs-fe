@@ -51,6 +51,7 @@ export interface AllocFormTableProps {
   selectedCustomer: Customer | null;
   CPOItems: CPOItemFE[];
   setCPOItems: Dispatch<SetStateAction<CPOItemFE[]>>;
+  openCreate: boolean;
 }
 
 interface Destinations {
