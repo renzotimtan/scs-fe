@@ -170,7 +170,7 @@ const ItemForm = (): JSX.Element => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
-            onClick={() => getAllStocks(page, searchTerm)}
+            onClick={() => getAllStocks(1, searchTerm)}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >

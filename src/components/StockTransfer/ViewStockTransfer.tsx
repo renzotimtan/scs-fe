@@ -32,7 +32,7 @@ const ViewStockTransfer = ({
 
   const getAllST = (): void => {
     const payload: PaginationQueryParams = {
-      page,
+      page: 1,
       limit: PAGE_LIMIT,
       sort_by: "id",
       sort_order: "desc",
@@ -47,7 +47,10 @@ const ViewStockTransfer = ({
       .get<PaginatedST>(
         `/api/stock-transfers/?${convertToQueryParams(payload)}`,
       )
-      .then((response) => setStockTransfers(response.data))
+      .then((response) => {
+        setStockTransfers(response.data);
+        setPage(1);
+      })
       .catch((error) => console.error("Error:", error));
   };
 
@@ -227,7 +230,7 @@ const ViewStockTransfer = ({
                   <td className="capitalize">{stockTransfer.status}</td>
                   <td>{stockTransfer.transaction_date}</td>
                   <td>{stockTransfer.rr_transfer ? "Yes" : "No"}</td>
-                  <td>{stockTransfer?.rr_id ?? "N/A" }</td>
+                  <td>{stockTransfer?.rr_id ?? "N/A"}</td>
                   <td>{stockTransfer.remarks}</td>
                   <td>{stockTransfer?.creator?.username}</td>
                   <td>{stockTransfer?.modifier?.username}</td>

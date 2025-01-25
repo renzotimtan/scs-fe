@@ -175,7 +175,7 @@ const SupplierForm = (): JSX.Element => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
-            onClick={() => getAllSuppliers(page, searchTerm)}
+            onClick={() => getAllSuppliers(1, searchTerm)}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >

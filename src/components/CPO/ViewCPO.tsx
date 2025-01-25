@@ -33,7 +33,7 @@ const ViewCPO = ({
 
   const getAllPO = (): void => {
     const payload: PaginationQueryParams = {
-      page,
+      page: 1,
       limit: PAGE_LIMIT,
       sort_by: "id",
       sort_order: "desc",
@@ -48,7 +48,10 @@ const ViewCPO = ({
       .get<PaginatedCPO>(
         `/api/customer_purchase_orders/?${convertToQueryParams(payload)}`,
       )
-      .then((response) => setCPOs(response.data))
+      .then((response) => {
+        setCPOs(response.data);
+        setPage(1);
+      })
       .catch((error) => console.error("Error:", error));
   };
 

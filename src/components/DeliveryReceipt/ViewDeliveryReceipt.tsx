@@ -35,7 +35,7 @@ const ViewDeliveryReceipt = ({
 
   const getAllSDR = (): void => {
     const payload: PaginationQueryParams = {
-      page,
+      page: 1,
       limit: PAGE_LIMIT,
       sort_by: "id",
       sort_order: "desc",
@@ -50,7 +50,10 @@ const ViewDeliveryReceipt = ({
       .get<PaginatedSDR>(
         `/api/supplier-delivery-receipts/?${convertToQueryParams(payload)}`,
       )
-      .then((response) => setDeliveryReceipts(response.data))
+      .then((response) => {
+        setDeliveryReceipts(response.data);
+        setPage(1);
+      })
       .catch((error) => console.error("Error:", error));
   };
 

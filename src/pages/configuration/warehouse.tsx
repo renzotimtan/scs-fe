@@ -154,7 +154,7 @@ const WarehouseForm = (): JSX.Element => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
-            onClick={() => getAllWarehouse(page, searchTerm)}
+            onClick={() => getAllWarehouse(1, searchTerm)}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >

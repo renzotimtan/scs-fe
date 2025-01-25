@@ -118,6 +118,7 @@ const AllocFormTable = ({
                     size="sm"
                     className="w-[100%]"
                     placeholder="Select Warehouse"
+                    disabled={isEditDisabled}
                   />
                 </td>
                 <td style={{ width: 150 }}>
@@ -164,6 +165,7 @@ const AllocFormTable = ({
                     size="sm"
                     className="w-[100%]"
                     placeholder="Select Warehouse"
+                    disabled={isEditDisabled}
                   />
                 </td>
                 <td style={{ width: 150 }}>
@@ -210,6 +212,7 @@ const AllocFormTable = ({
                     size="sm"
                     className="w-[100%]"
                     placeholder="Select Warehouse"
+                    disabled={isEditDisabled}
                   />
                 </td>
                 <td style={{ width: 150 }}>

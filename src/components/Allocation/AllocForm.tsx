@@ -28,6 +28,8 @@ const AllocForm = ({
   title,
 }: AllocFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
+  const isEditDisabled =
+    selectedRow !== undefined && selectedRow?.status !== "unposted";
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [remarks, setRemarks] = useState("");
@@ -332,16 +334,18 @@ const AllocForm = ({
           }}
         >
           <DoDisturbIcon className="mr-2" />
-          Cancel
+          {isEditDisabled ? "Go Back" : "Cancel"}
         </Button>
-        <Button
-          type="submit"
-          className="ml-4 w-[130px] bg-button-primary"
-          size="sm"
-        >
-          <SaveIcon className="mr-2" />
-          Save
-        </Button>
+        {!isEditDisabled && (
+          <Button
+            type="submit"
+            className="ml-4 w-[130px] bg-button-primary"
+            size="sm"
+          >
+            <SaveIcon className="mr-2" />
+            Save
+          </Button>
+        )}
       </div>
     </form>
   );

@@ -176,7 +176,7 @@ const CustomerForm = (): JSX.Element => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
-            onClick={() => getAllCustomers(page, searchTerm)}
+            onClick={() => getAllCustomers(1, searchTerm)}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >

@@ -33,7 +33,7 @@ const ViewPurchaseOrder = ({
 
   const getAllPO = (): void => {
     const payload: PaginationQueryParams = {
-      page,
+      page: 1,
       limit: PAGE_LIMIT,
       sort_by: "id",
       sort_order: "desc",
@@ -48,7 +48,10 @@ const ViewPurchaseOrder = ({
       .get<PaginatedPO>(
         `/api/purchase_orders/?${convertToQueryParams(payload)}`,
       )
-      .then((response) => setPurchaseOrders(response.data))
+      .then((response) => {
+        setPurchaseOrders(response.data);
+        setPage(1);
+      })
       .catch((error) => console.error("Error:", error));
   };
 
@@ -239,9 +242,15 @@ const ViewPurchaseOrder = ({
                   <td>{purchaseOrder.transaction_date}</td>
                   <td>{purchaseOrder.currency_used}</td>
                   <td>{purchaseOrder.peso_rate}</td>
-                  <td>{addCommaToNumberWithFourPlaces(purchaseOrder.net_amount)}</td>
-                  <td>{addCommaToNumberWithFourPlaces(purchaseOrder.fob_total)}</td>
-                  <td>{addCommaToNumberWithFourPlaces(purchaseOrder.landed_total)}</td>
+                  <td>
+                    {addCommaToNumberWithFourPlaces(purchaseOrder.net_amount)}
+                  </td>
+                  <td>
+                    {addCommaToNumberWithFourPlaces(purchaseOrder.fob_total)}
+                  </td>
+                  <td>
+                    {addCommaToNumberWithFourPlaces(purchaseOrder.landed_total)}
+                  </td>
                   <td>{purchaseOrder.remarks}</td>
                   <td>{purchaseOrder?.creator?.username}</td>
                   <td>{purchaseOrder?.modifier?.username}</td>

@@ -35,7 +35,7 @@ const ViewReceivingReport = ({
 
   const getAllRR = (): void => {
     const payload: PaginationQueryParams = {
-      page,
+      page: 1,
       limit: PAGE_LIMIT,
       sort_by: "id",
       sort_order: "desc",
@@ -50,7 +50,10 @@ const ViewReceivingReport = ({
       .get<PaginatedRR>(
         `/api/receiving-reports/?${convertToQueryParams(payload)}`,
       )
-      .then((response) => setReceivingReports(response.data))
+      .then((response) => {
+        setReceivingReports(response.data);
+        setPage(1);
+      })
       .catch((error) => console.error("Error:", error));
   };
 
