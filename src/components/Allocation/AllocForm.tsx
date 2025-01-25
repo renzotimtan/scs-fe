@@ -13,6 +13,7 @@ import {
   type PaginatedCustomers,
   type AllocFormProps,
   PaginatedCPO,
+  AllocItem,
 } from "../../interface";
 import { convertToQueryParams } from "../../helper";
 import { AllocFormPayload, CPOItemFE } from "./interface";
@@ -71,11 +72,95 @@ const AllocForm = ({
   useEffect(() => {
     // Fill in fields for Edit
     if (selectedRow) {
+      axiosInstance
+        .get<Customer>(`/api/customers/${selectedRow.customer.customer_id}`)
+        .then((response) => {
+          setSelectedCustomer(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
+
+      // Fill up tables
+      const formattedItems = selectedRow.allocation_items.map(
+        (item: AllocItem) => {
+          // get real time volume and alloc_qty
+          const item_id = item.item_id;
+          const CPOItem = item.customer_purchase_order.items.find((cpoItem) => {
+            return cpoItem.item_id === item_id;
+          });
+
+          const volume = CPOItem?.volume || 0;
+          const alloc_qty =
+            volume !== 0 && CPOItem?.unserved_cpo !== undefined
+              ? volume - CPOItem?.unserved_cpo
+              : 0;
+
+          // get warehouse
+          let warehouse_1 = null;
+          let warehouse_2 = null;
+          let warehouse_3 = null;
+          let warehouse_1_qty = undefined;
+          let warehouse_2_qty = undefined;
+          let warehouse_3_qty = undefined;
+
+          if (item.warehouse_allocations.length >= 1) {
+            warehouse_1 =
+              warehouses.items.find(
+                (warehouse) =>
+                  warehouse.id === item.warehouse_allocations[0].warehouse_id,
+              ) || null;
+            console.log(item.warehouse_allocations[0].warehouse_id);
+            console.log(warehouses.items);
+            console.log(warehouse_1);
+            warehouse_1_qty = String(
+              item.warehouse_allocations[0].allocated_qty,
+            );
+          }
+
+          if (item.warehouse_allocations.length >= 2) {
+            warehouse_2 =
+              warehouses.items.find(
+                (warehouse) =>
+                  warehouse.id === item.warehouse_allocations[1].warehouse_id,
+              ) || null;
+            warehouse_2_qty = String(
+              item.warehouse_allocations[1].allocated_qty,
+            );
+          }
+
+          if (item.warehouse_allocations.length === 3) {
+            warehouse_3 =
+              warehouses.items.find(
+                (warehouse) =>
+                  warehouse.id === item.warehouse_allocations[2].warehouse_id,
+              ) || null;
+            warehouse_3_qty = String(
+              item.warehouse_allocations[2].allocated_qty,
+            );
+          }
+
+          return {
+            id: item.customer_purchase_order_id,
+            name: item.item.name,
+            volume,
+            alloc_qty,
+            item_id,
+            warehouse_1,
+            warehouse_1_qty,
+            warehouse_2,
+            warehouse_2_qty,
+            warehouse_3,
+            warehouse_3_qty,
+          };
+        },
+      );
+
+      setCPOItems(formattedItems);
     }
-  }, [selectedRow]);
+  }, [selectedRow, warehouses]);
 
   const getCPOsByCustomer = (customer_id: number | undefined) => {
     if (customer_id) {
@@ -122,6 +207,7 @@ const AllocForm = ({
       status,
       customer_id: selectedCustomer?.customer_id,
       remarks,
+      transaction_date: transactionDate,
       allocation_items: CPOItems.map((cpoItem: CPOItemFE) => {
         // Construct warehouse_allocations array
         const warehouse_allocations = [];
@@ -163,7 +249,6 @@ const AllocForm = ({
 
   const handleCreateAlloc = async () => {
     const payload = createPayload();
-    console.log(payload);
 
     try {
       await axiosInstance.post("/api/allocations/", payload);
@@ -180,17 +265,10 @@ const AllocForm = ({
   };
 
   const handleEditAlloc = async () => {
-    const payload = {
-      status,
-      transaction_date: transactionDate,
-      remarks,
-    };
+    const payload = createPayload();
 
     try {
-      await axiosInstance.put(
-        `api/stock-transfers/${selectedRow?.id}`,
-        payload,
-      );
+      await axiosInstance.put(`api/allocations/${selectedRow?.id}`, payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);

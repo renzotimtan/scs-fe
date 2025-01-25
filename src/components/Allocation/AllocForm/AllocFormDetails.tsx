@@ -77,6 +77,7 @@ const AllocFormDetails = ({
                 }}
                 size="sm"
                 value={status}
+                disabled={isEditDisabled}
               >
                 <Option value="posted">Posted</Option>
                 <Option value="unposted">Unposted</Option>
@@ -88,6 +89,7 @@ const AllocFormDetails = ({
                 type="date"
                 value={transactionDate}
                 onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={isEditDisabled}
                 required
               />
             </FormControl>
@@ -98,6 +100,7 @@ const AllocFormDetails = ({
                 placeholder="Remarks"
                 onChange={(e) => setRemarks(e.target.value)}
                 value={remarks}
+                disabled={isEditDisabled}
               />
             </FormControl>
           </Stack>

@@ -635,6 +635,35 @@ export interface StockTransfer {
   modifier: User;
 }
 
+export interface AllocItem {
+  allocation_id: number;
+  creator: User;
+  customer_purchase_order: CPO;
+  customer_purchase_order_id: number;
+  date_created: string;
+  date_modified: string;
+  id: number;
+  item: {
+    id: number;
+    name: string;
+    stock_code: string;
+  };
+  item_id: number;
+  modifier: User;
+  warehouse_allocations: {
+    allocated_qty: number;
+    allocation_item_id: number;
+    creator: User;
+    date_created: string; // ISO format date string
+    date_modified: string | null; // Nullable date
+    id: number;
+    item_id: number;
+    modifier: string | null; // Nullable modifier
+    warehouse_id: number;
+    warehouse_item: WarehouseItem;
+  }[];
+}
+
 export interface Alloc {
   id: number;
   status: string;
@@ -644,7 +673,7 @@ export interface Alloc {
     name: string;
   };
   remarks: string;
-  allocation_items: any;
+  allocation_items: AllocItem[];
   creator: User;
   modifier: User;
   date_created: string;

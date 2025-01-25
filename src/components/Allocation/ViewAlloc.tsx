@@ -232,6 +232,7 @@ const ViewAlloc = ({
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
+                        sx={{ width: "100px" }}
                         size="sm"
                         variant="plain"
                         color="neutral"
@@ -251,7 +252,6 @@ const ViewAlloc = ({
                           setOpenDelete(true);
                           setSelectedRow(alloc);
                         }}
-                        disabled={alloc.status !== "unposted"}
                       >
                         Archive
                       </Button>
