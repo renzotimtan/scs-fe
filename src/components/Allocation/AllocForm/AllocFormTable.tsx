@@ -100,7 +100,10 @@ const AllocFormTable = ({
                   <td>{item.name}</td>
                   <td>{item.volume}</td>
                   <td>
-                    {openCreate ? item.alloc_qty : item.cpo_existing_allocated}
+                    {selectedRow !== undefined &&
+                    selectedRow.status === "posted"
+                      ? item.cpo_existing_allocated
+                      : item.alloc_qty}
                   </td>
                   <td>
                     <Autocomplete
