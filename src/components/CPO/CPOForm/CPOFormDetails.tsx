@@ -134,7 +134,7 @@ const CPOFormDetails = ({
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2 }}>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Customer Discount 1</FormLabel>
+              <FormLabel>Cust Disc. 1</FormLabel>
               <Input
                 value={discounts.customer[0]}
                 onChange={(e) =>
@@ -145,7 +145,7 @@ const CPOFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Transaction Discount 1</FormLabel>
+              <FormLabel>Trans Disc. 1</FormLabel>
               <Input
                 value={discounts.transaction[0]}
                 onChange={(e) =>
@@ -156,7 +156,7 @@ const CPOFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Customer Discount 2</FormLabel>
+              <FormLabel>Cust Disc. 2</FormLabel>
               <Input
                 value={discounts.customer[1]}
                 onChange={(e) =>
@@ -167,7 +167,7 @@ const CPOFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Transaction Discount 2</FormLabel>
+              <FormLabel>Trans Disc. 2</FormLabel>
               <Input
                 value={discounts.transaction[1]}
                 onChange={(e) =>
@@ -180,7 +180,7 @@ const CPOFormDetails = ({
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 2 }}>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Customer Discount 3</FormLabel>
+              <FormLabel>Cust Disc. 3</FormLabel>
               <Input
                 value={discounts.customer[2]}
                 onChange={(e) =>
@@ -191,7 +191,7 @@ const CPOFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Transaction Discount 3</FormLabel>
+              <FormLabel>Trans Disc. 3</FormLabel>
               <Input
                 value={discounts.transaction[2]}
                 onChange={(e) =>
@@ -202,7 +202,7 @@ const CPOFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Reference No.</FormLabel>
+              <FormLabel>Ref No.</FormLabel>
               <Input
                 size="sm"
                 placeholder="Search"

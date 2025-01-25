@@ -151,7 +151,7 @@ const RRFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Amount Discounts Total</FormLabel>
+              <FormLabel>Amount Disc. Total</FormLabel>
               <Textarea value={amountDiscount} disabled />
             </FormControl>
           </Stack>
@@ -193,7 +193,7 @@ const RRFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
-              <FormLabel>Reference No.</FormLabel>
+              <FormLabel>Ref No.</FormLabel>
               <Input
                 size="sm"
                 placeholder="Search"

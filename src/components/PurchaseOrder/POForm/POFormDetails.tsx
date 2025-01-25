@@ -166,7 +166,7 @@ const POFormDetails = ({
                 />
               </FormControl>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Reference No.</FormLabel>
+                <FormLabel>Ref No.</FormLabel>
                 <Input
                   size="sm"
                   placeholder="Search"
@@ -177,7 +177,7 @@ const POFormDetails = ({
                 />
               </FormControl>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Supplier Discount 1</FormLabel>
+                <FormLabel>Supp Disc. 1</FormLabel>
                 <Input
                   value={discounts.supplier[0]}
                   onChange={(e) =>
@@ -188,7 +188,7 @@ const POFormDetails = ({
                 />
               </FormControl>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Transaction Discount 1</FormLabel>
+                <FormLabel>Trans Disc. 1</FormLabel>
                 <Input
                   value={discounts.transaction[0]}
                   onChange={(e) =>
@@ -201,7 +201,7 @@ const POFormDetails = ({
             </Stack>
             <Stack direction="row" spacing={2}>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Supplier Discount 2</FormLabel>
+                <FormLabel>Supp Disc. 2</FormLabel>
                 <Input
                   value={discounts.supplier[1]}
                   onChange={(e) =>
@@ -212,7 +212,7 @@ const POFormDetails = ({
                 />
               </FormControl>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Transaction Discount 2</FormLabel>
+                <FormLabel>Trans Disc. 2</FormLabel>
                 <Input
                   value={discounts.transaction[1]}
                   onChange={(e) =>
@@ -223,7 +223,7 @@ const POFormDetails = ({
                 />
               </FormControl>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Supplier Discount 3</FormLabel>
+                <FormLabel>Supp Disc. 3</FormLabel>
                 <Input
                   value={discounts.supplier[2]}
                   onChange={(e) =>
@@ -234,7 +234,7 @@ const POFormDetails = ({
                 />
               </FormControl>
               <FormControl size="sm" sx={{ width: "22%" }}>
-                <FormLabel>Transaction Discount 3</FormLabel>
+                <FormLabel>Trans Disc. 3</FormLabel>
                 <Input
                   value={discounts.transaction[2]}
                   onChange={(e) =>

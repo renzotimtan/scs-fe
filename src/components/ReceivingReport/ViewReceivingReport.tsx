@@ -118,7 +118,7 @@ const ViewReceivingReport = ({
         <Box className="flex items-center mb-6">
           <Input
             size="sm"
-            placeholder="Reference No."
+            placeholder="Ref No."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -207,7 +207,7 @@ const ViewReceivingReport = ({
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   RR No.
                 </th>
-                <th style={{ width: 200 }}>Reference No.</th>
+                <th style={{ width: 200 }}>Ref No.</th>
                 <th style={{ width: 300 }}>Status</th>
                 {/* <th style={{ width: 300 }}>Supplier</th> */}
                 <th style={{ width: 250 }}>Transaction Date</th>
