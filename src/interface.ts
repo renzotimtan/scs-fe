@@ -226,6 +226,11 @@ export interface PaginatedAlloc {
   items: Alloc[];
 }
 
+export interface PaginatedDealloc {
+  total: number;
+  items: Dealloc[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -437,6 +442,14 @@ export interface AllocFormProps {
   title: string;
 }
 
+export interface DeallocFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: Dealloc;
+  title: string;
+}
+
 export interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
@@ -476,6 +489,13 @@ export interface ViewAllocProps {
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: Alloc | undefined;
   setSelectedRow: (alloc: Alloc) => void;
+}
+
+export interface ViewDeallocProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: Dealloc | undefined;
+  setSelectedRow: (alloc: Dealloc) => void;
 }
 
 export interface CPOItems {
@@ -661,8 +681,32 @@ export interface AllocItem {
     item_id: number;
     modifier: string | null; // Nullable modifier
     warehouse_id: number;
+    net_allocated?: number;
     warehouse_item: WarehouseItem;
   }[];
+}
+
+export interface DeallocItem {
+  id: number;
+  allocation_item_id: number;
+  item_id: number;
+  total_item_qty: number;
+  cpo_existing_allocated: number;
+  warehouse_deallocations: {
+    id: number;
+    warehouse_id: number;
+    item_id: number;
+    deallocated_qty: number;
+    creator: User;
+    date_created: string;
+    modifier: string | null;
+    date_modified: string | null;
+  }[];
+  creator: User;
+  date_created: string;
+  modifier: string | null;
+  date_modified: string | null;
+  allocated_item: AllocItem;
 }
 
 export interface Alloc {
@@ -675,6 +719,21 @@ export interface Alloc {
   };
   remarks: string;
   allocation_items: AllocItem[];
+  creator: User;
+  modifier: User;
+  date_created: string;
+  date_modified: string;
+}
+
+export interface Dealloc {
+  id: number;
+  status: string;
+  allocation_id: number;
+  customer_id: number;
+  transaction_date: string;
+  remarks: string;
+  total_qty: number;
+  deallocation_items: any;
   creator: User;
   modifier: User;
   date_created: string;

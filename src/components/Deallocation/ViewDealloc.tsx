@@ -3,25 +3,25 @@ import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import type {
-  PaginatedAlloc,
+  PaginatedDealloc,
   PaginationQueryParams,
-  ViewAllocProps,
+  ViewDeallocProps,
 } from "../../interface";
 
 import { Pagination } from "@mui/material";
 
 import { convertToQueryParams } from "../../helper";
-import DeleteAllocModal from "./DeleteAllocModal";
+import DeleteDeallocModal from "./DeleteDeallocModal";
 
 const PAGE_LIMIT = 10;
 
-const ViewAlloc = ({
+const ViewDealloc = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewAllocProps): JSX.Element => {
-  const [allocs, setAllocs] = useState<PaginatedAlloc>({
+}: ViewDeallocProps): JSX.Element => {
+  const [deallocs, setDeallocs] = useState<PaginatedDealloc>({
     total: 0,
     items: [],
   });
@@ -30,7 +30,7 @@ const ViewAlloc = ({
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
 
-  const getAllAlloc = (): void => {
+  const getAllDealloc = (): void => {
     const payload: PaginationQueryParams = {
       page: 1,
       limit: PAGE_LIMIT,
@@ -44,9 +44,9 @@ const ViewAlloc = ({
     }
 
     axiosInstance
-      .get<PaginatedAlloc>(`/api/allocations/?${convertToQueryParams(payload)}`)
+      .get<PaginatedDealloc>(`/api/deallocations/?${convertToQueryParams(payload)}`)
       .then((response) => {
-        setAllocs(response.data);
+        setDeallocs(response.data);
         setPage(1);
       })
       .catch((error) => console.error("Error:", error));
@@ -58,8 +58,8 @@ const ViewAlloc = ({
   ): void => {
     setPage(value);
     axiosInstance
-      .get<PaginatedAlloc>(
-        `/api/allocations/?${convertToQueryParams({
+      .get<PaginatedDealloc>(
+        `/api/deallocations/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -67,25 +67,25 @@ const ViewAlloc = ({
           search_term: searchTerm,
         })}`,
       )
-      .then((response) => setAllocs(response.data))
+      .then((response) => setDeallocs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
   useEffect(() => {
-    // Fetch Allocs
-    getAllAlloc();
+    // Fetch Deallocs
+    getAllDealloc();
   }, []);
 
-  const handleDeleteAlloc = async (): Promise<void> => {
+  const handleDeleteDealloc = async (): Promise<void> => {
     if (selectedRow !== undefined) {
       const url = `/api/allocations/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
-        setAllocs((prevAlloc) => ({
-          ...prevAlloc,
-          items: prevAlloc.items.filter((Alloc) => Alloc.id !== selectedRow.id),
-          total: prevAlloc.total - 1,
+        setDeallocs((prevDealloc) => ({
+          ...prevDealloc,
+          items: prevDealloc.items.filter((Dealloc) => Dealloc.id !== selectedRow.id),
+          total: prevDealloc.total - 1,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -97,7 +97,7 @@ const ViewAlloc = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Allocation</h2>
+          <h2>Deallocation</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -105,7 +105,7 @@ const ViewAlloc = ({
               setOpenCreate(true);
             }}
           >
-            Add Allocation
+            Add Deallocation
           </Button>
         </Box>
         <Box className="flex items-center mb-6">
@@ -129,7 +129,7 @@ const ViewAlloc = ({
             <Option value="archived">Archived</Option>
           </Select>
           <Button
-            onClick={getAllAlloc}
+            onClick={getAllDealloc}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >
@@ -198,11 +198,11 @@ const ViewAlloc = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  Alloc No.
+                  Dealloc No.
                 </th>
                 <th style={{ width: 150 }}>Status</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>Customer</th>
+                <th style={{ width: 250 }}>Allocation Modified</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -215,23 +215,23 @@ const ViewAlloc = ({
               </tr>
             </thead>
             <tbody>
-              {allocs.items.map((alloc) => (
+              {deallocs.items.map((dealloc) => (
                 <tr
-                  key={alloc.id}
+                  key={dealloc.id}
                   onDoubleClick={() => {
                     setOpenEdit(true);
-                    setSelectedRow(alloc);
+                    setSelectedRow(dealloc);
                   }}
                 >
-                  <td>{alloc?.id}</td>
-                  <td className="capitalize">{alloc.status}</td>
-                  <td>{alloc?.transaction_date}</td>
-                  <td>{alloc?.customer.name}</td>
-                  <td>{alloc?.remarks}</td>
-                  <td>{alloc?.creator?.username}</td>
-                  <td>{alloc?.modifier?.username}</td>
-                  <td>{alloc.date_created}</td>
-                  <td>{alloc.date_modified}</td>
+                  <td>{dealloc?.id}</td>
+                  <td className="capitalize">{dealloc.status}</td>
+                  <td>{dealloc?.transaction_date}</td>
+                  <td>{dealloc?.allocation_id}</td>
+                  <td>{dealloc?.remarks}</td>
+                  <td>{dealloc?.creator?.username}</td>
+                  <td>{dealloc?.modifier?.username}</td>
+                  <td>{dealloc.date_created}</td>
+                  <td>{dealloc.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -241,10 +241,10 @@ const ViewAlloc = ({
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(alloc);
+                          setSelectedRow(dealloc);
                         }}
                       >
-                        {alloc.status !== "unposted" ? "View" : "Edit"}
+                        {dealloc.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -253,7 +253,7 @@ const ViewAlloc = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(alloc);
+                          setSelectedRow(dealloc);
                         }}
                       >
                         Archive
@@ -268,21 +268,21 @@ const ViewAlloc = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.ceil(allocs.total / PAGE_LIMIT)}
+          count={Math.ceil(deallocs.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteAllocModal
+      <DeleteDeallocModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Archive Allocation"
-        onDelete={handleDeleteAlloc}
+        title="Archive Deallocation"
+        onDelete={handleDeleteDealloc}
       />
     </>
   );
 };
 
-export default ViewAlloc;
+export default ViewDealloc;
