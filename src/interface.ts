@@ -706,7 +706,7 @@ export interface DeallocItem {
   date_created: string;
   modifier: string | null;
   date_modified: string | null;
-  allocated_item: AllocItem;
+  allocation_item: AllocItem;
 }
 
 export interface Alloc {
@@ -729,7 +729,9 @@ export interface Dealloc {
   id: number;
   status: string;
   allocation_id: number;
+  allocation: Alloc;
   customer_id: number;
+  customer: Customer;
   transaction_date: string;
   remarks: string;
   total_qty: number;

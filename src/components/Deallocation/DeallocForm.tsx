@@ -15,9 +15,10 @@ import {
   DeallocItem,
   PaginatedAlloc,
   Alloc,
+  DeallocFormProps,
 } from "../../interface";
 import { convertToQueryParams } from "../../helper";
-import { DeallocFormPayload, AllocItemFE } from "./interface";
+import { AllocItemFE } from "./interface";
 import DeallocFormDetails from "./DeallocForm/DeallocFormDetails";
 import DeallocFormTable from "./DeallocForm/DeallocFormTable";
 
@@ -78,97 +79,84 @@ const DeallocForm = ({
       .catch((error) => console.error("Error fetching user ID:", error));
   }, []);
 
-  // useEffect(() => {
-  //   // Fill in fields for Edit
-  //   if (selectedRow) {
-  //     axiosInstance
-  //       .get<Alloc>(`/api/allocations/${selectedRow.}`)
-  //       .then((response) => {
-  //         setSelectedCustomer(response.data);
-  //       })
-  //       .catch((error) => console.error("Error:", error));
+  useEffect(() => {
+    // Fill in fields for Edit
+    if (selectedRow) {
+      setSelectedCustomer(selectedRow.customer);
+      setSelectedAlloc(selectedRow?.allocation);
+      setStatus(selectedRow?.status ?? "unposted");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
+      setRemarks(selectedRow?.remarks ?? "");
 
-  //     setStatus(selectedRow?.status ?? "unposted");
-  //     setTransactionDate(selectedRow?.transaction_date ?? currentDate);
-  //     setRemarks(selectedRow?.remarks ?? "");
+      // Fill up tables
+      const formattedItems = selectedRow.deallocation_items.map(
+        (deallocItem: DeallocItem) => {
+          // get warehouse
+          let warehouse_1 = null;
+          let warehouse_2 = null;
+          let warehouse_3 = null;
+          let warehouse_1_qty = undefined;
+          let warehouse_2_qty = undefined;
+          let warehouse_3_qty = undefined;
 
-  //     // Fill up tables
-  //     const formattedItems = selectedRow.allocation_items.map(
-  //       (item: DeallocItem) => {
-  //         // get real time volume and alloc_qty
-  //         const item_id = item.item_id;
-  //         const CPOItem = item.customer_purchase_order.items.find((cpoItem) => {
-  //           return cpoItem.item_id === item_id;
-  //         });
+          if (deallocItem.warehouse_deallocations.length >= 1) {
+            warehouse_1 =
+              warehouses.items.find(
+                (warehouse) =>
+                  warehouse.id ===
+                  deallocItem.warehouse_deallocations[0].warehouse_id,
+              ) || null;
 
-  //         const volume = CPOItem?.volume || 0;
-  //         const alloc_qty =
-  //           volume !== 0 && CPOItem?.unserved_cpo !== undefined
-  //             ? volume - CPOItem?.unserved_cpo
-  //             : 0;
+            warehouse_1_qty = String(
+              deallocItem.warehouse_deallocations[0].deallocated_qty,
+            );
+          }
 
-  //         // get warehouse
-  //         let warehouse_1 = null;
-  //         let warehouse_2 = null;
-  //         let warehouse_3 = null;
-  //         let warehouse_1_qty = undefined;
-  //         let warehouse_2_qty = undefined;
-  //         let warehouse_3_qty = undefined;
+          if (deallocItem.warehouse_deallocations.length >= 2) {
+            warehouse_2 =
+              warehouses.items.find(
+                (warehouse) =>
+                  warehouse.id ===
+                  deallocItem.warehouse_deallocations[1].warehouse_id,
+              ) || null;
+            warehouse_2_qty = String(
+              deallocItem.warehouse_deallocations[1].deallocated_qty,
+            );
+          }
 
-  //         if (item.warehouse_allocations.length >= 1) {
-  //           warehouse_1 =
-  //             warehouses.items.find(
-  //               (warehouse) =>
-  //                 warehouse.id === item.warehouse_allocations[0].warehouse_id,
-  //             ) || null;
+          if (deallocItem.warehouse_deallocations.length === 3) {
+            warehouse_3 =
+              warehouses.items.find(
+                (warehouse) =>
+                  warehouse.id ===
+                  deallocItem.warehouse_deallocations[2].warehouse_id,
+              ) || null;
+            warehouse_3_qty = String(
+              deallocItem.warehouse_deallocations[2].deallocated_qty,
+            );
+          }
 
-  //           warehouse_1_qty = String(
-  //             item.warehouse_allocations[0].allocated_qty,
-  //           );
-  //         }
+          return {
+            id: selectedRow.allocation_id,
+            alloc_item_id: deallocItem.allocation_item_id,
+            customer_purchase_order_id:
+              deallocItem.allocation_item.customer_purchase_order_id,
+            stock_code: deallocItem.allocation_item.item.stock_code,
+            stock_description: deallocItem.allocation_item.item.name,
+            item_id: deallocItem.item_id,
+            warehouse_1,
+            warehouse_1_qty,
+            warehouse_2,
+            warehouse_2_qty,
+            warehouse_3,
+            warehouse_3_qty,
+          };
+        },
+      );
 
-  //         if (item.warehouse_allocations.length >= 2) {
-  //           warehouse_2 =
-  //             warehouses.items.find(
-  //               (warehouse) =>
-  //                 warehouse.id === item.warehouse_allocations[1].warehouse_id,
-  //             ) || null;
-  //           warehouse_2_qty = String(
-  //             item.warehouse_allocations[1].allocated_qty,
-  //           );
-  //         }
-
-  //         if (item.warehouse_allocations.length === 3) {
-  //           warehouse_3 =
-  //             warehouses.items.find(
-  //               (warehouse) =>
-  //                 warehouse.id === item.warehouse_allocations[2].warehouse_id,
-  //             ) || null;
-  //           warehouse_3_qty = String(
-  //             item.warehouse_allocations[2].allocated_qty,
-  //           );
-  //         }
-
-  //         return {
-  //           id: item.customer_purchase_order_id,
-  //           name: item.item.name,
-  //           cpo_existing_allocated: item.cpo_existing_allocated,
-  //           volume,
-  //           alloc_qty,
-  //           item_id,
-  //           warehouse_1,
-  //           warehouse_1_qty,
-  //           warehouse_2,
-  //           warehouse_2_qty,
-  //           warehouse_3,
-  //           warehouse_3_qty,
-  //         };
-  //       },
-  //     );
-
-  //     setCPOItems(formattedItems);
-  //   }
-  // }, [selectedRow, warehouses]);
+      setAllocItems(formattedItems);
+    }
+  }, [selectedRow, warehouses]);
 
   const getAllocsByCustomer = (customer_id: number | undefined) => {
     if (customer_id) {
