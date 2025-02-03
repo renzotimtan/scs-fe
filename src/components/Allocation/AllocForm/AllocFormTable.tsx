@@ -101,7 +101,7 @@ const AllocFormTable = ({
                   <td>{item.volume}</td>
                   <td>
                     {selectedRow !== undefined &&
-                    selectedRow.status === "posted"
+                    selectedRow.status !== "unposted"
                       ? item.cpo_existing_allocated
                       : item.alloc_qty}
                   </td>
