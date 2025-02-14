@@ -85,9 +85,9 @@ const SelectPOModal = ({
                     {unservedPOs !== undefined &&
                       unservedPOs.length > 0 &&
                       unservedPOs.map((PO) => (
-                        <tr>
+                        <tr key={PO.id}>
                           <td>
-                            <ListItem key={PO.id}>
+                            <ListItem>
                               <Checkbox
                                 checked={!!checkedPOs[PO.reference_number]}
                                 onChange={() =>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CDPForm from "../../components/CDP/CDPForm";
 import ViewCDP from "../../components/CDP/ViewCDP";
 import type { CDP } from "../../interface";
 
@@ -10,21 +11,21 @@ const DeliveryPlanningMenu = (): JSX.Element => {
   return (
     <div>
       {openCreate && (
-        <DeliveryReceiptForm
+        <CDPForm
           setOpen={setOpenCreate}
           openCreate={openCreate}
           openEdit={openEdit}
-          title="Create Delivery Receipt"
+          title="Create Delivery Planning"
         />
       )}
 
       {openEdit && (
-        <DeliveryReceiptForm
+        <CDPForm
           setOpen={setOpenEdit}
           openCreate={openCreate}
           openEdit={openEdit}
           selectedRow={selectedRow}
-          title="Edit Delivery Receipt"
+          title="Edit Delivery Planning"
         />
       )}
 

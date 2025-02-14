@@ -12,27 +12,24 @@ import {
   Divider,
   Autocomplete,
 } from "@mui/joy";
-import type { SDRFormDetailsProps } from "../interface";
+import type { CDPFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
-import type { PaginatedPO, PurchaseOrder } from "../../../interface";
-import SelectPOModal from "./SelectAllocModal";
+import type { Alloc, PaginatedAlloc } from "../../../interface";
 import {
-  convertToQueryParams,
   formatToDateTime,
   addCommaToNumberWithFourPlaces,
 } from "../../../helper";
+import SelectAllocModal from "./SelectAllocModal";
 
-const SDRFormDetails = ({
+const CDPFormDetails = ({
   openEdit,
   selectedRow,
-  suppliers,
-  selectedPOs,
-  setSelectedPOs,
-
-  // Fields
-  selectedSupplier,
-  setSelectedSupplier,
+  customers,
+  selectedAllocs,
+  setSelectedAllocs,
+  selectedCustomer,
+  setSelectedCustomer,
   status,
   setStatus,
   transactionDate,
@@ -41,87 +38,31 @@ const SDRFormDetails = ({
   setRemarks,
   referenceNumber,
   setReferenceNumber,
-  pesoRate,
-  currencyUsed,
   isEditDisabled,
-
-  // Summary Amounts
-  fobTotal,
-  netAmount,
-  landedTotal,
-  amountDiscount,
-  setAmountDiscount,
-}: SDRFormDetailsProps): JSX.Element => {
-  const [unservedPOs, setUnservedPOs] = useState<PurchaseOrder[]>([]);
+}: CDPFormDetailsProps): JSX.Element => {
+  const [unservedAllocs, setUnservedAllocs] = useState<Alloc[]>([]);
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
 
-  const isAmtDiscountAlreadyApplied = (PO: PurchaseOrder): boolean => {
-    for (const POItem of PO.items) {
-      // If on stock increased, meaning this PO has already been handled before
-      if (POItem.on_stock > 0 || POItem.allocated > 0 || POItem.in_transit > 0)
-        return true;
-    }
-    return false;
-  };
-
-  const getFixedAmtDiscounts = (): void => {
-    let total = 0;
-
-    for (const PO of selectedPOs) {
-      // Check if this is not the first SDR with this PO
-      // to apply the amount discount
-      if (isAmtDiscountAlreadyApplied(PO)) {
-        continue;
-      }
-
-      if (!PO.supplier_discount_1.includes("%"))
-        total += Number(PO.supplier_discount_1);
-
-      if (!PO.supplier_discount_2.includes("%"))
-        total += Number(PO.supplier_discount_2);
-
-      if (!PO.supplier_discount_3.includes("%"))
-        total += Number(PO.supplier_discount_3);
-
-      if (!PO.transaction_discount_1.includes("%"))
-        total += Number(PO.transaction_discount_1);
-
-      if (!PO.transaction_discount_2.includes("%"))
-        total += Number(PO.transaction_discount_2);
-
-      if (!PO.transaction_discount_3.includes("%"))
-        total += Number(PO.transaction_discount_3);
-    }
-
-    setAmountDiscount(total);
-  };
-
   useEffect(() => {
-    if (selectedSupplier !== null && selectedSupplier !== undefined) {
+    if (selectedCustomer !== null && selectedCustomer !== undefined) {
       axiosInstance
-        .get<PaginatedPO>(
-          `/api/purchase_orders/supplier/${selectedSupplier.supplier_id}`,
-        )
+        .get<PaginatedAlloc>(`/api/allocations/?sort_order=desc`)
         .then((response) =>
-          setUnservedPOs(
-            response.data.items.filter((PO) => PO.status === "posted"),
+          setUnservedAllocs(
+            response.data.items.filter((alloc) => alloc.status === "posted"),
           ),
         )
         .catch((error) => console.error("Error:", error));
     }
-  }, [selectedSupplier]);
-
-  useEffect(() => {
-    if (!openEdit) getFixedAmtDiscounts();
-  }, [selectedPOs]);
+  }, [selectedCustomer]);
 
   return (
     <Box sx={{ display: "flex" }}>
-      <SelectPOModal
+      <SelectAllocModal
         open={isSelectModalOpen}
         setOpen={setIsSelectModalOpen}
-        unservedPOs={unservedPOs}
-        setSelectedPOs={setSelectedPOs}
+        unservedAllocs={unservedAllocs}
+        setSelectedAllocs={setSelectedAllocs}
       />
       <Card className="w-[60%] mr-7">
         <div>
@@ -136,19 +77,19 @@ const SDRFormDetails = ({
 
           <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, mt: 1, width: "22%" }}>
-              <FormLabel>Supplier</FormLabel>
+              <FormLabel>Customer</FormLabel>
               <div className="flex">
                 <Autocomplete
-                  options={suppliers.items}
+                  options={customers.items}
                   getOptionLabel={(option) => option.name}
-                  value={selectedSupplier}
+                  value={selectedCustomer}
                   onChange={(event, newValue) => {
-                    setSelectedSupplier(newValue);
-                    setSelectedPOs([]);
+                    setSelectedCustomer(newValue);
+                    setSelectedAllocs([]);
                   }}
                   size="sm"
                   className="w-[100%]"
-                  placeholder="Select Supplier"
+                  placeholder="Select Customer"
                   disabled={isEditDisabled}
                   required
                 />
@@ -178,16 +119,6 @@ const SDRFormDetails = ({
                 required
               />
             </FormControl>
-            <FormControl size="sm" sx={{ width: "22%" }}>
-              <FormLabel>Amount Disc. Total</FormLabel>
-              <Textarea value={amountDiscount} disabled />
-            </FormControl>
-          </Stack>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ mb: 1, alignItems: "flex-end" }}
-          >
             <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Ref No.</FormLabel>
               <Input
@@ -199,6 +130,12 @@ const SDRFormDetails = ({
                 required
               />
             </FormControl>
+          </Stack>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ mb: 1, alignItems: "flex-end" }}
+          >
             <FormControl size="sm" sx={{ mb: 1, width: "46%" }}>
               <FormLabel>Remarks</FormLabel>
               <Textarea
@@ -216,7 +153,7 @@ const SDRFormDetails = ({
                 className="bg-button-primary"
                 size="sm"
                 onClick={() => setIsSelectModalOpen(true)}
-                disabled={selectedSupplier === null}
+                disabled={selectedCustomer === null}
               >
                 Fill Table
               </Button>
@@ -228,36 +165,20 @@ const SDRFormDetails = ({
         <div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>FOB Total</FormLabel>
-              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(fobTotal)}`}</h5>{" "}
+              <FormLabel>Total Items</FormLabel>
+              <h5>{`${addCommaToNumberWithFourPlaces(0)}`}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>NET Amount</FormLabel>
-              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(netAmount)}`}</h5>
+              <FormLabel>Total Gross</FormLabel>
+              <h5>{`${addCommaToNumberWithFourPlaces(0)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>LANDED Total</FormLabel>
-              <h5>{`${currencyUsed} ${addCommaToNumberWithFourPlaces(landedTotal / pesoRate || 0)}`}</h5>
-            </FormControl>
-          </div>
-          <div className="flex justify-around">
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>FOB Total</FormLabel>
-              <h5>
-                ₱{addCommaToNumberWithFourPlaces(fobTotal * pesoRate)}
-              </h5>{" "}
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>NET Amount</FormLabel>
-              <h5>₱{addCommaToNumberWithFourPlaces(netAmount * pesoRate)}</h5>
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>LANDED Total</FormLabel>
-              <h5>₱{addCommaToNumberWithFourPlaces(landedTotal)}</h5>
+              <FormLabel>Total NET</FormLabel>
+              <h5>{`${0}`}</h5>
             </FormControl>
           </div>
           <Divider />
-          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 2, mt: 2 }}>
             <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
               <FormLabel>Created by</FormLabel>
               <p className="text-sm">
@@ -289,4 +210,4 @@ const SDRFormDetails = ({
   );
 };
 
-export default SDRFormDetails;
+export default CDPFormDetails;

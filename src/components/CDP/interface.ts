@@ -1,22 +1,24 @@
 import type {
   PurchaseOrder,
-  Supplier,
-  PaginatedSuppliers,
   Item,
   DeliveryReceipt,
+  PaginatedCustomers,
+  Customer,
+  CDP,
+  Alloc,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
-export interface SDRFormDetailsProps {
+export interface CDPFormDetailsProps {
   openEdit: boolean;
-  selectedRow: DeliveryReceipt | undefined;
-  suppliers: PaginatedSuppliers;
-  selectedPOs: PurchaseOrder[];
-  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
+  selectedRow: CDP | undefined;
+  customers: PaginatedCustomers;
+  selectedAllocs: Alloc[];
+  setSelectedAllocs: Dispatch<SetStateAction<Alloc[]>>;
 
   // Fields
-  selectedSupplier: Supplier | null;
-  setSelectedSupplier: Dispatch<SetStateAction<Supplier | null>>;
+  selectedCustomer: Customer | null;
+  setSelectedCustomer: Dispatch<SetStateAction<Customer | null>>;
   status: string;
   setStatus: Dispatch<SetStateAction<string>>;
   transactionDate: string;
@@ -25,15 +27,7 @@ export interface SDRFormDetailsProps {
   setRemarks: Dispatch<SetStateAction<string>>;
   referenceNumber: string;
   setReferenceNumber: Dispatch<SetStateAction<string>>;
-  pesoRate: number;
-  currencyUsed: string;
   isEditDisabled: boolean;
-
-  fobTotal: number;
-  netAmount: number;
-  landedTotal: number;
-  amountDiscount: number;
-  setAmountDiscount: Dispatch<SetStateAction<number>>;
 }
 
 export interface NewPriceInstance {

@@ -3,46 +3,48 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box, ListItem, List, Checkbox, Table } from "@mui/joy";
-import type { PurchaseOrder } from "../../../interface";
+import type { Alloc } from "../../../interface";
 
-const SelectPOModal = ({
+const SelectAllocModal = ({
   open,
   setOpen,
-  unservedPOs,
-  setSelectedPOs,
+  unservedAllocs,
+  setSelectedAllocs,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  unservedPOs: PurchaseOrder[];
-  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
+  unservedAllocs: Alloc[];
+  setSelectedAllocs: Dispatch<SetStateAction<Alloc[]>>;
 }): JSX.Element => {
-  const [checkedPOs, setCheckedPOs] = useState<Record<string, boolean>>({});
+  const [checkedAllocs, setCheckedAllocs] = useState<Record<string, boolean>>(
+    {},
+  );
 
   useEffect(() => {
     const options: Record<string, boolean> = {};
-    unservedPOs.forEach((PO) => {
-      options[PO.reference_number] = false;
+    unservedAllocs.forEach((alloc) => {
+      options[alloc.id] = false;
     });
-    setCheckedPOs(options);
-  }, [unservedPOs]);
+    setCheckedAllocs(options);
+  }, [unservedAllocs]);
 
   const handleCheckboxChange = (referenceNumber: string): void => {
-    setCheckedPOs((prev) => ({
+    setCheckedAllocs((prev) => ({
       ...prev,
       [referenceNumber]: !prev[referenceNumber],
     }));
   };
 
-  const selectCheckedPOs = (): void => {
-    const selectedRefNos = Object.keys(checkedPOs).filter(
-      (refNo) => checkedPOs[refNo],
+  const selectCheckedAllocs = (): void => {
+    const selectedIds = Object.keys(checkedAllocs).filter(
+      (id) => checkedAllocs[id],
     );
 
-    const selectedPOs = unservedPOs.filter((PO) =>
-      selectedRefNos.includes(PO.reference_number),
+    const selectedAllocs = unservedAllocs.filter((alloc) =>
+      selectedIds.includes(String(alloc.id)),
     );
 
-    setSelectedPOs(selectedPOs);
+    setSelectedAllocs(selectedAllocs);
     setOpen(false);
   };
 
@@ -69,41 +71,40 @@ const SelectPOModal = ({
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <Box>
-            <h4 className="mb-6">Select Purchase Orders</h4>
+            <h4 className="mb-6">Select Allocations</h4>
             <div>
               <List size="sm" className="h-[250px] w-100 overflow-y-scroll">
                 <Table>
                   <thead>
                     <tr>
                       <th>Check</th>
-                      <th>PO No.</th>
-                      <th>Ref No.</th>
+                      <th>Alloc No.</th>
                       <th>Trans. Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {unservedPOs !== undefined &&
-                      unservedPOs.length > 0 &&
-                      unservedPOs.map((PO) => (
-                        <tr>
+                    {unservedAllocs !== undefined &&
+                      unservedAllocs.length > 0 &&
+                      unservedAllocs.map((alloc) => (
+                        <tr key={alloc.id}>
                           <td>
-                            <ListItem key={PO.id}>
+                            <ListItem>
                               <Checkbox
-                                checked={!!checkedPOs[PO.reference_number]}
+                                checked={!!checkedAllocs[alloc.id]}
                                 onChange={() =>
-                                  handleCheckboxChange(PO.reference_number)
+                                  handleCheckboxChange(String(alloc.id))
                                 }
                               />
                             </ListItem>
                           </td>
-                          <td>{PO.id}</td>
-                          <td>{PO.reference_number}</td>
-                          <td>{PO.transaction_date}</td>
+                          <td>{alloc.id}</td>
+                          <td>{alloc.transaction_date}</td>
                         </tr>
                       ))}
                   </tbody>
                 </Table>
-                {(unservedPOs === undefined || unservedPOs.length === 0) && (
+                {(unservedAllocs === undefined ||
+                  unservedAllocs.length === 0) && (
                   <p className="mt-5 text-sm">
                     No Purchase Orders with Unserved Quantities
                   </p>
@@ -123,7 +124,7 @@ const SelectPOModal = ({
                 className="ml-4 w-[130px] bg-button-primary"
                 color="primary"
                 size="sm"
-                onClick={selectCheckedPOs}
+                onClick={selectCheckedAllocs}
               >
                 Confirm
               </Button>
@@ -135,4 +136,4 @@ const SelectPOModal = ({
   );
 };
 
-export default SelectPOModal;
+export default SelectAllocModal;
