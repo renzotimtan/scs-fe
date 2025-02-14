@@ -5,7 +5,7 @@ export interface Item {
   stock_code: string;
   name: string;
   supplier_id?: number;
-  suppliers?: (Supplier | null)[];
+  suppliers?: Array<Supplier | null>;
   status: string;
   category: string;
   brand: string;
@@ -229,6 +229,11 @@ export interface PaginatedAlloc {
 export interface PaginatedDealloc {
   total: number;
   items: Dealloc[];
+}
+
+export interface PaginatedCDP {
+  total: number;
+  items: CDP[];
 }
 
 export interface PaginationQueryParams {
@@ -498,6 +503,13 @@ export interface ViewDeallocProps {
   setSelectedRow: (alloc: Dealloc) => void;
 }
 
+export interface ViewCDPProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: CDP | undefined;
+  setSelectedRow: (alloc: CDP) => void;
+}
+
 export interface CPOItems {
   // Discrepancy between item_id, id
   item_id: number;
@@ -671,7 +683,7 @@ export interface AllocItem {
   };
   item_id: number;
   modifier: User;
-  warehouse_allocations: {
+  warehouse_allocations: Array<{
     allocated_qty: number;
     allocation_item_id: number;
     creator: User;
@@ -683,7 +695,7 @@ export interface AllocItem {
     warehouse_id: number;
     net_allocated?: number;
     warehouse_item: WarehouseItem;
-  }[];
+  }>;
 }
 
 export interface DeallocItem {
@@ -692,7 +704,7 @@ export interface DeallocItem {
   item_id: number;
   total_item_qty: number;
   cpo_existing_allocated: number;
-  warehouse_deallocations: {
+  warehouse_deallocations: Array<{
     id: number;
     warehouse_id: number;
     item_id: number;
@@ -701,7 +713,7 @@ export interface DeallocItem {
     date_created: string;
     modifier: string | null;
     date_modified: string | null;
-  }[];
+  }>;
   creator: User;
   date_created: string;
   modifier: string | null;
@@ -740,4 +752,36 @@ export interface Dealloc {
   modifier: User;
   date_created: string;
   date_modified: string;
+}
+
+interface DeliveryPlanItems {
+  id: number;
+  delivery_plan_id: number;
+  warehouse_allocation_id: number;
+  allocation_id: number;
+  allocation: Alloc;
+  planned_qty: number;
+}
+
+export interface CDP {
+  id: number;
+  status: string;
+  transaction_date: string;
+  reference_number: string;
+  remarks: string;
+  customer_id: number;
+  total_items: number;
+  total_gross: string;
+  total_net: string;
+  delivery_plan_items: DeliveryPlanItems;
+  customer: {
+    customer_id: number;
+    name: string;
+  };
+  created_by: number;
+  modified_by: number;
+  date_created: string;
+  date_modified: string;
+  creator: User;
+  modifier: User;
 }

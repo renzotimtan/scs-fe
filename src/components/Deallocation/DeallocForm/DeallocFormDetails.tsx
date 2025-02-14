@@ -64,7 +64,7 @@ const DeallocFormDetails = ({
                     setSelectedCustomer(newValue);
                     setSelectedAlloc(null);
                     setAllocItems([]);
-                    if (!!newValue) {
+                    if (newValue) {
                       getAllocsByCustomer(newValue.customer_id);
                     }
                   }}
@@ -86,7 +86,7 @@ const DeallocFormDetails = ({
                     setSelectedAlloc(newValue);
 
                     // Show alloc items
-                    if (!!newValue) {
+                    if (newValue) {
                       getAllocItemsByAlloc(newValue);
                     } else {
                       setAllocItems([]);

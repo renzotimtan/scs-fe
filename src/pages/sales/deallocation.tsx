@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DeallocForm from "../../components/Deallocation/DeallocForm";
 import ViewDealloc from "../../components/Deallocation/ViewDealloc";
-import { Dealloc } from "../../interface";
+import type { Dealloc } from "../../interface";
 
 const DeallocationMenu = (): JSX.Element => {
   const [openCreate, setOpenCreate] = useState(false);
