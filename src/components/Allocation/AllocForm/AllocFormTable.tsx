@@ -2,7 +2,7 @@ import { Sheet, Select, Option, Autocomplete, Input, Button } from "@mui/joy";
 import Table from "@mui/joy/Table";
 import { useState, useEffect } from "react";
 import type { Item, WarehouseItem, Warehouse } from "../../../interface";
-import { AllocFormTableProps } from "../interface";
+import { type AllocFormTableProps } from "../interface";
 import axiosInstance from "../../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { convertToQueryParams } from "../../../helper";

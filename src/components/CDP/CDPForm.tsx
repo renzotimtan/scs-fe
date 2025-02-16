@@ -1,5 +1,5 @@
 import CDPFormDetails from "./CDPForm/CDPFormDetails";
-import SDRFormTable from "./CDPForm/CDPFormTable";
+import CDPFormTable from "./CDPForm/CDPFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
-import type { User } from "../../pages/Login";
+import { type AllocItemsFE } from "./interface";
 import type {
   CDPFormProps,
   PaginatedCustomers,
@@ -31,14 +31,24 @@ const CDPForm = ({
     null,
   );
   const [selectedAllocs, setSelectedAllocs] = useState<Alloc[]>([]);
+  const [formattedAllocs, setFormattedAllocs] = useState<AllocItemsFE[]>([]);
+
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
 
-  const [totalGross, setTotalGross] = useState(0);
-  const [totalNet, setTotalNet] = useState(0);
-  const [servedAmt, setServedAmt] = useState<Record<string, number>>({});
+  const [totalItems, setTotalItems] = useState(0);
+
+  const totalGross = formattedAllocs.reduce(
+    (sum, item) => sum + (item.gross_amount ?? 0),
+    0,
+  );
+
+  const totalNet = formattedAllocs.reduce(
+    (sum, item) => sum + (item.net_amount ?? 0),
+    0,
+  );
 
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -71,6 +81,52 @@ const CDPForm = ({
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedRow]);
+
+  useEffect(() => {
+    const formattedAllocs = selectedAllocs
+      .map((alloc) => {
+        return alloc.allocation_items.map((allocItem) => {
+          const warehouse1 =
+            allocItem.warehouse_allocations[0]?.warehouse_item.warehouse.name ??
+            "N/A";
+          const warehouse2 =
+            allocItem.warehouse_allocations[1]?.warehouse_item.warehouse.name ??
+            "N/A";
+          const warehouse3 =
+            allocItem.warehouse_allocations[2]?.warehouse_item.warehouse.name ??
+            "N/A";
+
+          return {
+            id: alloc.id,
+            stock_code: allocItem.item.stock_code,
+            name: allocItem.item.name,
+
+            price: 100,
+            gross_amount: 0,
+            net_amount: 0,
+
+            // allocations
+            alloc_qty_1:
+              allocItem.warehouse_allocations[0]?.allocated_qty ?? "N/A",
+            warehouse_1: warehouse1,
+            warehouse_1_qty: undefined,
+
+            alloc_qty_2:
+              allocItem.warehouse_allocations[1]?.allocated_qty ?? "N/A",
+            warehouse_2: warehouse2,
+            warehouse_2_qty: undefined,
+
+            alloc_qty_3:
+              allocItem.warehouse_allocations[2]?.allocated_qty ?? "N/A",
+            warehouse_3: warehouse3,
+            warehouse_3_qty: undefined,
+          };
+        });
+      })
+      .flat();
+
+    setFormattedAllocs(formattedAllocs);
+  }, [selectedAllocs]);
 
   const resetForm = (): void => {
     setSelectedCustomer(null);
@@ -204,19 +260,22 @@ const CDPForm = ({
         referenceNumber={referenceNumber}
         setReferenceNumber={setReferenceNumber}
         isEditDisabled={isEditDisabled}
-      />
-      {/* <SDRFormTable
-        selectedRow={selectedRow}
-        selectedPOs={selectedPOs}
-        setSelectedPOs={setSelectedPOs}
         totalNet={totalNet}
-        servedAmt={servedAmt}
-        setServedAmt={setServedAmt}
-        setTotalNet={setTotalNet}
-        setTotalGross={setTotalGross}
+        totalGross={totalGross}
+      />
+      <CDPFormTable
+        selectedRow={selectedRow}
+        formattedAllocs={formattedAllocs}
+        setFormattedAllocs={setFormattedAllocs}
+        selectedAllocs={selectedAllocs}
+        setSelectedAllocs={setSelectedAllocs}
+        setTotalItems={setTotalItems}
+        totalGross={totalGross}
+        totalNet={totalNet}
+        totalItems={totalItems}
         openEdit={openEdit}
         isEditDisabled={isEditDisabled}
-      /> */}
+      />
       <Divider />
       <div className="flex justify-end mt-4">
         <Button

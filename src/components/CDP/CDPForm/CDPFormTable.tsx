@@ -1,160 +1,87 @@
 import { Sheet, Input } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
-import type { SDRFormTableProps } from "../interface";
+import type { CDPFormTableProps } from "../interface";
 import { useEffect, useState } from "react";
 import type { POItems, PurchaseOrder } from "../../../interface";
 
-const SDRFormTable = ({
+const CDPFormTable = ({
   selectedRow,
-  selectedPOs,
-  setSelectedPOs,
+  formattedAllocs,
+  setFormattedAllocs,
+  selectedAllocs,
+  setSelectedAllocs,
   totalNet,
-  servedAmt,
-  setServedAmt,
-  setTotalNet,
-  setTotalGross,
+  totalGross,
+  totalItems,
+  setTotalItems,
   openEdit,
   isEditDisabled,
-}: SDRFormTableProps): JSX.Element => {
-  const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
-  const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
+}: CDPFormTableProps): JSX.Element => {
   const status = selectedRow?.status;
 
-  useEffect(() => {
-    // Instantiate state per row
-    if (!openEdit) {
-      provideDefaultCreateTableValues();
-    } else {
-      provideDefaultEditTableValues();
-    }
-  }, [selectedPOs]);
+  const calculateTotalGross = (item: any): number => {
+    const price = item?.price ?? 0;
+    const warehouseQuantities = [
+      item.warehouse_1_qty,
+      item.warehouse_2_qty,
+      item.warehouse_3_qty,
+    ];
 
-  useEffect(() => {
-    const total = Object.values(netPerRow).reduce((acc, curr) => acc + curr, 0);
-    setTotalNet(total);
-  }, [netPerRow]);
-
-  useEffect(() => {
-    const total = Object.values(grossPerRow).reduce(
-      (acc, curr) => acc + curr,
+    const totalQuantity = warehouseQuantities.reduce(
+      (sum, qty) =>
+        sum + (qty !== undefined && !isNaN(Number(qty)) ? Number(qty) : 0),
       0,
     );
-    setTotalGross(total);
-  }, [grossPerRow]);
 
-  const provideDefaultCreateTableValues = (): void => {
-    const defaultPerRow: Record<string, number> = {};
-    const servedPerRow: Record<string, number> = {};
-
-    selectedPOs.forEach((PO, index1) => {
-      PO.items.forEach((POItem, index2) => {
-        const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-        const ToServe = 0;
-        defaultPerRow[key] = 0;
-        servedPerRow[key] = ToServe;
-      });
-    });
-
-    setNetPerRow(defaultPerRow);
-    setGrossPerRow(defaultPerRow);
-    setServedAmt(servedPerRow);
+    return totalQuantity * price;
   };
 
-  const provideDefaultEditTableValues = (): void => {
-    const servedPerRow: Record<string, number> = {};
-    const netPerRow: Record<string, number> = {};
-    const grossPerRow: Record<string, number> = {};
-
-    selectedPOs.forEach((PO, index1) => {
-      PO.items.forEach((POItem, index2) => {
-        console.log(POItem);
-        const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-        const inTransit = POItem.in_transit;
-
-        servedPerRow[key] = inTransit;
-
-        const newNet = calculateNetForRow(inTransit, POItem, PO);
-        netPerRow[key] = newNet;
-
-        const newGross = calculateGrossPerRow(inTransit, POItem);
-        grossPerRow[key] = newGross;
-      });
-    });
-
-    setServedAmt(servedPerRow);
-    setNetPerRow(netPerRow);
-    setGrossPerRow(grossPerRow);
-  };
-
-  const calculateNetForRow = (
-    newValue: number,
-    POItem: POItems,
-    PO: PurchaseOrder,
-  ): number => {
-    let result = newValue * POItem.price;
-
-    if (PO.supplier_discount_1.includes("%")) {
-      const sd1 = PO.supplier_discount_1.slice(0, -1);
-      result = result - result * (parseFloat(sd1) / 100);
-    }
-
-    if (PO.supplier_discount_2.includes("%")) {
-      const sd2 = PO.supplier_discount_2.slice(0, -1);
-      result = result - result * (parseFloat(sd2) / 100);
-    }
-
-    if (PO.supplier_discount_3.includes("%")) {
-      const sd3 = PO.supplier_discount_3.slice(0, -1);
-      result = result - result * (parseFloat(sd3) / 100);
-    }
-
-    if (PO.transaction_discount_1.includes("%")) {
-      const td1 = PO.transaction_discount_1.slice(0, -1);
-      result = result - result * (parseFloat(td1) / 100);
-    }
-
-    if (PO.transaction_discount_2.includes("%")) {
-      const td2 = PO.transaction_discount_2.slice(0, -1);
-      result = result - result * (parseFloat(td2) / 100);
-    }
-
-    if (PO.transaction_discount_3.includes("%")) {
-      const td3 = PO.transaction_discount_3.slice(0, -1);
-      result = result - result * (parseFloat(td3) / 100);
-    }
-
-    if (isNaN(result)) return 0;
-
-    return result;
-  };
-
-  const calculateGrossPerRow = (newValue: number, POItem: POItems): number => {
-    const result = newValue * POItem.price;
-    if (isNaN(result)) return 0;
-    return result;
-  };
-
-  const handleServedInputChange = (
-    event: any,
-    key: string,
-    PO: PurchaseOrder,
-    POItem: POItems,
+  const handleQuantityChange = (
+    itemId: number,
+    stockCode: string,
+    warehouseKey: "warehouse_1_qty" | "warehouse_2_qty" | "warehouse_3_qty",
+    value: string,
   ): void => {
-    const newValue = event.target.value;
+    setFormattedAllocs((prevAllocItems) =>
+      prevAllocItems.map((allocItem) => {
+        if (allocItem.id === itemId && allocItem.stock_code === stockCode) {
+          const whse1qty =
+            warehouseKey === "warehouse_1_qty"
+              ? value
+              : allocItem.warehouse_1_qty;
 
-    // Set served amount to get gross
-    setServedAmt({
-      ...servedAmt,
-      [key]: newValue,
-    });
+          const whse2qty =
+            warehouseKey === "warehouse_2_qty"
+              ? value
+              : allocItem.warehouse_2_qty;
 
-    // Calculate net for that row
-    const newNet = calculateNetForRow(newValue, POItem, PO);
-    setNetPerRow({ ...netPerRow, [key]: newNet });
+          const whse3qty =
+            warehouseKey === "warehouse_3_qty"
+              ? value
+              : allocItem.warehouse_3_qty;
 
-    const newGross = calculateGrossPerRow(newValue, POItem);
-    setGrossPerRow({ ...grossPerRow, [key]: newGross });
+          // Calculate new gross amount
+          const warehouseQuantities = [whse1qty, whse2qty, whse3qty];
+
+          const totalQuantity = warehouseQuantities.reduce(
+            (sum, qty) =>
+              sum +
+              (qty !== undefined && !isNaN(Number(qty)) ? Number(qty) : 0),
+            0,
+          );
+          const newGrossAmount = totalQuantity * (allocItem.price ?? 0);
+
+          return {
+            ...allocItem,
+            [warehouseKey]: value, // Update changed warehouse quantity
+            gross_amount: newGrossAmount,
+            net_amount: newGrossAmount,
+          };
+        }
+        return allocItem;
+      }),
+    );
   };
 
   return (
@@ -210,120 +137,117 @@ const SDRFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              PO No.
+              Alloc No.
             </th>
             <th style={{ width: 200 }}>Stock Code</th>
-            <th style={{ width: 200 }}>Name</th>
-            <th style={{ width: 150 }}>Serving Now</th>
-            <th style={{ width: 200 }}>Unserved Qty.</th>
-            {status === "posted" ? null : (
-              <th style={{ width: 200 }}>Served Qty.</th>
-            )}
-            <th style={{ width: 150 }}>PO Qty.</th>
+            <th style={{ width: 300 }}>Name</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross Amount</th>
-            <th style={{ width: 150 }}>Supp. Disc. 1 (%)</th>
-            <th style={{ width: 150 }}>Supp. Disc. 2 (%)</th>
-            <th style={{ width: 150 }}>Supp. Disc. 3 (%)</th>
-            <th style={{ width: 150 }}>Tran. Disc. 1 (%)</th>
-            <th style={{ width: 150 }}>Tran. Disc. 2 (%)</th>
-            <th style={{ width: 150 }}>Tran. Disc. 3 (%)</th>
             <th style={{ width: 150 }}>NET Amount</th>
-            <th style={{ width: 150 }}>Currency</th>
-            <th style={{ width: 150 }}>Peso Rate</th>
+
+            <th style={{ width: 200 }}>Whse 1 Alloc Qty.</th>
+            <th style={{ width: 200 }}>Whse 1</th>
+            <th style={{ width: 200 }}>Whse 1 DR Plan Qty. </th>
+
+            <th style={{ width: 200 }}>Whse 2 Alloc Qty.</th>
+            <th style={{ width: 200 }}>Whse 2</th>
+            <th style={{ width: 200 }}>Whse 2 DR Plan Qty. </th>
+
+            <th style={{ width: 200 }}>Whse 3 Alloc Qty.</th>
+            <th style={{ width: 200 }}>Whse 3</th>
+            <th style={{ width: 200 }}>Whse 3 DR Plan Qty. </th>
           </tr>
         </thead>
         <tbody>
-          {selectedPOs.map((PO, index1) => {
-            return PO.items.map((POItem, index2) => {
-              const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
+          {formattedAllocs.map((item, index) => {
+            const key = `${item.id}-${item.stock_code}`;
+            const price = item?.price ?? 0;
+            const totalGross = calculateTotalGross(item);
 
-              // Don't show if unserved is 0
-              if (
-                POItem.unserved_spo + servedAmt[key] === 0 &&
-                status !== "posted"
-              )
-                return null;
+            return (
+              <tr key={key}>
+                <td style={{ zIndex: 1 }}>{item.id}</td>
+                <td>{item?.stock_code}</td>
+                <td>{item?.name}</td>
+                <td>{price}</td>
+                <td>{totalGross.toFixed(4)}</td>
+                <td>{item.net_amount}</td>
+                <td>{item.alloc_qty_1}</td>
+                <td>{item.warehouse_1}</td>
+                <td>
+                  <Input
+                    type="number"
+                    value={item.warehouse_1_qty}
+                    onChange={(e) =>
+                      handleQuantityChange(
+                        item.id,
+                        item.stock_code,
+                        "warehouse_1_qty",
+                        e.target.value,
+                      )
+                    }
+                    slotProps={{
+                      input: {
+                        min: 0,
+                        max: item.alloc_qty_1 ?? 0,
+                      },
+                    }}
+                    placeholder="0"
+                    disabled={isEditDisabled || item.warehouse_1 === "N/A"}
+                  />
+                </td>
 
-              return (
-                <tr key={key}>
-                  <td style={{ zIndex: 1 }}>{PO.id}</td>
-                  <td>{POItem?.item.stock_code}</td>
-                  <td>{POItem?.item.name}</td>
-                  {status === "posted" ? (
-                    <td>{servedAmt[key]}</td>
-                  ) : (
-                    <td>
-                      <Input
-                        type="number"
-                        onChange={(event) =>
-                          handleServedInputChange(event, key, PO, POItem)
-                        }
-                        slotProps={{
-                          input: {
-                            min: 0,
-                            max:
-                              status === "posted"
-                                ? POItem.volume - servedAmt[key]
-                                : openEdit
-                                  ? POItem.unserved_spo + POItem.in_transit
-                                  : POItem.unserved_spo,
-                          },
-                        }}
-                        value={servedAmt[key]}
-                        disabled={isEditDisabled}
-                        required
-                      />
-                    </td>
-                  )}
-                  <td>
-                    {status === "posted"
-                      ? POItem.unserved_spo
-                      : openEdit
-                        ? POItem.unserved_spo + POItem.in_transit
-                        : POItem.unserved_spo}
-                  </td>
-                  {status === "posted" ? null : <td>{POItem.in_transit}</td>}
-                  <td>{POItem.volume}</td>
-                  <td>{POItem?.price}</td>
+                <td>{item.alloc_qty_2}</td>
+                <td>{item.warehouse_2}</td>
+                <td>
+                  <Input
+                    type="number"
+                    value={item.warehouse_2_qty}
+                    onChange={(e) =>
+                      handleQuantityChange(
+                        item.id,
+                        item.stock_code,
+                        "warehouse_2_qty",
+                        e.target.value,
+                      )
+                    }
+                    slotProps={{
+                      input: {
+                        min: 0,
+                        max: item.alloc_qty_2 ?? 0,
+                      },
+                    }}
+                    placeholder="0"
+                    disabled={isEditDisabled || item.warehouse_2 === "N/A"}
+                  />
+                </td>
 
-                  <td>{grossPerRow[key]}</td>
-                  <td>
-                    {PO.supplier_discount_1.includes("%")
-                      ? PO.supplier_discount_1
-                      : 0}
-                  </td>
-                  <td>
-                    {PO.supplier_discount_2.includes("%")
-                      ? PO.supplier_discount_2
-                      : 0}
-                  </td>
-                  <td>
-                    {PO.supplier_discount_3.includes("%")
-                      ? PO.supplier_discount_3
-                      : 0}
-                  </td>
-                  <td>
-                    {PO.transaction_discount_1.includes("%")
-                      ? PO.transaction_discount_1
-                      : 0}
-                  </td>
-                  <td>
-                    {PO.transaction_discount_2.includes("%")
-                      ? PO.transaction_discount_2
-                      : 0}
-                  </td>
-                  <td>
-                    {PO.transaction_discount_3.includes("%")
-                      ? PO.transaction_discount_3
-                      : 0}
-                  </td>
-                  <td>{netPerRow[key]}</td>
-                  <td>{PO.currency_used}</td>
-                  <td>{PO.peso_rate}</td>
-                </tr>
-              );
-            });
+                <td>{item.alloc_qty_3}</td>
+                <td>{item.warehouse_3}</td>
+                <td>
+                  <Input
+                    type="number"
+                    value={item.warehouse_3_qty}
+                    onChange={(e) =>
+                      handleQuantityChange(
+                        item.id,
+                        item.stock_code,
+                        "warehouse_3_qty",
+                        e.target.value,
+                      )
+                    }
+                    slotProps={{
+                      input: {
+                        min: 0,
+                        max: item.alloc_qty_3 ?? 0,
+                      },
+                    }}
+                    placeholder="0"
+                    disabled={isEditDisabled || item.warehouse_3 === "N/A"}
+                  />
+                </td>
+              </tr>
+            );
           })}
         </tbody>
       </Table>
@@ -331,4 +255,4 @@ const SDRFormTable = ({
   );
 };
 
-export default SDRFormTable;
+export default CDPFormTable;

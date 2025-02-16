@@ -105,9 +105,7 @@ const SelectAllocModal = ({
                 </Table>
                 {(unservedAllocs === undefined ||
                   unservedAllocs.length === 0) && (
-                  <p className="mt-5 text-sm">
-                    No Purchase Orders with Unserved Quantities
-                  </p>
+                  <p className="mt-5 text-sm">No Allocations to Plan</p>
                 )}
               </List>
             </div>

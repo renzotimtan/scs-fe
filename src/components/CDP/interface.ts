@@ -6,6 +6,7 @@ import type {
   Customer,
   CDP,
   Alloc,
+  Warehouse,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -28,6 +29,30 @@ export interface CDPFormDetailsProps {
   referenceNumber: string;
   setReferenceNumber: Dispatch<SetStateAction<string>>;
   isEditDisabled: boolean;
+  totalNet: number;
+  totalGross: number;
+
+export interface AllocItemsFE {
+  id: number;
+  stock_code: string;
+  name: string; // The name of the item
+
+  price: number;
+  gross_amount: number;
+  net_amount: number;
+
+  // Allocations to warehouses
+  alloc_qty_1: number | null; // Allocated quantity
+  warehouse_1: string | null; // Name or identifier for Warehouse 1
+  warehouse_1_qty: string | undefined; // Quantity allocated to Warehouse 1
+
+  alloc_qty_2: number | null; // Allocated quantity
+  warehouse_2: string | null; // Name or identifier for Warehouse 2
+  warehouse_2_qty: string | undefined; // Quantity allocated to Warehouse 2
+
+  alloc_qty_3: number | null; // Allocated quantity
+  warehouse_3: string | null; // Name or identifier for Warehouse 3
+  warehouse_3_qty: string | undefined; // Quantity allocated to Warehouse 3
 }
 
 export interface NewPriceInstance {
@@ -40,15 +65,16 @@ export interface POFormTableProps {
   setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
 }
 
-export interface SDRFormTableProps {
-  selectedRow: DeliveryReceipt | undefined;
-  selectedPOs: PurchaseOrder[];
-  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
+export interface CDPFormTableProps {
+  selectedRow: CDP | undefined;
+  formattedAllocs: AllocItemsFE[];
+  setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
+  selectedAllocs: Alloc[];
+  setSelectedAllocs: Dispatch<SetStateAction<Alloc[]>>;
   totalNet: number;
-  servedAmt: Record<string, number>;
-  setServedAmt: Dispatch<SetStateAction<Record<string, number>>>;
-  setTotalNet: Dispatch<SetStateAction<number>>;
-  setTotalGross: Dispatch<SetStateAction<number>>;
+  totalGross: number;
+  totalItems: number;
+  setTotalItems: Dispatch<SetStateAction<number>>;
   openEdit: boolean;
   isEditDisabled: boolean;
 }

@@ -39,6 +39,8 @@ const CDPFormDetails = ({
   referenceNumber,
   setReferenceNumber,
   isEditDisabled,
+  totalNet,
+  totalGross,
 }: CDPFormDetailsProps): JSX.Element => {
   const [unservedAllocs, setUnservedAllocs] = useState<Alloc[]>([]);
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
@@ -46,10 +48,12 @@ const CDPFormDetails = ({
   useEffect(() => {
     if (selectedCustomer !== null && selectedCustomer !== undefined) {
       axiosInstance
-        .get<PaginatedAlloc>(`/api/allocations/?sort_order=desc`)
+        .get<Alloc[]>(
+          `/api/allocations/unplanned/${selectedCustomer.customer_id}`,
+        )
         .then((response) =>
           setUnservedAllocs(
-            response.data.items.filter((alloc) => alloc.status === "posted"),
+            response.data.filter((alloc) => alloc.status === "posted"),
           ),
         )
         .catch((error) => console.error("Error:", error));
@@ -170,11 +174,11 @@ const CDPFormDetails = ({
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>Total Gross</FormLabel>
-              <h5>{`${addCommaToNumberWithFourPlaces(0)}`}</h5>
+              <h5>{`${addCommaToNumberWithFourPlaces(totalGross)}`}</h5>
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>Total NET</FormLabel>
-              <h5>{`${0}`}</h5>
+              <h5>{`${addCommaToNumberWithFourPlaces(totalNet)}`}</h5>
             </FormControl>
           </div>
           <Divider />
