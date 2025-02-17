@@ -169,7 +169,9 @@ const POFormTable = ({
               Stock Code
             </th>
             <th style={{ width: 200 }}>Name</th>
-            <th style={{ width: 200 }}>Last Purchase Price</th>
+            {!isEditDisabled && (
+              <th style={{ width: 200 }}>Current Purchase Price</th>
+            )}
             <th style={{ width: 150 }}>Volume</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
@@ -243,7 +245,7 @@ const POFormTable = ({
                   }}
                 />
               </td>
-              <td>{selectedItem?.acquisition_cost}</td>
+              {!isEditDisabled && <td>{selectedItem?.acquisition_cost}</td>}
               <td style={{ zIndex: 2 }}>
                 {selectedItem?.id !== null && (
                   <Input

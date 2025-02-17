@@ -155,109 +155,113 @@ const CPOFormTable = ({
           </tr>
         </thead>
         <tbody>
-          {selectedItems.map((selectedItem: Item, index: number) => (
-            <tr key={`${selectedItem.id}-${index}`}>
-              <td style={{ zIndex: 1 }}>
-                <Autocomplete
-                  placeholder="Select Stock"
-                  options={items}
-                  getOptionLabel={(item) => item.name ?? ""}
-                  onChange={(event, value) => {
-                    if (value !== null) {
-                      fetchSelectedItem(event, value.id, index);
-                    }
-                  }}
-                  value={selectedItem}
-                  disabled={isEditDisabled}
-                  size="sm"
-                  slotProps={{
-                    listbox: {
-                      sx: {
-                        width: 300, // Increase the width
-                        fontSize: "13px",
-                      },
-                    },
-                  }}
-                />
-              </td>
-              <td>
-                <Autocomplete
-                  placeholder="Select Stock"
-                  options={items}
-                  getOptionLabel={(item) => item.stock_code ?? ""}
-                  onChange={(event, value) => {
-                    if (value !== null) {
-                      fetchSelectedItem(event, value.id, index);
-                    }
-                  }}
-                  value={selectedItem}
-                  disabled={isEditDisabled}
-                  size="sm"
-                  slotProps={{
-                    listbox: {
-                      sx: {
-                        width: 300, // Increase the width
-                        fontSize: "13px",
-                      },
-                    },
-                  }}
-                />
-              </td>
-              <td style={{ zIndex: 2 }}>
-                {selectedItem.id && (
-                  <Select
+          {selectedItems.map((selectedItem: Item, index: number) => {
+            const price = isEditDisabled
+              ? selectedItem.price
+              : selectedItem.acquisition_cost;
+            return (
+              <tr key={`${selectedItem.id}-${index}`}>
+                <td style={{ zIndex: 1 }}>
+                  <Autocomplete
+                    placeholder="Select Stock"
+                    options={items}
+                    getOptionLabel={(item) => item.name ?? ""}
                     onChange={(event, value) => {
-                      if (value !== null) addPType(value, index);
+                      if (value !== null) {
+                        fetchSelectedItem(event, value.id, index);
+                      }
                     }}
-                    size="sm"
-                    value={selectedItem.p_type}
+                    value={selectedItem}
                     disabled={isEditDisabled}
-                    placeholder="Select P-Type"
-                  >
-                    <Option value="regular">Regular</Option>
-                  </Select>
-                )}
-              </td>
-              <td style={{ zIndex: 2 }}>
-                {selectedItem?.id !== null && (
-                  <Input
-                    type="number"
-                    onChange={(e) => addItemVolume(e.target.value, index)}
+                    size="sm"
                     slotProps={{
-                      input: {
-                        min: 0,
-                        max: selectedItem.total_on_stock,
+                      listbox: {
+                        sx: {
+                          width: 300, // Increase the width
+                          fontSize: "13px",
+                        },
                       },
                     }}
-                    value={selectedItem.volume}
-                    disabled={isEditDisabled}
-                    required
                   />
-                )}
-              </td>
-              <td>{selectedItem?.acquisition_cost}</td>
-              <td>
-                {selectedItem?.id !== null &&
-                  Number(selectedItem?.acquisition_cost) *
-                    Number(selectedItem?.volume)}
-              </td>
-              <td>{selectedItem.total_on_stock}</td>
-              <td>
-                {selectedItem?.id !== null && (
-                  <Button
-                    size="sm"
-                    variant="soft"
-                    color="danger"
-                    className="bg-delete-red"
-                    onClick={() => handleRemoveItem(index)}
+                </td>
+                <td>
+                  <Autocomplete
+                    placeholder="Select Stock"
+                    options={items}
+                    getOptionLabel={(item) => item.stock_code ?? ""}
+                    onChange={(event, value) => {
+                      if (value !== null) {
+                        fetchSelectedItem(event, value.id, index);
+                      }
+                    }}
+                    value={selectedItem}
                     disabled={isEditDisabled}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </td>
-            </tr>
-          ))}
+                    size="sm"
+                    slotProps={{
+                      listbox: {
+                        sx: {
+                          width: 300, // Increase the width
+                          fontSize: "13px",
+                        },
+                      },
+                    }}
+                  />
+                </td>
+                <td style={{ zIndex: 2 }}>
+                  {selectedItem.id && (
+                    <Select
+                      onChange={(event, value) => {
+                        if (value !== null) addPType(value, index);
+                      }}
+                      size="sm"
+                      value={selectedItem.p_type}
+                      disabled={isEditDisabled}
+                      placeholder="Select P-Type"
+                    >
+                      <Option value="regular">Regular</Option>
+                    </Select>
+                  )}
+                </td>
+                <td style={{ zIndex: 2 }}>
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) => addItemVolume(e.target.value, index)}
+                      slotProps={{
+                        input: {
+                          min: 0,
+                          max: selectedItem.total_on_stock,
+                        },
+                      }}
+                      value={selectedItem.volume}
+                      disabled={isEditDisabled}
+                      required
+                    />
+                  )}
+                </td>
+                <td>{price}</td>
+                <td>
+                  {selectedItem?.id !== null &&
+                    Number(price) * Number(selectedItem?.volume)}
+                </td>
+                <td>{selectedItem.total_on_stock}</td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Button
+                      size="sm"
+                      variant="soft"
+                      color="danger"
+                      className="bg-delete-red"
+                      onClick={() => handleRemoveItem(index)}
+                      disabled={isEditDisabled}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </Sheet>

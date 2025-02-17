@@ -31,6 +31,7 @@ export interface CDPFormDetailsProps {
   isEditDisabled: boolean;
   totalNet: number;
   totalGross: number;
+}
 
 export interface AllocItemsFE {
   id: number;

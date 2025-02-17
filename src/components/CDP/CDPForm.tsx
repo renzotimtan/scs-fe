@@ -96,12 +96,16 @@ const CDPForm = ({
             allocItem.warehouse_allocations[2]?.warehouse_item.warehouse.name ??
             "N/A";
 
+          const itemObj = allocItem.customer_purchase_order.items.find(
+            (item) => item.item_id === allocItem.item_id,
+          );
+
           return {
             id: alloc.id,
             stock_code: allocItem.item.stock_code,
             name: allocItem.item.name,
 
-            price: 100,
+            price: itemObj?.price,
             gross_amount: 0,
             net_amount: 0,
 
