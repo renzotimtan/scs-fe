@@ -104,8 +104,8 @@ const CDPForm = ({
             id: alloc.id,
             stock_code: allocItem.item.stock_code,
             name: allocItem.item.name,
-
-            price: itemObj?.price,
+            cpo_id: allocItem.customer_purchase_order_id,
+            price: itemObj?.price ?? 0,
             gross_amount: 0,
             net_amount: 0,
 
@@ -114,16 +114,22 @@ const CDPForm = ({
               allocItem.warehouse_allocations[0]?.allocated_qty ?? "N/A",
             warehouse_1: warehouse1,
             warehouse_1_qty: undefined,
+            warehouse_allocation_1_id:
+              allocItem.warehouse_allocations[0]?.id ?? null,
 
             alloc_qty_2:
               allocItem.warehouse_allocations[1]?.allocated_qty ?? "N/A",
             warehouse_2: warehouse2,
             warehouse_2_qty: undefined,
+            warehouse_allocation_2_id:
+              allocItem.warehouse_allocations[1]?.id ?? null,
 
             alloc_qty_3:
               allocItem.warehouse_allocations[2]?.allocated_qty ?? "N/A",
             warehouse_3: warehouse3,
             warehouse_3_qty: undefined,
+            warehouse_allocation_3_id:
+              allocItem.warehouse_allocations[2]?.id ?? null,
           };
         });
       })
@@ -141,46 +147,69 @@ const CDPForm = ({
     setRemarks("");
   };
 
-  const handleCreateDeliveryReceipt = async (): Promise<void> => {
-    // const payload = {
-    //   sdr_data: {
-    //     status,
-    //     transaction_date: transactionDate,
-    //     reference_number: referenceNumber,
-    //     remarks,
-    //     created_by: userId,
-    //   },
-    //   items_data: selectedPOs.flatMap((PO, index1) =>
-    //     PO.items.map((POItem, index2) => {
-    //       const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-    //       return {
-    //         purchase_order_id: PO.id,
-    //         item_id: POItem.item_id,
-    //         volume: POItem.volume,
-    //         price: POItem.price,
-    //         total_price: POItem.total_price,
-    //         id: POItem.id,
-    //         unserved_spo: POItem.unserved_spo,
-    //         on_stock: POItem.on_stock,
-    //         in_transit: servedAmt[key],
-    //         allocated: POItem.allocated,
-    //       };
-    //     }),
-    //   ),
-    // };
+  const handleCreateDeliveryPlanning = async (): Promise<void> => {
+    const payload = {
+      status,
+      transaction_date: transactionDate,
+      reference_number: referenceNumber,
+      remarks,
+      customer_id: selectedCustomer?.customer_id,
+      delivery_plan_items: formattedAllocs
+        .map((allocItem) => {
+          const planned = [];
 
-    // try {
-    //   await axiosInstance.post("/api/supplier-delivery-receipts/", payload);
-    //   toast.success("Save successful!");
-    //   resetForm();
-    //   setOpen(false);
-    //   // Handle the response, update state, etc.
-    // } catch (error: any) {
-    //   toast.error(
-    //     `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
-    //   );
-    // }
-    console.log("Post");
+          if (
+            allocItem.warehouse_allocation_1_id !== null &&
+            allocItem.warehouse_1_qty !== undefined &&
+            Number(allocItem.warehouse_1_qty) !== 0
+          ) {
+            planned.push({
+              warehouse_allocation_id: allocItem.warehouse_allocation_1_id,
+              allocation_id: allocItem.id,
+              planned_qty: allocItem.warehouse_1_qty,
+            });
+          }
+
+          if (
+            allocItem.warehouse_allocation_2_id !== null &&
+            allocItem.warehouse_2_qty !== undefined &&
+            Number(allocItem.warehouse_2_qty) !== 0
+          ) {
+            planned.push({
+              warehouse_allocation_id: allocItem.warehouse_allocation_2_id,
+              allocation_id: allocItem.id,
+              planned_qty: allocItem.warehouse_2_qty,
+            });
+          }
+
+          if (
+            allocItem.warehouse_allocation_3_id !== null &&
+            allocItem.warehouse_3_qty !== undefined &&
+            Number(allocItem.warehouse_3_qty) !== 0
+          ) {
+            planned.push({
+              warehouse_allocation_id: allocItem.warehouse_allocation_3_id,
+              allocation_id: allocItem.id,
+              planned_qty: allocItem.warehouse_3_qty,
+            });
+          }
+
+          return planned;
+        })
+        .flat(),
+    };
+
+    try {
+      await axiosInstance.post("/api/delivery-plans/", payload);
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+      );
+    }
   };
 
   const handleEditDeliveryReceipt = async (): Promise<void> => {
@@ -232,8 +261,8 @@ const CDPForm = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (openCreate) await handleCreateDeliveryReceipt();
-        if (openEdit) await handleEditDeliveryReceipt();
+        if (openCreate) await handleCreateDeliveryPlanning();
+        // if (openEdit) await handleEditDeliveryReceipt();
       }}
     >
       <div className="flex justify-between">

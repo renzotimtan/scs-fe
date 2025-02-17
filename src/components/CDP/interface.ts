@@ -37,6 +37,7 @@ export interface AllocItemsFE {
   id: number;
   stock_code: string;
   name: string; // The name of the item
+  cpo_id: number;
 
   price: number;
   gross_amount: number;
@@ -46,14 +47,17 @@ export interface AllocItemsFE {
   alloc_qty_1: number | null; // Allocated quantity
   warehouse_1: string | null; // Name or identifier for Warehouse 1
   warehouse_1_qty: string | undefined; // Quantity allocated to Warehouse 1
+  warehouse_allocation_1_id: number | null;
 
   alloc_qty_2: number | null; // Allocated quantity
   warehouse_2: string | null; // Name or identifier for Warehouse 2
   warehouse_2_qty: string | undefined; // Quantity allocated to Warehouse 2
+  warehouse_allocation_2_id: number | null;
 
   alloc_qty_3: number | null; // Allocated quantity
   warehouse_3: string | null; // Name or identifier for Warehouse 3
   warehouse_3_qty: string | undefined; // Quantity allocated to Warehouse 3
+  warehouse_allocation_3_id: number | null;
 }
 
 export interface NewPriceInstance {

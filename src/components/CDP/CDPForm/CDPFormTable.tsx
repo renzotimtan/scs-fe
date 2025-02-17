@@ -40,12 +40,17 @@ const CDPFormTable = ({
   const handleQuantityChange = (
     itemId: number,
     stockCode: string,
+    cpoId: number,
     warehouseKey: "warehouse_1_qty" | "warehouse_2_qty" | "warehouse_3_qty",
     value: string,
   ): void => {
     setFormattedAllocs((prevAllocItems) =>
       prevAllocItems.map((allocItem) => {
-        if (allocItem.id === itemId && allocItem.stock_code === stockCode) {
+        if (
+          allocItem.id === itemId &&
+          allocItem.stock_code === stockCode &&
+          allocItem.cpo_id === cpoId
+        ) {
           const whse1qty =
             warehouseKey === "warehouse_1_qty"
               ? value
@@ -160,7 +165,7 @@ const CDPFormTable = ({
         </thead>
         <tbody>
           {formattedAllocs.map((item, index) => {
-            const key = `${item.id}-${item.stock_code}`;
+            const key = `${item.id}-${item.cpo_id}-${item.stock_code}`;
             const price = item?.price ?? 0;
             const totalGross = calculateTotalGross(item);
 
@@ -182,6 +187,7 @@ const CDPFormTable = ({
                       handleQuantityChange(
                         item.id,
                         item.stock_code,
+                        item.cpo_id,
                         "warehouse_1_qty",
                         e.target.value,
                       )
@@ -207,6 +213,7 @@ const CDPFormTable = ({
                       handleQuantityChange(
                         item.id,
                         item.stock_code,
+                        item.cpo_id,
                         "warehouse_2_qty",
                         e.target.value,
                       )
@@ -232,6 +239,7 @@ const CDPFormTable = ({
                       handleQuantityChange(
                         item.id,
                         item.stock_code,
+                        item.cpo_id,
                         "warehouse_3_qty",
                         e.target.value,
                       )
