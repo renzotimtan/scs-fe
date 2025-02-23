@@ -16,7 +16,7 @@ const StockHistory = ({
 
   useEffect(() => {
     axiosInstance
-      .get(`/api/receiving-reports/history?stock_code=${row?.stock_code}`)
+      .get(`/api/items/stock-history/?stock_code=${row?.stock_code}`)
       .then((response) => setStockHistory(response.data))
       .catch((error) => console.error("Error:", error));
   }, [row]);
