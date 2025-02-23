@@ -3,18 +3,18 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box, ListItem, List, Checkbox, Table } from "@mui/joy";
-import { type UnplannedAlloc } from "../interface";
+import { type AllocItemsFE, type UnplannedAlloc } from "../interface";
 
 const SelectAllocModal = ({
   open,
   setOpen,
   unservedAllocs,
-  setSelectedAllocs,
+  setFormattedAllocs,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   unservedAllocs: UnplannedAlloc[];
-  setSelectedAllocs: Dispatch<SetStateAction<UnplannedAlloc[]>>;
+  setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
 }): JSX.Element => {
   const [checkedAllocs, setCheckedAllocs] = useState<Record<string, boolean>>(
     {},
@@ -44,7 +44,48 @@ const SelectAllocModal = ({
       selectedIds.includes(String(alloc.id)),
     );
 
-    setSelectedAllocs(selectedAllocs);
+    const formattedAllocs = selectedAllocs
+      .map((alloc: UnplannedAlloc) => {
+        return alloc.allocation_items.map((allocItem) => {
+          const itemObj = allocItem.customer_purchase_order.items.find(
+            (item) => item.item_id === allocItem.item_id,
+          );
+
+          return {
+            id: alloc.id,
+            alloc_item_id: allocItem.id,
+            stock_code: itemObj?.item.stock_code ?? "",
+            name: itemObj?.item.name ?? "",
+            cpo_id: allocItem.customer_purchase_order_id,
+            alloc_qty: allocItem.total_available,
+            dp_qty: "",
+
+            cpo_item_volume: itemObj?.volume ?? 0,
+            cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
+
+            price: itemObj?.price ?? 0,
+            gross_amount: 0,
+            net_amount: 0,
+
+            customer_discount_1:
+              allocItem.customer_purchase_order.customer_discount_1,
+            customer_discount_2:
+              allocItem.customer_purchase_order.customer_discount_2,
+            customer_discount_3:
+              allocItem.customer_purchase_order.customer_discount_3,
+
+            transaction_discount_1:
+              allocItem.customer_purchase_order.transaction_discount_1,
+            transaction_discount_2:
+              allocItem.customer_purchase_order.transaction_discount_2,
+            transaction_discount_3:
+              allocItem.customer_purchase_order.transaction_discount_3,
+          };
+        });
+      })
+      .flat();
+
+    setFormattedAllocs(formattedAllocs);
     setOpen(false);
   };
 

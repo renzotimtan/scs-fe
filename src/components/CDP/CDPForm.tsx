@@ -13,6 +13,8 @@ import type {
   PaginatedCustomers,
   Customer,
   Alloc,
+  DeliveryPlanItem,
+  CPO,
 } from "../../interface";
 
 const CDPForm = ({
@@ -30,7 +32,6 @@ const CDPForm = ({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
-  const [selectedAllocs, setSelectedAllocs] = useState<UnplannedAlloc[]>([]);
   const [formattedAllocs, setFormattedAllocs] = useState<AllocItemsFE[]>([]);
 
   const [status, setStatus] = useState("unposted");
@@ -75,82 +76,136 @@ const CDPForm = ({
       setRemarks(selectedRow?.remarks ?? "");
       // setSelectedPOs(selectedRow?.purchase_orders);
 
-      // Get Supplier for Edit
+      // Get Customer for Edit
       axiosInstance
         .get<Customer>(`/api/customers/${customerID}`)
         .then((response) => {
           setSelectedCustomer(response.data);
         })
         .catch((error) => console.error("Error:", error));
+
+      // Fill in formatted allocs for table
+      const formattedAllocs = selectedRow.delivery_plan_items.map((DPItem) => {
+        const itemObj =
+          DPItem.allocation_item.customer_purchase_order.items.find(
+            (item) => item.item_id === DPItem.allocation_item.item_id,
+          );
+
+        return {
+          id: DPItem.allocation_item.allocation_id,
+          alloc_item_id: DPItem.allocation_item_id,
+          stock_code: itemObj?.item.stock_code ?? "",
+          name: itemObj?.item.name ?? "",
+          cpo_id: DPItem.allocation_item.customer_purchase_order_id,
+
+          alloc_qty: 0,
+          dp_qty: String(DPItem.planned_qty),
+
+          gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
+          net_amount: calculateNetForRow(
+            Number(DPItem.planned_qty),
+            DPItem.allocation_item.customer_purchase_order,
+            itemObj?.price ?? 0,
+          ),
+
+          cpo_item_volume: itemObj?.volume ?? 0,
+          cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
+          price: itemObj?.price ?? 0,
+          customer_discount_1:
+            DPItem.allocation_item.customer_purchase_order.customer_discount_1,
+          customer_discount_2:
+            DPItem.allocation_item.customer_purchase_order.customer_discount_2,
+          customer_discount_3:
+            DPItem.allocation_item.customer_purchase_order.customer_discount_3,
+
+          transaction_discount_1:
+            DPItem.allocation_item.customer_purchase_order
+              .transaction_discount_1,
+          transaction_discount_2:
+            DPItem.allocation_item.customer_purchase_order
+              .transaction_discount_2,
+          transaction_discount_3:
+            DPItem.allocation_item.customer_purchase_order
+              .transaction_discount_3,
+        };
+      });
+
+      setFormattedAllocs(formattedAllocs);
     }
   }, [selectedRow]);
 
-  useEffect(() => {
-    const formattedAllocs = selectedAllocs
-      .map((alloc: UnplannedAlloc) => {
-        return alloc.allocation_items.map((allocItem) => {
-          const itemObj = allocItem.customer_purchase_order.items.find(
-            (item) => item.item_id === allocItem.item_id,
-          );
+  const calculateNetForRow = (
+    newValue: number,
+    allocItem: AllocItemsFE | CPO,
+    price: number,
+  ): number => {
+    let result = newValue * price;
 
-          return {
-            id: alloc.id,
-            alloc_item_id: allocItem.id,
-            stock_code: itemObj?.item.stock_code ?? "",
-            name: itemObj?.item.name ?? "",
-            cpo_id: allocItem.customer_purchase_order_id,
-            alloc_qty: allocItem.total_available,
-            dp_qty: "",
-            cpo_item_volume: itemObj?.volume ?? 0,
-            cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
-            price: itemObj?.price ?? 0,
-            gross_amount: 0,
-            net_amount: 0,
-            customer_discount_1:
-              allocItem.customer_purchase_order.customer_discount_1,
-            customer_discount_2:
-              allocItem.customer_purchase_order.customer_discount_2,
-            customer_discount_3:
-              allocItem.customer_purchase_order.customer_discount_3,
+    if (allocItem.customer_discount_1.includes("%")) {
+      const cd1 = allocItem.customer_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(cd1) / 100);
+    }
 
-            transaction_discount_1:
-              allocItem.customer_purchase_order.transaction_discount_1,
-            transaction_discount_2:
-              allocItem.customer_purchase_order.transaction_discount_2,
-            transaction_discount_3:
-              allocItem.customer_purchase_order.transaction_discount_3,
-          };
-        });
-      })
-      .flat();
+    if (allocItem.customer_discount_2.includes("%")) {
+      const cd2 = allocItem.customer_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(cd2) / 100);
+    }
 
-    setFormattedAllocs(formattedAllocs);
-  }, [selectedAllocs]);
+    if (allocItem.customer_discount_3.includes("%")) {
+      const cd3 = allocItem.customer_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(cd3) / 100);
+    }
+
+    if (allocItem.transaction_discount_1.includes("%")) {
+      const td1 = allocItem.transaction_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(td1) / 100);
+    }
+
+    if (allocItem.transaction_discount_2.includes("%")) {
+      const td2 = allocItem.transaction_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(td2) / 100);
+    }
+
+    if (allocItem.transaction_discount_3.includes("%")) {
+      const td3 = allocItem.transaction_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(td3) / 100);
+    }
+
+    if (isNaN(result)) return 0;
+
+    return result;
+  };
 
   const resetForm = (): void => {
     setSelectedCustomer(null);
-    setSelectedAllocs([]);
+    setFormattedAllocs([]);
     setStatus("unposted");
     setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");
   };
 
-  const handleCreateDeliveryPlanning = async (): Promise<void> => {
+  const createPayload = () => {
     const payload = {
       status,
       transaction_date: transactionDate,
       reference_number: referenceNumber,
       remarks,
       customer_id: selectedCustomer?.customer_id,
-      delivery_plan_items: formattedAllocs.map((allocItem) => {
-        return {
-          allocation_item_id: allocItem.alloc_item_id,
-          planned_qty: allocItem.dp_qty,
-        };
-      }),
+      delivery_plan_items: formattedAllocs
+        .filter((allocItem) => allocItem.dp_qty && Number(allocItem.dp_qty) > 0)
+        .map((allocItem) => {
+          return {
+            allocation_item_id: allocItem.alloc_item_id,
+            planned_qty: allocItem.dp_qty,
+          };
+        }),
     };
+    return payload;
+  };
 
+  const handleCreateDeliveryPlanning = async (): Promise<void> => {
+    const payload = createPayload();
     try {
       await axiosInstance.post("/api/delivery-plans/", payload);
       toast.success("Save successful!");
@@ -165,48 +220,22 @@ const CDPForm = ({
   };
 
   const handleEditDeliveryReceipt = async (): Promise<void> => {
-    // const payload = {
-    //   sdr_data: {
-    //     status,
-    //     transaction_date: transactionDate,
-    //     reference_number: referenceNumber,
-    //     remarks,
-    //     modified_by: userId,
-    //   },
-    //   items_data: selectedPOs.flatMap((PO, index1) =>
-    //     PO.items.map((POItem, index2) => {
-    //       const key = `${PO.id}-${POItem.id}-${index1}-${index2}`;
-    //       return {
-    //         purchase_order_id: PO.id,
-    //         item_id: POItem.item_id,
-    //         volume: POItem.volume,
-    //         price: POItem.price,
-    //         total_price: POItem.total_price,
-    //         id: POItem.id,
-    //         unserved_spo: POItem.unserved_spo,
-    //         on_stock: POItem.on_stock,
-    //         in_transit: servedAmt[key],
-    //         allocated: POItem.allocated,
-    //       };
-    //     }),
-    //   ),
-    // };
+    const payload = createPayload();
 
-    // try {
-    //   await axiosInstance.put(
-    //     `/api/supplier-delivery-receipts/${selectedRow?.id}`,
-    //     payload,
-    //   );
-    //   toast.success("Save successful!");
-    //   resetForm();
-    //   setOpen(false);
-    //   // Handle the response, update state, etc.
-    // } catch (error: any) {
-    //   toast.error(
-    //     `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
-    //   );
-    // }
-    console.log("Edit");
+    try {
+      await axiosInstance.put(
+        `/api/delivery-plans/${selectedRow?.id}`,
+        payload,
+      );
+      toast.success("Save successful!");
+      resetForm();
+      setOpen(false);
+      // Handle the response, update state, etc.
+    } catch (error: any) {
+      toast.error(
+        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+      );
+    }
   };
 
   return (
@@ -214,7 +243,7 @@ const CDPForm = ({
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateDeliveryPlanning();
-        // if (openEdit) await handleEditDeliveryReceipt();
+        if (openEdit) await handleEditDeliveryReceipt();
       }}
     >
       <div className="flex justify-between">
@@ -234,8 +263,6 @@ const CDPForm = ({
         customers={customers}
         selectedCustomer={selectedCustomer}
         setSelectedCustomer={setSelectedCustomer}
-        selectedAllocs={selectedAllocs}
-        setSelectedAllocs={setSelectedAllocs}
         formattedAllocs={formattedAllocs}
         setFormattedAllocs={setFormattedAllocs}
         status={status}
@@ -257,8 +284,6 @@ const CDPForm = ({
         selectedRow={selectedRow}
         formattedAllocs={formattedAllocs}
         setFormattedAllocs={setFormattedAllocs}
-        selectedAllocs={selectedAllocs}
-        setSelectedAllocs={setSelectedAllocs}
         totalGross={totalGross}
         totalNet={totalNet}
         totalItems={totalItems}

@@ -762,34 +762,45 @@ export interface Dealloc {
   date_modified: string;
 }
 
-interface DeliveryPlanItems {
-  id: number;
-  delivery_plan_id: number;
-  warehouse_allocation_id: number;
-  allocation_id: number;
-  allocation: Alloc;
+export interface DeliveryPlanItem {
+  allocation_item_id: number;
   planned_qty: number;
+  id: number;
+  existing_allocated_qty: number;
+  allocation_item: {
+    allocation_id: number;
+    customer_purchase_order_id: number;
+    item_id: number;
+    created_by: number;
+    modified_by: number;
+    date_created: string;
+    date_modified: string | null;
+    customer_purchase_order: CPO;
+  };
+  created_by: number;
+  modified_by: number | null;
+  date_created: string;
+  date_modified: string | null;
+  gross: string;
+  net: string;
 }
 
 export interface CDP {
-  id: number;
   status: string;
   transaction_date: string;
   reference_number: string;
   remarks: string;
   customer_id: number;
+  id: number;
   total_items: number;
   total_gross: string;
   total_net: string;
-  delivery_plan_items: DeliveryPlanItems;
-  customer: {
-    customer_id: number;
-    name: string;
-  };
+  delivery_plan_items: DeliveryPlanItem[];
+  customer: Customer;
   created_by: number;
-  modified_by: number;
+  modified_by: number | null;
   date_created: string;
   date_modified: string;
   creator: User;
-  modifier: User;
+  modifier: User | null;
 }

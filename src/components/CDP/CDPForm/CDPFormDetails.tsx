@@ -29,8 +29,6 @@ const CDPFormDetails = ({
   openEdit,
   selectedRow,
   customers,
-  selectedAllocs,
-  setSelectedAllocs,
   formattedAllocs,
   setFormattedAllocs,
   selectedCustomer,
@@ -119,7 +117,7 @@ const CDPFormDetails = ({
         open={isSelectModalOpen}
         setOpen={setIsSelectModalOpen}
         unservedAllocs={unservedAllocs}
-        setSelectedAllocs={setSelectedAllocs}
+        setFormattedAllocs={setFormattedAllocs}
       />
       <Card className="w-[60%] mr-7">
         <div>
@@ -132,7 +130,7 @@ const CDPFormDetails = ({
           </div>
           {openEdit && <Divider />}
 
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
             <FormControl size="sm" sx={{ mb: 1, mt: 1, width: "22%" }}>
               <FormLabel>Customer</FormLabel>
               <div className="flex">
@@ -142,7 +140,7 @@ const CDPFormDetails = ({
                   value={selectedCustomer}
                   onChange={(event, newValue) => {
                     setSelectedCustomer(newValue);
-                    setSelectedAllocs([]);
+                    setFormattedAllocs([]);
                   }}
                   size="sm"
                   className="w-[100%]"

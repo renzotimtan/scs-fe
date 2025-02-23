@@ -13,8 +13,6 @@ export interface CDPFormDetailsProps {
   openEdit: boolean;
   selectedRow: CDP | undefined;
   customers: PaginatedCustomers;
-  selectedAllocs: UnplannedAlloc[];
-  setSelectedAllocs: Dispatch<SetStateAction<UnplannedAlloc[]>>;
   formattedAllocs: AllocItemsFE[];
   setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
 
@@ -95,8 +93,6 @@ export interface CDPFormTableProps {
   selectedRow: CDP | undefined;
   formattedAllocs: AllocItemsFE[];
   setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
-  selectedAllocs: UnplannedAlloc[];
-  setSelectedAllocs: Dispatch<SetStateAction<UnplannedAlloc[]>>;
   totalNet: number;
   totalGross: number;
   totalItems: number;

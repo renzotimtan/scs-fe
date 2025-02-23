@@ -8,12 +8,6 @@ const CDPFormTable = ({
   selectedRow,
   formattedAllocs,
   setFormattedAllocs,
-  selectedAllocs,
-  setSelectedAllocs,
-  totalNet,
-  totalGross,
-  totalItems,
-  openEdit,
   isEditDisabled,
 }: CDPFormTableProps): JSX.Element => {
   const calculateNetForRow = (
