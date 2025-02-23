@@ -161,14 +161,7 @@ const CPOForm = ({
     return acc;
   }, 0);
 
-  const subtotalAfterCustomerDiscounts = calculateTotalWithDiscounts(
-    discounts.customer,
-    grossTotal,
-  );
-  const netTotal = calculateTotalWithDiscounts(
-    discounts.transaction,
-    subtotalAfterCustomerDiscounts,
-  );
+  const netTotal = calculateTotalWithDiscounts(discounts, grossTotal);
 
   const getAllCPOItems = (): void => {
     const CPOItems = selectedRow?.items;

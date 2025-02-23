@@ -92,9 +92,9 @@ const SelectSDRModal = ({
                     {postedUnservedSDRs !== undefined &&
                       postedUnservedSDRs.length > 0 &&
                       postedUnservedSDRs.map((SDR) => (
-                        <tr>
+                        <tr key={SDR.id}>
                           <td>
-                            <ListItem key={SDR.id}>
+                            <ListItem>
                               <Checkbox
                                 checked={!!checkedSDRs[SDR.id]}
                                 onChange={() => handleCheckboxChange(SDR.id)}

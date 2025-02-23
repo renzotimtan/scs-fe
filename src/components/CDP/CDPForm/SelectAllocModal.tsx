@@ -3,7 +3,7 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box, ListItem, List, Checkbox, Table } from "@mui/joy";
-import type { Alloc } from "../../../interface";
+import { type UnplannedAlloc } from "../interface";
 
 const SelectAllocModal = ({
   open,
@@ -13,8 +13,8 @@ const SelectAllocModal = ({
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  unservedAllocs: Alloc[];
-  setSelectedAllocs: Dispatch<SetStateAction<Alloc[]>>;
+  unservedAllocs: UnplannedAlloc[];
+  setSelectedAllocs: Dispatch<SetStateAction<UnplannedAlloc[]>>;
 }): JSX.Element => {
   const [checkedAllocs, setCheckedAllocs] = useState<Record<string, boolean>>(
     {},

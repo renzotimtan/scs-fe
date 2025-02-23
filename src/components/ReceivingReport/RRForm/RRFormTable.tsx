@@ -14,7 +14,7 @@ const RRFormTable = ({
   setTotalGross,
   pesoRate,
   openEdit,
-  percentNetCost
+  percentNetCost,
 }: RRFormTableProps): JSX.Element => {
   const [netPerRow, setNetPerRow] = useState<Record<string, number>>({});
   const [grossPerRow, setGrossPerRow] = useState<Record<string, number>>({});
@@ -216,7 +216,7 @@ const RRFormTable = ({
                         : POItem.in_transit}
                     </td>
                     <td>{POItem.price}</td>
-                    <td>{grossPerRow[key]}</td>
+                    <td>{addCommaToNumberWithFourPlaces(grossPerRow[key])}</td>
                     <td>
                       {PO.supplier_discount_1.includes("%")
                         ? PO.supplier_discount_1
@@ -247,10 +247,16 @@ const RRFormTable = ({
                         ? PO.transaction_discount_3
                         : 0}
                     </td>
-                    <td>{netPerRow[key]}</td>
+                    <td>{addCommaToNumberWithFourPlaces(netPerRow[key])}</td>
                     <td>{PO.currency_used}</td>
                     <td>{pesoRate}</td>
-                    <td>{addCommaToNumberWithFourPlaces(POItem.price * Number(pesoRate) * (1 + (percentNetCost / 100)))}</td>
+                    <td>
+                      {addCommaToNumberWithFourPlaces(
+                        POItem.price *
+                          Number(pesoRate) *
+                          (1 + percentNetCost / 100),
+                      )}
+                    </td>
                   </tr>
                 );
               });

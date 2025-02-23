@@ -1,12 +1,4 @@
-import {
-  Input,
-  Button,
-  Select,
-  Option,
-  Sheet,
-  Autocomplete,
-  TextField,
-} from "@mui/joy";
+import { Input, Button, Sheet, Autocomplete } from "@mui/joy";
 import ConfirmationModal from "../ConfirmationModal";
 import Table from "@mui/joy/Table";
 
@@ -222,7 +214,7 @@ const POFormTable = ({
                   }}
                 />
               </td>
-              <td style={{ zIndex: 1 }}>
+              <td>
                 <Autocomplete
                   placeholder="Select Stock Name"
                   options={items}
@@ -246,7 +238,7 @@ const POFormTable = ({
                 />
               </td>
               {!isEditDisabled && <td>{selectedItem?.acquisition_cost}</td>}
-              <td style={{ zIndex: 2 }}>
+              <td>
                 {selectedItem?.id !== null && (
                   <Input
                     type="number"
@@ -288,7 +280,9 @@ const POFormTable = ({
               </td>
               <td>
                 {selectedItem?.id !== null &&
-                  Number(selectedItem?.price) * Number(selectedItem?.volume)}
+                  (
+                    Number(selectedItem?.price) * Number(selectedItem?.volume)
+                  ).toFixed(4)}
               </td>
               <td>
                 {selectedItem?.id !== null && (

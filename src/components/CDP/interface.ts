@@ -1,21 +1,22 @@
 import type {
   PurchaseOrder,
   Item,
-  DeliveryReceipt,
   PaginatedCustomers,
   Customer,
   CDP,
-  Alloc,
-  Warehouse,
+  CPO,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
+import { type User } from "../../pages/Login";
 
 export interface CDPFormDetailsProps {
   openEdit: boolean;
   selectedRow: CDP | undefined;
   customers: PaginatedCustomers;
-  selectedAllocs: Alloc[];
-  setSelectedAllocs: Dispatch<SetStateAction<Alloc[]>>;
+  selectedAllocs: UnplannedAlloc[];
+  setSelectedAllocs: Dispatch<SetStateAction<UnplannedAlloc[]>>;
+  formattedAllocs: AllocItemsFE[];
+  setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
 
   // Fields
   selectedCustomer: Customer | null;
@@ -31,33 +32,53 @@ export interface CDPFormDetailsProps {
   isEditDisabled: boolean;
   totalNet: number;
   totalGross: number;
+  totalItems: number;
+  amountDiscount: number;
+  setAmountDiscount: Dispatch<SetStateAction<number>>;
+}
+
+export interface UnplannedAlloc {
+  id: number;
+  status: string;
+  customer_id: number;
+  remarks: string;
+  transaction_date: string;
+  customer: Customer;
+  allocation_items: Array<{
+    id: number;
+    customer_purchase_order_id: number;
+    item_id: number;
+    total_available: number;
+    created_by: number;
+    date_created: string;
+    customer_purchase_order: CPO;
+  }>;
+  creator: User;
+  date_created: string;
 }
 
 export interface AllocItemsFE {
   id: number;
+  alloc_item_id: number;
   stock_code: string;
   name: string; // The name of the item
   cpo_id: number;
-
+  alloc_qty: number;
+  dp_qty: string | undefined;
   price: number;
   gross_amount: number;
   net_amount: number;
 
-  // Allocations to warehouses
-  alloc_qty_1: number | null; // Allocated quantity
-  warehouse_1: string | null; // Name or identifier for Warehouse 1
-  warehouse_1_qty: string | undefined; // Quantity allocated to Warehouse 1
-  warehouse_allocation_1_id: number | null;
+  cpo_item_volume: number;
+  cpo_item_unserved: number;
 
-  alloc_qty_2: number | null; // Allocated quantity
-  warehouse_2: string | null; // Name or identifier for Warehouse 2
-  warehouse_2_qty: string | undefined; // Quantity allocated to Warehouse 2
-  warehouse_allocation_2_id: number | null;
+  customer_discount_1: string;
+  customer_discount_2: string;
+  customer_discount_3: string;
 
-  alloc_qty_3: number | null; // Allocated quantity
-  warehouse_3: string | null; // Name or identifier for Warehouse 3
-  warehouse_3_qty: string | undefined; // Quantity allocated to Warehouse 3
-  warehouse_allocation_3_id: number | null;
+  transaction_discount_1: string;
+  transaction_discount_2: string;
+  transaction_discount_3: string;
 }
 
 export interface NewPriceInstance {
@@ -74,12 +95,11 @@ export interface CDPFormTableProps {
   selectedRow: CDP | undefined;
   formattedAllocs: AllocItemsFE[];
   setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
-  selectedAllocs: Alloc[];
-  setSelectedAllocs: Dispatch<SetStateAction<Alloc[]>>;
+  selectedAllocs: UnplannedAlloc[];
+  setSelectedAllocs: Dispatch<SetStateAction<UnplannedAlloc[]>>;
   totalNet: number;
   totalGross: number;
   totalItems: number;
-  setTotalItems: Dispatch<SetStateAction<number>>;
   openEdit: boolean;
   isEditDisabled: boolean;
 }

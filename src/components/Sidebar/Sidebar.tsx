@@ -34,7 +34,7 @@ export default function Sidebar(): JSX.Element {
         },
       ]}
     >
-      <h4 className="mb-2 p-2">COMPANY NAME</h4>
+      <h4 className="mb-2 p-2">Peterson Parts Trading Inc.</h4>
       <Divider />
       <List
         size="sm"

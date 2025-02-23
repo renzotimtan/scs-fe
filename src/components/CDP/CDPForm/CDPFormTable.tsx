@@ -1,9 +1,8 @@
 import { Sheet, Input } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
-import type { CDPFormTableProps } from "../interface";
-import { useEffect, useState } from "react";
-import type { POItems, PurchaseOrder } from "../../../interface";
+import type { AllocItemsFE, CDPFormTableProps } from "../interface";
+import { addCommaToNumberWithFourPlaces } from "../../../helper";
 
 const CDPFormTable = ({
   selectedRow,
@@ -14,79 +13,48 @@ const CDPFormTable = ({
   totalNet,
   totalGross,
   totalItems,
-  setTotalItems,
   openEdit,
   isEditDisabled,
 }: CDPFormTableProps): JSX.Element => {
-  const status = selectedRow?.status;
+  const calculateNetForRow = (
+    newValue: number,
+    allocItem: AllocItemsFE,
+  ): number => {
+    let result = newValue * allocItem.price;
 
-  const calculateTotalGross = (item: any): number => {
-    const price = item?.price ?? 0;
-    const warehouseQuantities = [
-      item.warehouse_1_qty,
-      item.warehouse_2_qty,
-      item.warehouse_3_qty,
-    ];
+    if (allocItem.customer_discount_1.includes("%")) {
+      const cd1 = allocItem.customer_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(cd1) / 100);
+    }
 
-    const totalQuantity = warehouseQuantities.reduce(
-      (sum, qty) =>
-        sum + (qty !== undefined && !isNaN(Number(qty)) ? Number(qty) : 0),
-      0,
-    );
+    if (allocItem.customer_discount_2.includes("%")) {
+      const cd2 = allocItem.customer_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(cd2) / 100);
+    }
 
-    return totalQuantity * price;
-  };
+    if (allocItem.customer_discount_3.includes("%")) {
+      const cd3 = allocItem.customer_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(cd3) / 100);
+    }
 
-  const handleQuantityChange = (
-    itemId: number,
-    stockCode: string,
-    cpoId: number,
-    warehouseKey: "warehouse_1_qty" | "warehouse_2_qty" | "warehouse_3_qty",
-    value: string,
-  ): void => {
-    setFormattedAllocs((prevAllocItems) =>
-      prevAllocItems.map((allocItem) => {
-        if (
-          allocItem.id === itemId &&
-          allocItem.stock_code === stockCode &&
-          allocItem.cpo_id === cpoId
-        ) {
-          const whse1qty =
-            warehouseKey === "warehouse_1_qty"
-              ? value
-              : allocItem.warehouse_1_qty;
+    if (allocItem.transaction_discount_1.includes("%")) {
+      const td1 = allocItem.transaction_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(td1) / 100);
+    }
 
-          const whse2qty =
-            warehouseKey === "warehouse_2_qty"
-              ? value
-              : allocItem.warehouse_2_qty;
+    if (allocItem.transaction_discount_2.includes("%")) {
+      const td2 = allocItem.transaction_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(td2) / 100);
+    }
 
-          const whse3qty =
-            warehouseKey === "warehouse_3_qty"
-              ? value
-              : allocItem.warehouse_3_qty;
+    if (allocItem.transaction_discount_3.includes("%")) {
+      const td3 = allocItem.transaction_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(td3) / 100);
+    }
 
-          // Calculate new gross amount
-          const warehouseQuantities = [whse1qty, whse2qty, whse3qty];
+    if (isNaN(result)) return 0;
 
-          const totalQuantity = warehouseQuantities.reduce(
-            (sum, qty) =>
-              sum +
-              (qty !== undefined && !isNaN(Number(qty)) ? Number(qty) : 0),
-            0,
-          );
-          const newGrossAmount = totalQuantity * (allocItem.price ?? 0);
-
-          return {
-            ...allocItem,
-            [warehouseKey]: value, // Update changed warehouse quantity
-            gross_amount: newGrossAmount,
-            net_amount: newGrossAmount,
-          };
-        }
-        return allocItem;
-      }),
-    );
+    return result;
   };
 
   return (
@@ -147,27 +115,22 @@ const CDPFormTable = ({
             <th style={{ width: 200 }}>Stock Code</th>
             <th style={{ width: 300 }}>Name</th>
             <th style={{ width: 150 }}>Price</th>
+            <th style={{ width: 150 }}>Alloc Qty.</th>
+            <th style={{ width: 150 }}>DR Plan Qty.</th>
             <th style={{ width: 150 }}>Gross Amount</th>
+            <th style={{ width: 150 }}>Supp. Disc. 1 (%)</th>
+            <th style={{ width: 150 }}>Supp. Disc. 2 (%)</th>
+            <th style={{ width: 150 }}>Supp. Disc. 3 (%)</th>
+            <th style={{ width: 150 }}>Tran. Disc. 1 (%)</th>
+            <th style={{ width: 150 }}>Tran. Disc. 2 (%)</th>
+            <th style={{ width: 150 }}>Tran. Disc. 3 (%)</th>
             <th style={{ width: 150 }}>NET Amount</th>
-
-            <th style={{ width: 200 }}>Whse 1 Alloc Qty.</th>
-            <th style={{ width: 200 }}>Whse 1</th>
-            <th style={{ width: 200 }}>Whse 1 DR Plan Qty. </th>
-
-            <th style={{ width: 200 }}>Whse 2 Alloc Qty.</th>
-            <th style={{ width: 200 }}>Whse 2</th>
-            <th style={{ width: 200 }}>Whse 2 DR Plan Qty. </th>
-
-            <th style={{ width: 200 }}>Whse 3 Alloc Qty.</th>
-            <th style={{ width: 200 }}>Whse 3</th>
-            <th style={{ width: 200 }}>Whse 3 DR Plan Qty. </th>
           </tr>
         </thead>
         <tbody>
           {formattedAllocs.map((item, index) => {
             const key = `${item.id}-${item.cpo_id}-${item.stock_code}`;
             const price = item?.price ?? 0;
-            const totalGross = calculateTotalGross(item);
 
             return (
               <tr key={key}>
@@ -175,85 +138,71 @@ const CDPFormTable = ({
                 <td>{item?.stock_code}</td>
                 <td>{item?.name}</td>
                 <td>{price}</td>
-                <td>{totalGross.toFixed(4)}</td>
-                <td>{item.net_amount}</td>
-                <td>{item.alloc_qty_1}</td>
-                <td>{item.warehouse_1}</td>
+                <td>{item.alloc_qty}</td>
                 <td>
                   <Input
                     type="number"
-                    value={item.warehouse_1_qty}
-                    onChange={(e) =>
-                      handleQuantityChange(
-                        item.id,
-                        item.stock_code,
-                        item.cpo_id,
-                        "warehouse_1_qty",
-                        e.target.value,
-                      )
-                    }
+                    value={item.dp_qty}
+                    onChange={(e) => {
+                      setFormattedAllocs((prevAllocItems) =>
+                        prevAllocItems.map((allocItem) =>
+                          allocItem.id === item.id &&
+                          allocItem.stock_code === item.stock_code &&
+                          allocItem.cpo_id === item.cpo_id
+                            ? {
+                                ...allocItem,
+                                dp_qty: e.target.value,
+                                gross_amount: price * Number(e.target.value),
+                                net_amount: calculateNetForRow(
+                                  Number(e.target.value),
+                                  allocItem,
+                                ),
+                              } // Update the matching item
+                            : allocItem,
+                        ),
+                      );
+                    }}
                     slotProps={{
                       input: {
                         min: 0,
-                        max: item.alloc_qty_1 ?? 0,
                       },
                     }}
                     placeholder="0"
-                    disabled={isEditDisabled || item.warehouse_1 === "N/A"}
+                    disabled={isEditDisabled}
                   />
                 </td>
-
-                <td>{item.alloc_qty_2}</td>
-                <td>{item.warehouse_2}</td>
+                <td>{addCommaToNumberWithFourPlaces(item.gross_amount)}</td>
                 <td>
-                  <Input
-                    type="number"
-                    value={item.warehouse_2_qty}
-                    onChange={(e) =>
-                      handleQuantityChange(
-                        item.id,
-                        item.stock_code,
-                        item.cpo_id,
-                        "warehouse_2_qty",
-                        e.target.value,
-                      )
-                    }
-                    slotProps={{
-                      input: {
-                        min: 0,
-                        max: item.alloc_qty_2 ?? 0,
-                      },
-                    }}
-                    placeholder="0"
-                    disabled={isEditDisabled || item.warehouse_2 === "N/A"}
-                  />
+                  {item.customer_discount_1.includes("%")
+                    ? item.customer_discount_1
+                    : 0}
                 </td>
-
-                <td>{item.alloc_qty_3}</td>
-                <td>{item.warehouse_3}</td>
                 <td>
-                  <Input
-                    type="number"
-                    value={item.warehouse_3_qty}
-                    onChange={(e) =>
-                      handleQuantityChange(
-                        item.id,
-                        item.stock_code,
-                        item.cpo_id,
-                        "warehouse_3_qty",
-                        e.target.value,
-                      )
-                    }
-                    slotProps={{
-                      input: {
-                        min: 0,
-                        max: item.alloc_qty_3 ?? 0,
-                      },
-                    }}
-                    placeholder="0"
-                    disabled={isEditDisabled || item.warehouse_3 === "N/A"}
-                  />
+                  {item.customer_discount_2.includes("%")
+                    ? item.customer_discount_2
+                    : 0}
                 </td>
+                <td>
+                  {item.customer_discount_3.includes("%")
+                    ? item.customer_discount_3
+                    : 0}
+                </td>
+                <td>
+                  {item.transaction_discount_1.includes("%")
+                    ? item.transaction_discount_1
+                    : 0}
+                </td>
+                <td>
+                  {item.transaction_discount_2.includes("%")
+                    ? item.transaction_discount_2
+                    : 0}
+                </td>
+                <td>
+                  {item.transaction_discount_3.includes("%")
+                    ? item.transaction_discount_3
+                    : 0}
+                </td>
+                <td>{addCommaToNumberWithFourPlaces(item.net_amount)}</td>
               </tr>
             );
           })}

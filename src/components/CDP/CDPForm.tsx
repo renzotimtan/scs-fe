@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
-import { type AllocItemsFE } from "./interface";
+import { UnplannedAlloc, type AllocItemsFE } from "./interface";
 import type {
   CDPFormProps,
   PaginatedCustomers,
@@ -30,25 +30,28 @@ const CDPForm = ({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
-  const [selectedAllocs, setSelectedAllocs] = useState<Alloc[]>([]);
+  const [selectedAllocs, setSelectedAllocs] = useState<UnplannedAlloc[]>([]);
   const [formattedAllocs, setFormattedAllocs] = useState<AllocItemsFE[]>([]);
 
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
+  const [amountDiscount, setAmountDiscount] = useState(0);
   const [remarks, setRemarks] = useState("");
 
-  const [totalItems, setTotalItems] = useState(0);
+  const totalItems = formattedAllocs.reduce(
+    (sum, item) => sum + (Number(item.dp_qty) > 0 ? 1 : 0),
+    0,
+  );
 
   const totalGross = formattedAllocs.reduce(
     (sum, item) => sum + (item.gross_amount ?? 0),
     0,
   );
 
-  const totalNet = formattedAllocs.reduce(
-    (sum, item) => sum + (item.net_amount ?? 0),
-    0,
-  );
+  const totalNet =
+    formattedAllocs.reduce((sum, item) => sum + (item.net_amount ?? 0), 0) -
+    amountDiscount;
 
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -84,52 +87,38 @@ const CDPForm = ({
 
   useEffect(() => {
     const formattedAllocs = selectedAllocs
-      .map((alloc) => {
+      .map((alloc: UnplannedAlloc) => {
         return alloc.allocation_items.map((allocItem) => {
-          const warehouse1 =
-            allocItem.warehouse_allocations[0]?.warehouse_item.warehouse.name ??
-            "N/A";
-          const warehouse2 =
-            allocItem.warehouse_allocations[1]?.warehouse_item.warehouse.name ??
-            "N/A";
-          const warehouse3 =
-            allocItem.warehouse_allocations[2]?.warehouse_item.warehouse.name ??
-            "N/A";
-
           const itemObj = allocItem.customer_purchase_order.items.find(
             (item) => item.item_id === allocItem.item_id,
           );
 
           return {
             id: alloc.id,
-            stock_code: allocItem.item.stock_code,
-            name: allocItem.item.name,
+            alloc_item_id: allocItem.id,
+            stock_code: itemObj?.item.stock_code ?? "",
+            name: itemObj?.item.name ?? "",
             cpo_id: allocItem.customer_purchase_order_id,
+            alloc_qty: allocItem.total_available,
+            dp_qty: "",
+            cpo_item_volume: itemObj?.volume ?? 0,
+            cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
             price: itemObj?.price ?? 0,
             gross_amount: 0,
             net_amount: 0,
+            customer_discount_1:
+              allocItem.customer_purchase_order.customer_discount_1,
+            customer_discount_2:
+              allocItem.customer_purchase_order.customer_discount_2,
+            customer_discount_3:
+              allocItem.customer_purchase_order.customer_discount_3,
 
-            // allocations
-            alloc_qty_1:
-              allocItem.warehouse_allocations[0]?.allocated_qty ?? "N/A",
-            warehouse_1: warehouse1,
-            warehouse_1_qty: undefined,
-            warehouse_allocation_1_id:
-              allocItem.warehouse_allocations[0]?.id ?? null,
-
-            alloc_qty_2:
-              allocItem.warehouse_allocations[1]?.allocated_qty ?? "N/A",
-            warehouse_2: warehouse2,
-            warehouse_2_qty: undefined,
-            warehouse_allocation_2_id:
-              allocItem.warehouse_allocations[1]?.id ?? null,
-
-            alloc_qty_3:
-              allocItem.warehouse_allocations[2]?.allocated_qty ?? "N/A",
-            warehouse_3: warehouse3,
-            warehouse_3_qty: undefined,
-            warehouse_allocation_3_id:
-              allocItem.warehouse_allocations[2]?.id ?? null,
+            transaction_discount_1:
+              allocItem.customer_purchase_order.transaction_discount_1,
+            transaction_discount_2:
+              allocItem.customer_purchase_order.transaction_discount_2,
+            transaction_discount_3:
+              allocItem.customer_purchase_order.transaction_discount_3,
           };
         });
       })
@@ -154,49 +143,12 @@ const CDPForm = ({
       reference_number: referenceNumber,
       remarks,
       customer_id: selectedCustomer?.customer_id,
-      delivery_plan_items: formattedAllocs
-        .map((allocItem) => {
-          const planned = [];
-
-          if (
-            allocItem.warehouse_allocation_1_id !== null &&
-            allocItem.warehouse_1_qty !== undefined &&
-            Number(allocItem.warehouse_1_qty) !== 0
-          ) {
-            planned.push({
-              warehouse_allocation_id: allocItem.warehouse_allocation_1_id,
-              allocation_id: allocItem.id,
-              planned_qty: allocItem.warehouse_1_qty,
-            });
-          }
-
-          if (
-            allocItem.warehouse_allocation_2_id !== null &&
-            allocItem.warehouse_2_qty !== undefined &&
-            Number(allocItem.warehouse_2_qty) !== 0
-          ) {
-            planned.push({
-              warehouse_allocation_id: allocItem.warehouse_allocation_2_id,
-              allocation_id: allocItem.id,
-              planned_qty: allocItem.warehouse_2_qty,
-            });
-          }
-
-          if (
-            allocItem.warehouse_allocation_3_id !== null &&
-            allocItem.warehouse_3_qty !== undefined &&
-            Number(allocItem.warehouse_3_qty) !== 0
-          ) {
-            planned.push({
-              warehouse_allocation_id: allocItem.warehouse_allocation_3_id,
-              allocation_id: allocItem.id,
-              planned_qty: allocItem.warehouse_3_qty,
-            });
-          }
-
-          return planned;
-        })
-        .flat(),
+      delivery_plan_items: formattedAllocs.map((allocItem) => {
+        return {
+          allocation_item_id: allocItem.alloc_item_id,
+          planned_qty: allocItem.dp_qty,
+        };
+      }),
     };
 
     try {
@@ -284,6 +236,8 @@ const CDPForm = ({
         setSelectedCustomer={setSelectedCustomer}
         selectedAllocs={selectedAllocs}
         setSelectedAllocs={setSelectedAllocs}
+        formattedAllocs={formattedAllocs}
+        setFormattedAllocs={setFormattedAllocs}
         status={status}
         setStatus={setStatus}
         transactionDate={transactionDate}
@@ -295,6 +249,9 @@ const CDPForm = ({
         isEditDisabled={isEditDisabled}
         totalNet={totalNet}
         totalGross={totalGross}
+        totalItems={totalItems}
+        amountDiscount={amountDiscount}
+        setAmountDiscount={setAmountDiscount}
       />
       <CDPFormTable
         selectedRow={selectedRow}
@@ -302,7 +259,6 @@ const CDPForm = ({
         setFormattedAllocs={setFormattedAllocs}
         selectedAllocs={selectedAllocs}
         setSelectedAllocs={setSelectedAllocs}
-        setTotalItems={setTotalItems}
         totalGross={totalGross}
         totalNet={totalNet}
         totalItems={totalItems}

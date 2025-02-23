@@ -3,6 +3,7 @@ import Table from "@mui/joy/Table";
 
 import type { Item } from "../../../interface";
 import type { CPOFormTableProps } from "../interface";
+import { addCommaToNumberWithFourPlaces } from "../../../helper";
 
 const CPOFormTable = ({
   items,
@@ -207,7 +208,7 @@ const CPOFormTable = ({
                     }}
                   />
                 </td>
-                <td style={{ zIndex: 2 }}>
+                <td>
                   {selectedItem.id && (
                     <Select
                       onChange={(event, value) => {
@@ -239,10 +240,12 @@ const CPOFormTable = ({
                     />
                   )}
                 </td>
-                <td>{price}</td>
+                <td>{!isNaN(Number(price)) ? Number(price) : ""}</td>
                 <td>
                   {selectedItem?.id !== null &&
-                    Number(price) * Number(selectedItem?.volume)}
+                    addCommaToNumberWithFourPlaces(
+                      Number(price) * Number(selectedItem?.volume),
+                    )}
                 </td>
                 <td>{selectedItem.total_on_stock}</td>
                 <td>

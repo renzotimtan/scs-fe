@@ -170,14 +170,8 @@ const PurchaseOrderForm = ({
     return acc;
   }, 0);
 
-  const subtotalAfterSupplierDiscounts = calculateTotalWithDiscounts(
-    discounts.supplier,
-    fobTotal,
-  );
-  const netAmount = calculateTotalWithDiscounts(
-    discounts.transaction,
-    subtotalAfterSupplierDiscounts,
-  );
+  const netAmount = calculateTotalWithDiscounts(discounts, fobTotal);
+
   const landedTotal = netAmount * Number(pesoRate);
 
   const getAllPOItems = (): void => {
