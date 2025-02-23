@@ -98,7 +98,7 @@ const CDPForm = ({
           name: itemObj?.item.name ?? "",
           cpo_id: DPItem.allocation_item.customer_purchase_order_id,
 
-          alloc_qty: 0,
+          alloc_qty: DPItem.existing_allocated_qty ?? 0,
           dp_qty: String(DPItem.planned_qty),
 
           gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
