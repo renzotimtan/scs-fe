@@ -192,6 +192,9 @@ const CDPForm = ({
       reference_number: referenceNumber,
       remarks,
       customer_id: selectedCustomer?.customer_id,
+      total_net: totalNet,
+      total_gross: totalGross,
+      total_items: totalItems,
       delivery_plan_items: formattedAllocs
         .filter((allocItem) => allocItem.dp_qty && Number(allocItem.dp_qty) > 0)
         .map((allocItem) => {
