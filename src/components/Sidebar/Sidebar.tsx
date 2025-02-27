@@ -31,14 +31,15 @@ export default function Sidebar(): JSX.Element {
           bgcolor: "background.surface",
           borderRight: "1px solid",
           borderColor: "divider",
+          overflow: "auto",
         },
       ]}
     >
-      <h4 className="mb-2 p-2">Peterson Parts Trading Inc.</h4>
+      <h4 className="mb-2 p-2">Peterson Parts Trading</h4>
       <Divider />
       <List
         size="sm"
-        sx={{ "--ListItem-radius": "8px", "--List-gap": "2px", fontSize: 13 }}
+        sx={{ "--ListItem-radius": "8px", "--List-gap": "1px", fontSize: 13 }}
       >
         <ListItem nested sx={{ mt: 1 }}>
           <ListSubheader sx={{ letterSpacing: "2px", fontWeight: "800" }}>
@@ -130,6 +131,11 @@ export default function Sidebar(): JSX.Element {
               Icon={LocalShippingIcon}
               label="Delivery Planning"
               link="/sales/delivery-planning"
+            />
+            <SidebarLink
+              Icon={LocalShippingIcon}
+              label="Delivery Receipt"
+              link="/sales/delivery-receipt"
             />
             <SidebarLink
               Icon={AssignmentReturnRoundedIcon}

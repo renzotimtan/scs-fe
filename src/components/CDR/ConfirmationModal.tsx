@@ -2,14 +2,20 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
 import { Button, Box } from "@mui/joy";
-import type { DeleteModalProps } from "../../interface";
 
-const DeleteCDPModal = ({
+const ConfirmationModal = ({
   open,
-  title,
   setOpen,
-  onDelete,
-}: DeleteModalProps): JSX.Element => {
+  onConfirm,
+  onCancel,
+  itemName,
+}: {
+  open: boolean;
+  setOpen: (isOpen: boolean) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  itemName: string;
+}): JSX.Element => {
   return (
     <Modal
       aria-labelledby="modal-title"
@@ -17,6 +23,7 @@ const DeleteCDPModal = ({
       open={open}
       onClose={(event, reason) => {
         if (reason === "backdropClick") return;
+        onCancel();
         setOpen(false);
       }}
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
@@ -33,10 +40,11 @@ const DeleteCDPModal = ({
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <Box>
-            <h4 className="mb-6">{title}</h4>
+            <h4 className="mb-6">Confirm Price Change</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to archive this Delivery Plan?
+                Are you sure you want to adjust the price of{" "}
+                <strong>{itemName}</strong>?
               </p>
             </div>
             <div className="flex justify-end mt-5">
@@ -44,20 +52,23 @@ const DeleteCDPModal = ({
                 className="ml-4 w-[130px]"
                 size="sm"
                 variant="outlined"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  onCancel();
+                  setOpen(false);
+                }}
               >
                 Cancel
               </Button>
               <Button
-                className="ml-4 w-[130px] bg-button-warning"
-                color="danger"
+                className="ml-4 w-[130px] bg-button-primary"
+                color="primary"
                 size="sm"
-                onClick={async () => {
-                  await onDelete(); // Call the onDelete function when the button is clicked
+                onClick={() => {
+                  onConfirm();
                   setOpen(false);
                 }}
               >
-                Archive
+                Confirm
               </Button>
             </div>
           </Box>
@@ -67,4 +78,4 @@ const DeleteCDPModal = ({
   );
 };
 
-export default DeleteCDPModal;
+export default ConfirmationModal;

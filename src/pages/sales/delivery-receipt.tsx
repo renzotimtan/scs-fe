@@ -1,36 +1,36 @@
 import { useState } from "react";
-import AllocForm from "../../components/Allocation/AllocForm";
-import ViewAlloc from "../../components/Allocation/ViewAlloc";
-import { type Alloc } from "../../interface";
+// import CDRForm from "../../components/CDP/CDPForm";
+import ViewCDR from "../../components/CDR/ViewCDR";
+import type { CDR } from "../../interface";
 
-const AllocationMenu = (): JSX.Element => {
+const DeliveryPlanningMenu = (): JSX.Element => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<Alloc | undefined>();
+  const [selectedRow, setSelectedRow] = useState<CDR | undefined>();
 
   return (
     <div>
-      {openCreate && (
-        <AllocForm
+      {/* {openCreate && (
+        <CDPForm
           setOpen={setOpenCreate}
           openCreate={openCreate}
           openEdit={openEdit}
-          title="Create Allocation"
+          title="Create Delivery Planning"
         />
       )}
 
       {openEdit && (
-        <AllocForm
+        <CDPForm
           setOpen={setOpenEdit}
           openCreate={openCreate}
           openEdit={openEdit}
           selectedRow={selectedRow}
-          title="Edit Allocation"
+          title="Edit Delivery Planning"
         />
-      )}
+      )} */}
 
       {!openEdit && !openCreate && (
-        <ViewAlloc
+        <ViewCDR
           setOpenCreate={setOpenCreate}
           setOpenEdit={setOpenEdit}
           selectedRow={selectedRow}
@@ -41,4 +41,4 @@ const AllocationMenu = (): JSX.Element => {
   );
 };
 
-export default AllocationMenu;
+export default DeliveryPlanningMenu;

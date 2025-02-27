@@ -236,6 +236,11 @@ export interface PaginatedCDP {
   items: CDP[];
 }
 
+export interface PaginatedCDR {
+  total: number;
+  items: CDR[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -508,14 +513,21 @@ export interface ViewDeallocProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: Dealloc | undefined;
-  setSelectedRow: (alloc: Dealloc) => void;
+  setSelectedRow: (dealloc: Dealloc) => void;
 }
 
 export interface ViewCDPProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: CDP | undefined;
-  setSelectedRow: (alloc: CDP) => void;
+  setSelectedRow: (cdp: CDP) => void;
+}
+
+export interface ViewCDRProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: CDR | undefined;
+  setSelectedRow: (cdr: CDR) => void;
 }
 
 export interface CPOItems {
@@ -787,6 +799,7 @@ export interface DeliveryPlanItem {
 
 export interface CDP {
   status: string;
+  discount_amount: string;
   transaction_date: string;
   reference_number: string;
   remarks: string;
@@ -801,6 +814,80 @@ export interface CDP {
   modified_by: number | null;
   date_created: string;
   date_modified: string;
+  creator: User;
+  modifier: User | null;
+}
+
+interface DeliveryReceiptItem {
+  delivery_plan_item_id: number;
+  delivered_qty: number;
+  id: number;
+  created_by: number;
+  modified_by: number | null;
+  date_created: string;
+  date_modified: string | null;
+  delivery_plan_item: {
+    id: number;
+    allocation_item: {
+      allocation_id: number;
+      customer_purchase_order_id: number;
+      item_id: number;
+      item: {
+        stock_code: string;
+        name: string;
+      };
+      customer_purchase_order: {
+        id: number;
+        customer_discount_1: string;
+        customer_discount_2: string;
+        customer_discount_3: string;
+        transaction_discount_1: string;
+        transaction_discount_2: string;
+        transaction_discount_3: string;
+        items: Array<{
+          id: number;
+          item_id: number;
+          price: number;
+          volume: number;
+          unserved_cpo: number;
+          item: {
+            stock_code: string;
+            name: string;
+          };
+        }>;
+        creator: {
+          id: number;
+          username: string;
+          email: string;
+          full_name: string;
+          disabled: boolean;
+        };
+        date_created: string;
+        modifier: string | null;
+        date_modified: string | null;
+      };
+    };
+    planned_qty: number;
+  };
+}
+
+export interface CDR {
+  status: string;
+  transaction_date: string;
+  discount_amount: string;
+  reference_number: string;
+  remarks: string;
+  delivery_plan_id: number;
+  id: number;
+  total_items: number;
+  total_gross: string;
+  total_net: string;
+  created_by: number;
+  modified_by: number | null;
+  date_created: string;
+  date_modified: string;
+  receipt_items: DeliveryReceiptItem[];
+  customer: Customer;
   creator: User;
   modifier: User | null;
 }

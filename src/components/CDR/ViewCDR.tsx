@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeleteCDPModal from "./DeleteCDPModal";
+import DeleteCDRModal from "./DeleteCDRModal";
 import { toast } from "react-toastify";
 import type {
-  ViewCDPProps,
-  PaginatedCDP,
+  ViewCDRProps,
+  PaginatedCDR,
   PaginationQueryParams,
 } from "../../interface";
 
@@ -18,13 +18,13 @@ import {
 
 const PAGE_LIMIT = 10;
 
-const ViewCDP = ({
+const ViewCDR = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewCDPProps): JSX.Element => {
-  const [CDPs, setCDPs] = useState<PaginatedCDP>({
+}: ViewCDRProps): JSX.Element => {
+  const [CDRs, setCDRs] = useState<PaginatedCDR>({
     total: 0,
     items: [],
   });
@@ -33,7 +33,7 @@ const ViewCDP = ({
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
 
-  const getAllCDP = (): void => {
+  const getAllCDRs = (): void => {
     const payload: PaginationQueryParams = {
       page: 1,
       limit: PAGE_LIMIT,
@@ -47,11 +47,11 @@ const ViewCDP = ({
     }
 
     axiosInstance
-      .get<PaginatedCDP>(
-        `/api/delivery-plans/?${convertToQueryParams(payload)}`,
+      .get<PaginatedCDR>(
+        `/api/delivery-receipts/?${convertToQueryParams(payload)}`,
       )
       .then((response) => {
-        setCDPs(response.data);
+        setCDRs(response.data);
         setPage(1);
       })
       .catch((error) => console.error("Error:", error));
@@ -63,7 +63,7 @@ const ViewCDP = ({
   ): void => {
     setPage(value);
     axiosInstance
-      .get<PaginatedCDP>(
+      .get<PaginatedCDR>(
         `/api/delivery-plans/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
@@ -72,27 +72,27 @@ const ViewCDP = ({
           search_term: searchTerm,
         })}`,
       )
-      .then((response) => setCDPs(response.data))
+      .then((response) => setCDRs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
   useEffect(() => {
-    // Fetch CDPs
-    getAllCDP();
+    // Fetch CDRs
+    getAllCDRs();
   }, []);
 
-  const handleDeleteCDP = async (): Promise<void> => {
+  const handleDeleteCDR = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/delivery-plans/${selectedRow.id}`;
+      const url = `/api/delivery-receipts/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Archive successful!");
-        setCDPs((prevCDP) => ({
-          ...prevCDP,
-          items: prevCDP.items.map((CDP) =>
-            CDP.id === selectedRow.id ? { ...CDP, status: "archived" } : CDP,
+        setCDRs((prevCDR) => ({
+          ...prevCDR,
+          items: prevCDR.items.map((CDR) =>
+            CDR.id === selectedRow.id ? { ...CDR, status: "archived" } : CDR,
           ),
-          total: prevCDP.total,
+          total: prevCDR.total,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -104,7 +104,7 @@ const ViewCDP = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Customer Delivery Planning</h2>
+          <h2>Customer Delivery Receipt</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -136,7 +136,7 @@ const ViewCDP = ({
             <Option value="archived">Archived</Option>
           </Select>
           <Button
-            onClick={getAllCDP}
+            onClick={getAllCDRs}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >
@@ -205,7 +205,7 @@ const ViewCDP = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  CDP No.
+                  CDR No.
                 </th>
                 <th style={{ width: 200 }}>Ref No.</th>
                 <th style={{ width: 300 }}>Status</th>
@@ -226,31 +226,31 @@ const ViewCDP = ({
               </tr>
             </thead>
             <tbody>
-              {CDPs.items.map((CDP) => (
+              {CDRs.items.map((CDR) => (
                 <tr
-                  key={CDP.id}
+                  key={CDR.id}
                   onDoubleClick={() => {
                     setOpenEdit(true);
-                    setSelectedRow(CDP);
+                    setSelectedRow(CDR);
                   }}
                 >
-                  <td>{CDP.id}</td>
-                  <td>{CDP.reference_number}</td>
-                  <td className="capitalize">{CDP.status}</td>
-                  <td>{CDP.customer.name}</td>
-                  <td>{CDP.transaction_date}</td>
-                  <td>{CDP.total_items}</td>
+                  <td>{CDR.id}</td>
+                  <td>{CDR.reference_number}</td>
+                  <td className="capitalize">{CDR.status}</td>
+                  <td>{CDR.customer.name}</td>
+                  <td>{CDR.transaction_date}</td>
+                  <td>{CDR.total_items}</td>
                   <td>
-                    {addCommaToNumberWithFourPlaces(Number(CDP.total_gross))}
+                    {addCommaToNumberWithFourPlaces(Number(CDR.total_gross))}
                   </td>
                   <td>
-                    {addCommaToNumberWithFourPlaces(Number(CDP.total_net))}
+                    {addCommaToNumberWithFourPlaces(Number(CDR.total_net))}
                   </td>
-                  <td>{CDP.remarks}</td>
-                  <td>{CDP?.creator?.username}</td>
-                  <td>{CDP?.modifier?.username}</td>
-                  <td>{CDP.date_created}</td>
-                  <td>{CDP.date_modified}</td>
+                  <td>{CDR.remarks}</td>
+                  <td>{CDR?.creator?.username}</td>
+                  <td>{CDR?.modifier?.username}</td>
+                  <td>{CDR.date_created}</td>
+                  <td>{CDR.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -260,10 +260,10 @@ const ViewCDP = ({
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(CDP);
+                          setSelectedRow(CDR);
                         }}
                       >
-                        {CDP.status !== "unposted" ? "View" : "Edit"}
+                        {CDR.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -272,9 +272,9 @@ const ViewCDP = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(CDP);
+                          setSelectedRow(CDR);
                         }}
-                        disabled={CDP.status !== "unposted"}
+                        disabled={CDR.status !== "unposted"}
                       >
                         Archive
                       </Button>
@@ -288,21 +288,21 @@ const ViewCDP = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.ceil(CDPs.total / PAGE_LIMIT)}
+          count={Math.ceil(CDRs.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteCDPModal
+      <DeleteCDRModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Archive Delivery Receipt"
-        onDelete={handleDeleteCDP}
+        onDelete={handleDeleteCDR}
       />
     </>
   );
 };
 
-export default ViewCDP;
+export default ViewCDR;
