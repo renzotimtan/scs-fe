@@ -1,5 +1,5 @@
-import CDPFormDetails from "./CDPForm/CDPFormDetails";
-import CDPFormTable from "./CDPForm/CDPFormTable";
+import CDRFormDetails from "./CDRForm/CDRFormDetails";
+import CDRFormTable from "./CDRForm/CDRFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
@@ -9,21 +9,22 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
 import { UnplannedAlloc, type AllocItemsFE } from "./interface";
 import type {
-  CDPFormProps,
+  CDRFormProps,
   PaginatedCustomers,
   Customer,
   Alloc,
   DeliveryPlanItem,
   CPO,
+  CDP,
 } from "../../interface";
 
-const CDPForm = ({
+const CDRForm = ({
   setOpen,
   openCreate,
   openEdit,
   selectedRow,
   title,
-}: CDPFormProps): JSX.Element => {
+}: CDRFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
   const [customers, setCustomers] = useState<PaginatedCustomers>({
     total: 0,
@@ -32,6 +33,8 @@ const CDPForm = ({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
+
+  const [selectedDP, setSelectedDP] = useState<CDP | null>(null);
   const [formattedAllocs, setFormattedAllocs] = useState<AllocItemsFE[]>([]);
 
   const [status, setStatus] = useState("unposted");
@@ -262,7 +265,7 @@ const CDPForm = ({
           Print
         </Button>
       </div>
-      <CDPFormDetails
+      <CDRFormDetails
         openEdit={openEdit}
         selectedRow={selectedRow}
         customers={customers}
@@ -284,8 +287,10 @@ const CDPForm = ({
         totalItems={totalItems}
         amountDiscount={amountDiscount}
         setAmountDiscount={setAmountDiscount}
+        selectedDP={selectedDP}
+        setSelectedDP={setSelectedDP}
       />
-      <CDPFormTable
+      <CDRFormTable
         selectedRow={selectedRow}
         formattedAllocs={formattedAllocs}
         setFormattedAllocs={setFormattedAllocs}
@@ -294,6 +299,8 @@ const CDPForm = ({
         totalItems={totalItems}
         openEdit={openEdit}
         isEditDisabled={isEditDisabled}
+        selectedDP={selectedDP}
+        setSelectedDP={setSelectedDP}
       />
       <Divider />
       <div className="flex justify-end mt-4">
@@ -323,4 +330,4 @@ const CDPForm = ({
   );
 };
 
-export default CDPForm;
+export default CDRForm;

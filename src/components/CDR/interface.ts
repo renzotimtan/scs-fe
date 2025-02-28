@@ -1,17 +1,16 @@
 import type {
-  PurchaseOrder,
-  Item,
   PaginatedCustomers,
   Customer,
   CDP,
   CPO,
+  CDR,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 import { type User } from "../../pages/Login";
 
-export interface CDPFormDetailsProps {
+export interface CDRFormDetailsProps {
   openEdit: boolean;
-  selectedRow: CDP | undefined;
+  selectedRow: CDR | undefined;
   customers: PaginatedCustomers;
   formattedAllocs: AllocItemsFE[];
   setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
@@ -33,6 +32,8 @@ export interface CDPFormDetailsProps {
   totalItems: number;
   amountDiscount: number;
   setAmountDiscount: Dispatch<SetStateAction<number>>;
+  selectedDP: CDP | null;
+  setSelectedDP: Dispatch<SetStateAction<CDP | null>>;
 }
 
 export interface UnplannedAlloc {
@@ -84,13 +85,8 @@ export interface NewPriceInstance {
   newPrice: number;
 }
 
-export interface POFormTableProps {
-  selectedPOs: PurchaseOrder[];
-  setSelectedPOs: Dispatch<SetStateAction<PurchaseOrder[]>>;
-}
-
-export interface CDPFormTableProps {
-  selectedRow: CDP | undefined;
+export interface CDRFormTableProps {
+  selectedRow: CDR | undefined;
   formattedAllocs: AllocItemsFE[];
   setFormattedAllocs: Dispatch<SetStateAction<AllocItemsFE[]>>;
   totalNet: number;
@@ -98,34 +94,6 @@ export interface CDPFormTableProps {
   totalItems: number;
   openEdit: boolean;
   isEditDisabled: boolean;
-}
-
-export interface POPayload {
-  status: string;
-  transaction_date: string;
-  supplier_id: number;
-  fob_total: number;
-  currency_used: string;
-  supplier_discount_1: string;
-  supplier_discount_2: string;
-  supplier_discount_3: string;
-  transaction_discount_1: string;
-  transaction_discount_2: string;
-  transaction_discount_3: string;
-  peso_rate: number;
-  net_amount: number;
-  reference_number: string;
-  landed_total: number;
-  remarks: string;
-  created_by?: number;
-  modified_by?: number;
-  items: Item[];
-}
-
-export interface POItemValues {
-  item_id: number;
-  volume: number;
-  unserved_spo: number;
-  price: number;
-  total_price: number;
+  selectedDP: CDP | null;
+  setSelectedDP: Dispatch<SetStateAction<CDP | null>>;
 }

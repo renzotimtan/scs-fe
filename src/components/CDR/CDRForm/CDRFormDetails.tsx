@@ -5,27 +5,22 @@ import {
   Textarea,
   Card,
   Stack,
-  Button,
   Select,
   Option,
   Box,
   Divider,
   Autocomplete,
 } from "@mui/joy";
-import type {
-  AllocItemsFE,
-  CDPFormDetailsProps,
-  UnplannedAlloc,
-} from "../interface";
+import type { AllocItemsFE, CDRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
 import {
   formatToDateTime,
   addCommaToNumberWithFourPlaces,
 } from "../../../helper";
-import SelectAllocModal from "./SelectAllocModal";
+import { type CDP } from "../../../interface";
 
-const CDPFormDetails = ({
+const CDRFormDetails = ({
   openEdit,
   selectedRow,
   customers,
@@ -47,20 +42,19 @@ const CDPFormDetails = ({
   totalItems,
   amountDiscount,
   setAmountDiscount,
-}: CDPFormDetailsProps): JSX.Element => {
-  const [unservedAllocs, setUnservedAllocs] = useState<UnplannedAlloc[]>([]);
-  const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
+  selectedDP,
+  setSelectedDP,
+}: CDRFormDetailsProps): JSX.Element => {
+  const [unservedDPs, setUnservedDPs] = useState<CDP[]>([]);
 
   useEffect(() => {
     if (selectedCustomer !== null && selectedCustomer !== undefined) {
       axiosInstance
-        .get<UnplannedAlloc[]>(
-          `/api/allocations/unplanned/${selectedCustomer.customer_id}`,
+        .get<CDP[]>(
+          `/api/delivery-plans/available/${selectedCustomer.customer_id}`,
         )
         .then((response) =>
-          setUnservedAllocs(
-            response.data.filter((alloc) => alloc.status === "posted"),
-          ),
+          setUnservedDPs(response.data.filter((dp) => dp.status === "posted")),
         )
         .catch((error) => console.error("Error:", error));
     }
@@ -113,25 +107,25 @@ const CDPFormDetails = ({
 
   return (
     <Box sx={{ display: "flex" }}>
-      <SelectAllocModal
+      {/* <SelectAllocModal
         open={isSelectModalOpen}
         setOpen={setIsSelectModalOpen}
         unservedAllocs={unservedAllocs}
         setFormattedAllocs={setFormattedAllocs}
-      />
+      /> */}
       <Card className="w-[60%] mr-7">
         <div>
           <div className="flex justify-between items-center mb-2">
             {openEdit && (
               <div>
-                <h4>CDP No. {selectedRow?.id}</h4>
+                <h4>CDR No. {selectedRow?.id}</h4>
               </div>
             )}
           </div>
           {openEdit && <Divider />}
 
           <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
-            <FormControl size="sm" sx={{ mb: 1, mt: 1, width: "22%" }}>
+            <FormControl size="sm" sx={{ mb: 1, mt: 1, width: "22.5%" }}>
               <FormLabel>Customer</FormLabel>
               <div className="flex">
                 <Autocomplete
@@ -141,6 +135,7 @@ const CDPFormDetails = ({
                   onChange={(event, newValue) => {
                     setSelectedCustomer(newValue);
                     setFormattedAllocs([]);
+                    setSelectedDP(null);
                   }}
                   size="sm"
                   className="w-[100%]"
@@ -150,7 +145,23 @@ const CDPFormDetails = ({
                 />
               </div>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+            <FormControl size="sm" sx={{ mb: 1, mt: 1, width: "22.5%" }}>
+              <FormLabel>CDP No.</FormLabel>
+              <div className="flex">
+                <Autocomplete
+                  options={unservedDPs}
+                  getOptionLabel={(option) => String(option.id)}
+                  onChange={(e, newValue) => setSelectedDP(newValue)}
+                  value={selectedDP}
+                  size="sm"
+                  className="w-[100%]"
+                  placeholder="Select CDP"
+                  disabled={isEditDisabled}
+                  required
+                />
+              </div>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22.5%" }}>
               <FormLabel>Status</FormLabel>
               <Select
                 onChange={(event, value) => {
@@ -164,7 +175,7 @@ const CDPFormDetails = ({
                 <Option value="unposted">Unposted</Option>
               </Select>
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22.5%" }}>
               <FormLabel>Transaction Date</FormLabel>
               <Input
                 type="date"
@@ -174,7 +185,13 @@ const CDPFormDetails = ({
                 required
               />
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+          </Stack>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ mt: 1, mb: 1, alignItems: "flex-end" }}
+          >
+            <FormControl size="sm" sx={{ mb: 1, width: "22.5%" }}>
               <FormLabel>Ref No.</FormLabel>
               <Input
                 size="sm"
@@ -185,13 +202,7 @@ const CDPFormDetails = ({
                 required
               />
             </FormControl>
-          </Stack>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ mb: 1, alignItems: "flex-end" }}
-          >
-            <FormControl size="sm" sx={{ mb: 1, width: "46%" }}>
+            <FormControl size="sm" sx={{ mb: 1, width: "22.5%" }}>
               <FormLabel>Remarks</FormLabel>
               <Textarea
                 minRows={1}
@@ -211,17 +222,6 @@ const CDPFormDetails = ({
                 disabled
               />
             </FormControl>
-            {(!openEdit || status === "unposted") && (
-              <Button
-                sx={{ mb: 1, width: "22.5%" }}
-                className="bg-button-primary"
-                size="sm"
-                onClick={() => setIsSelectModalOpen(true)}
-                disabled={selectedCustomer === null}
-              >
-                Fill Table
-              </Button>
-            )}
           </Stack>
         </div>
       </Card>
@@ -274,4 +274,4 @@ const CDPFormDetails = ({
   );
 };
 
-export default CDPFormDetails;
+export default CDRFormDetails;

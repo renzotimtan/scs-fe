@@ -1,5 +1,5 @@
 import { useState } from "react";
-// import CDRForm from "../../components/CDP/CDPForm";
+import CDRForm from "../../components/CDR/CDRForm";
 import ViewCDR from "../../components/CDR/ViewCDR";
 import type { CDR } from "../../interface";
 
@@ -10,24 +10,24 @@ const DeliveryPlanningMenu = (): JSX.Element => {
 
   return (
     <div>
-      {/* {openCreate && (
-        <CDPForm
+      {openCreate && (
+        <CDRForm
           setOpen={setOpenCreate}
           openCreate={openCreate}
           openEdit={openEdit}
-          title="Create Delivery Planning"
+          title="Create Delivery Receipt"
         />
       )}
 
       {openEdit && (
-        <CDPForm
+        <CDRForm
           setOpen={setOpenEdit}
           openCreate={openCreate}
           openEdit={openEdit}
           selectedRow={selectedRow}
-          title="Edit Delivery Planning"
+          title="Edit Delivery Receipt"
         />
-      )} */}
+      )}
 
       {!openEdit && !openCreate && (
         <ViewCDR

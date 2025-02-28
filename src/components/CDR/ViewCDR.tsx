@@ -112,7 +112,7 @@ const ViewCDR = ({
               setOpenCreate(true);
             }}
           >
-            Add Delivery Planning
+            Add Delivery Receipt
           </Button>
         </Box>
         <Box className="flex items-center mb-6">

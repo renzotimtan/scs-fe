@@ -1,15 +1,15 @@
 import { Sheet, Input } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
-import type { AllocItemsFE, CDPFormTableProps } from "../interface";
+import type { AllocItemsFE, CDRFormTableProps } from "../interface";
 import { addCommaToNumberWithFourPlaces } from "../../../helper";
 
-const CDPFormTable = ({
+const CDRFormTable = ({
   selectedRow,
   formattedAllocs,
   setFormattedAllocs,
   isEditDisabled,
-}: CDPFormTableProps): JSX.Element => {
+}: CDRFormTableProps): JSX.Element => {
   const calculateNetForRow = (
     newValue: number,
     allocItem: AllocItemsFE,
@@ -206,4 +206,4 @@ const CDPFormTable = ({
   );
 };
 
-export default CDPFormTable;
+export default CDRFormTable;
