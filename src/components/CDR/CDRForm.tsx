@@ -16,6 +16,8 @@ import type {
   DeliveryPlanItem,
   CPO,
   CDP,
+  CDR,
+  PaginatedCDP,
 } from "../../interface";
 
 const CDRForm = ({
@@ -78,7 +80,12 @@ const CDRForm = ({
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
       setAmountDiscount(Number(selectedRow?.discount_amount));
-      // setSelectedDP(selectedRow.)
+
+      axiosInstance
+        .get<CDP>(`/api/delivery-plans/${selectedRow.delivery_plan_id}`)
+        .then((response) => setSelectedDP(response.data))
+        .catch((error) => console.error("Error:", error));
+      //
 
       // Get Customer for Edit
       axiosInstance

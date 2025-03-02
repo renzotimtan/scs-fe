@@ -208,6 +208,7 @@ const ViewCDR = ({
                   CDR No.
                 </th>
                 <th style={{ width: 200 }}>Ref No.</th>
+                <th style={{ width: 200 }}>CDP No.</th>
                 <th style={{ width: 300 }}>Status</th>
                 <th style={{ width: 300 }}>Customer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
@@ -236,6 +237,7 @@ const ViewCDR = ({
                 >
                   <td>{CDR.id}</td>
                   <td>{CDR.reference_number}</td>
+                  <td>{CDR.delivery_plan_id}</td>
                   <td className="capitalize">{CDR.status}</td>
                   <td>{CDR.customer.name}</td>
                   <td>{CDR.transaction_date}</td>
