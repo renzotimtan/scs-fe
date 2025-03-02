@@ -11,7 +11,7 @@ import {
   Divider,
   Autocomplete,
 } from "@mui/joy";
-import type { AllocItemsFE, CDRFormDetailsProps } from "../interface";
+import type { CDRFormDetailsProps, AllocItemsFE } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
 import {
@@ -60,59 +60,103 @@ const CDRFormDetails = ({
     }
   }, [selectedCustomer]);
 
-  useEffect(() => {
-    if (!openEdit) getFixedAmtDiscounts();
-  }, [formattedAllocs]);
+  const calculateNetForRow = (
+    newValue: number,
+    allocItem: AllocItemsFE,
+  ): number => {
+    let result = newValue * allocItem.price;
 
-  const isAmtDiscountAlreadyApplied = (allocItem: AllocItemsFE): boolean => {
-    // If the total of allocated + unserved is less than the volume, that means some allocated items are planned already
-    // Meaning, the discount has already been applied
-    if (
-      allocItem.alloc_qty + allocItem.cpo_item_unserved <
-      allocItem.cpo_item_volume
-    ) {
-      return true;
+    if (allocItem.customer_discount_1.includes("%")) {
+      const cd1 = allocItem.customer_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(cd1) / 100);
     }
-    return false;
+
+    if (allocItem.customer_discount_2.includes("%")) {
+      const cd2 = allocItem.customer_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(cd2) / 100);
+    }
+
+    if (allocItem.customer_discount_3.includes("%")) {
+      const cd3 = allocItem.customer_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(cd3) / 100);
+    }
+
+    if (allocItem.transaction_discount_1.includes("%")) {
+      const td1 = allocItem.transaction_discount_1.slice(0, -1);
+      result = result - result * (parseFloat(td1) / 100);
+    }
+
+    if (allocItem.transaction_discount_2.includes("%")) {
+      const td2 = allocItem.transaction_discount_2.slice(0, -1);
+      result = result - result * (parseFloat(td2) / 100);
+    }
+
+    if (allocItem.transaction_discount_3.includes("%")) {
+      const td3 = allocItem.transaction_discount_3.slice(0, -1);
+      result = result - result * (parseFloat(td3) / 100);
+    }
+
+    if (isNaN(result)) return 0;
+
+    return result;
   };
 
-  const getFixedAmtDiscounts = (): void => {
-    let total = 0;
-    for (const allocItem of formattedAllocs) {
-      console.log(allocItem);
-      if (isAmtDiscountAlreadyApplied(allocItem)) {
-        continue;
-      }
-      if (!allocItem.customer_discount_1.includes("%"))
-        total += Number(allocItem.customer_discount_1);
+  const handleCDPChange = (newValue: CDP | null): void => {
+    setSelectedDP(newValue);
 
-      if (!allocItem.customer_discount_2.includes("%"))
-        total += Number(allocItem.customer_discount_2);
+    if (newValue !== null) {
+      setAmountDiscount(Number(newValue?.discount_amount ?? 0));
+      const formattedAllocs = newValue.delivery_plan_items.map((DPItem) => {
+        const allocItem = DPItem.allocation_item;
 
-      if (!allocItem.customer_discount_3.includes("%"))
-        total += Number(allocItem.customer_discount_3);
+        const itemObj = allocItem.customer_purchase_order.items.find(
+          (item) => item.item_id === allocItem.item_id,
+        );
 
-      if (!allocItem.transaction_discount_1.includes("%"))
-        total += Number(allocItem.transaction_discount_1);
+        return {
+          id: allocItem.allocation_id,
+          stock_code: itemObj?.item.stock_code ?? "",
+          name: itemObj?.item.name ?? "",
+          cpo_id: allocItem.customer_purchase_order_id,
+          dp_qty: String(DPItem.planned_qty),
+          delivery_plan_item_id: DPItem.id,
 
-      if (!allocItem.transaction_discount_2.includes("%"))
-        total += Number(allocItem.transaction_discount_2);
+          price: itemObj?.price ?? 0,
+          gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
+          net_amount: 0,
 
-      if (!allocItem.transaction_discount_3.includes("%"))
-        total += Number(allocItem.transaction_discount_3);
+          customer_discount_1:
+            allocItem.customer_purchase_order.customer_discount_1,
+          customer_discount_2:
+            allocItem.customer_purchase_order.customer_discount_2,
+          customer_discount_3:
+            allocItem.customer_purchase_order.customer_discount_3,
+
+          transaction_discount_1:
+            allocItem.customer_purchase_order.transaction_discount_1,
+          transaction_discount_2:
+            allocItem.customer_purchase_order.transaction_discount_2,
+          transaction_discount_3:
+            allocItem.customer_purchase_order.transaction_discount_3,
+        };
+      });
+
+      const formattedAllocsWithNet = formattedAllocs.map((formattedAlloc) => {
+        return {
+          ...formattedAlloc,
+          net_amount: calculateNetForRow(
+            Number(formattedAlloc.dp_qty),
+            formattedAlloc,
+          ),
+        };
+      });
+
+      setFormattedAllocs(formattedAllocsWithNet);
     }
-
-    setAmountDiscount(total);
   };
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* <SelectAllocModal
-        open={isSelectModalOpen}
-        setOpen={setIsSelectModalOpen}
-        unservedAllocs={unservedAllocs}
-        setFormattedAllocs={setFormattedAllocs}
-      /> */}
       <Card className="w-[60%] mr-7">
         <div>
           <div className="flex justify-between items-center mb-2">
@@ -151,7 +195,7 @@ const CDRFormDetails = ({
                 <Autocomplete
                   options={unservedDPs}
                   getOptionLabel={(option) => String(option.id)}
-                  onChange={(e, newValue) => setSelectedDP(newValue)}
+                  onChange={(e, newValue) => handleCDPChange(newValue)}
                   value={selectedDP}
                   size="sm"
                   className="w-[100%]"
@@ -218,7 +262,7 @@ const CDRFormDetails = ({
               <Textarea
                 minRows={1}
                 placeholder="0"
-                value={amountDiscount}
+                value={selectedDP?.discount_amount ?? 0}
                 disabled
               />
             </FormControl>

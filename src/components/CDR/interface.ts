@@ -56,30 +56,6 @@ export interface UnplannedAlloc {
   date_created: string;
 }
 
-export interface AllocItemsFE {
-  id: number;
-  alloc_item_id: number;
-  stock_code: string;
-  name: string; // The name of the item
-  cpo_id: number;
-  alloc_qty: number;
-  dp_qty: string | undefined;
-  price: number;
-  gross_amount: number;
-  net_amount: number;
-
-  cpo_item_volume: number;
-  cpo_item_unserved: number;
-
-  customer_discount_1: string;
-  customer_discount_2: string;
-  customer_discount_3: string;
-
-  transaction_discount_1: string;
-  transaction_discount_2: string;
-  transaction_discount_3: string;
-}
-
 export interface NewPriceInstance {
   id: number;
   newPrice: number;
@@ -96,4 +72,24 @@ export interface CDRFormTableProps {
   isEditDisabled: boolean;
   selectedDP: CDP | null;
   setSelectedDP: Dispatch<SetStateAction<CDP | null>>;
+}
+
+export interface AllocItemsFE {
+  id: number;
+  stock_code: string;
+  cpo_id: number;
+  name: string;
+  dp_qty: string | undefined;
+  price: number;
+  gross_amount: number;
+  net_amount: number;
+  delivery_plan_item_id: number;
+
+  customer_discount_1: string;
+  customer_discount_2: string;
+  customer_discount_3: string;
+
+  transaction_discount_1: string;
+  transaction_discount_2: string;
+  transaction_discount_3: string;
 }

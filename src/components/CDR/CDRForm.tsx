@@ -78,6 +78,7 @@ const CDRForm = ({
       setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
       setAmountDiscount(Number(selectedRow?.discount_amount));
+      // setSelectedDP(selectedRow.)
 
       // Get Customer for Edit
       axiosInstance
@@ -88,7 +89,9 @@ const CDRForm = ({
         .catch((error) => console.error("Error:", error));
 
       // Fill in formatted allocs for table
-      const formattedAllocs = selectedRow.delivery_plan_items.map((DPItem) => {
+      const formattedAllocs = selectedRow.receipt_items.map((DRItem) => {
+        const DPItem = DRItem.delivery_plan_item;
+
         const itemObj =
           DPItem.allocation_item.customer_purchase_order.items.find(
             (item) => item.item_id === DPItem.allocation_item.item_id,
@@ -96,24 +99,19 @@ const CDRForm = ({
 
         return {
           id: DPItem.allocation_item.allocation_id,
-          alloc_item_id: DPItem.allocation_item_id,
           stock_code: itemObj?.item.stock_code ?? "",
-          name: itemObj?.item.name ?? "",
           cpo_id: DPItem.allocation_item.customer_purchase_order_id,
-
-          alloc_qty: DPItem.existing_allocated_qty ?? 0,
+          name: itemObj?.item.name ?? "",
           dp_qty: String(DPItem.planned_qty),
-
+          price: itemObj?.price ?? 0,
           gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
           net_amount: calculateNetForRow(
             Number(DPItem.planned_qty),
             DPItem.allocation_item.customer_purchase_order,
             itemObj?.price ?? 0,
           ),
+          delivery_plan_item_id: selectedRow.delivery_plan_id,
 
-          cpo_item_volume: itemObj?.volume ?? 0,
-          cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
-          price: itemObj?.price ?? 0,
           customer_discount_1:
             DPItem.allocation_item.customer_purchase_order.customer_discount_1,
           customer_discount_2:
@@ -139,7 +137,7 @@ const CDRForm = ({
 
   const calculateNetForRow = (
     newValue: number,
-    allocItem: AllocItemsFE | CPO,
+    allocItem: any,
     price: number,
   ): number => {
     let result = newValue * price;
@@ -196,26 +194,24 @@ const CDRForm = ({
       discount_amount: amountDiscount,
       reference_number: referenceNumber,
       remarks,
-      customer_id: selectedCustomer?.customer_id,
+      delivery_plan_id: selectedDP?.id,
       total_net: totalNet,
       total_gross: totalGross,
       total_items: totalItems,
-      delivery_plan_items: formattedAllocs
-        .filter((allocItem) => allocItem.dp_qty && Number(allocItem.dp_qty) > 0)
-        .map((allocItem) => {
-          return {
-            allocation_item_id: allocItem.alloc_item_id,
-            planned_qty: allocItem.dp_qty,
-          };
-        }),
+      receipt_items: formattedAllocs.map((allocItem) => {
+        return {
+          delivery_plan_item_id: allocItem.delivery_plan_item_id,
+          delivered_qty: allocItem.dp_qty,
+        };
+      }),
     };
     return payload;
   };
 
-  const handleCreateDeliveryPlanning = async (): Promise<void> => {
+  const handleCreateDeliveryReceipt = async (): Promise<void> => {
     const payload = createPayload();
     try {
-      await axiosInstance.post("/api/delivery-plans/", payload);
+      await axiosInstance.post("/api/delivery-receipts/", payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);
@@ -250,7 +246,7 @@ const CDRForm = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (openCreate) await handleCreateDeliveryPlanning();
+        if (openCreate) await handleCreateDeliveryReceipt();
         if (openEdit) await handleEditDeliveryReceipt();
       }}
     >
