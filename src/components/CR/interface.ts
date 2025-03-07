@@ -1,4 +1,10 @@
-import type { PaginatedCustomers, Customer, CR } from "../../interface";
+import type {
+  PaginatedCustomers,
+  Customer,
+  CR,
+  Warehouse,
+  PaginatedWarehouse,
+} from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
 export interface CRFormDetailsProps {
@@ -26,6 +32,7 @@ export interface CRFormDetailsProps {
 
 export interface CRFormTableProps {
   selectedRow: CR | undefined;
+  warehouses: PaginatedWarehouse;
   formattedDRs: DRItemsFE[];
   setFormattedDRs: Dispatch<SetStateAction<DRItemsFE[]>>;
   totalGross: number;
@@ -36,11 +43,13 @@ export interface CRFormTableProps {
 
 export interface DRItemsFE {
   id: number;
+  delivery_receipt_item_id: number;
+  item_id: number;
   alloc_no: number;
   cpo_id: number;
   stock_code: string;
   name: string;
-  return_warehouse: string;
+  return_warehouse: Warehouse | null;
   return_qty: string;
   price: string;
   gross_amount: number;

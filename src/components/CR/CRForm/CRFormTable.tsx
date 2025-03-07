@@ -1,4 +1,4 @@
-import { Sheet, Input } from "@mui/joy";
+import { Sheet, Input, Autocomplete } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
 import type { DRItemsFE, CRFormTableProps } from "../interface";
@@ -6,6 +6,7 @@ import { addCommaToNumberWithFourPlaces } from "../../../helper";
 
 const CRFormTable = ({
   selectedRow,
+  warehouses,
   formattedDRs,
   setFormattedDRs,
   isEditDisabled,
@@ -105,7 +106,7 @@ const CRFormTable = ({
                 width: "var(--Table-firstColumnWidth)",
               }}
             >
-              DR No.
+              CDR No.
             </th>
             <th style={{ width: 150 }}>Alloc No.</th>
             <th style={{ width: 200 }}>Stock Code</th>
@@ -133,7 +134,33 @@ const CRFormTable = ({
                 <td>{item?.stock_code}</td>
                 <td>{item?.name}</td>
 
-                <td>{"warehouse"}</td>
+                <td>
+                  <Autocomplete
+                    options={warehouses.items.filter(
+                      (warehouse) => warehouse.id,
+                    )}
+                    getOptionLabel={(option) => option.name}
+                    value={item.return_warehouse}
+                    onChange={(e, newValue) => {
+                      setFormattedDRs((prevDRItems) =>
+                        prevDRItems.map((DRItem) =>
+                          DRItem.id === item.id &&
+                          DRItem.stock_code === item.stock_code &&
+                          DRItem.cpo_id === item.cpo_id
+                            ? {
+                                ...DRItem,
+                                return_warehouse: newValue,
+                              } // Update the matching item
+                            : DRItem,
+                        ),
+                      );
+                    }}
+                    size="sm"
+                    className="w-[100%]"
+                    placeholder="Select Warehouse"
+                    disabled={isEditDisabled}
+                  />
+                </td>
                 <td>
                   <Input
                     type="number"
@@ -192,6 +219,7 @@ const CRFormTable = ({
                     slotProps={{
                       input: {
                         min: 0,
+                        step: ".0001",
                       },
                     }}
                     placeholder="0"

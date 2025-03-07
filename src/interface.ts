@@ -848,6 +848,7 @@ export interface CDP {
 
 interface DeliveryReceiptItem {
   delivery_plan_item_id: number;
+  delivery_receipt_id: number;
   delivered_qty: number;
   id: number;
   created_by: number;

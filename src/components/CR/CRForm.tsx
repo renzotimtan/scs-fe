@@ -15,6 +15,8 @@ import type {
   Alloc,
   DeliveryPlanItem,
   CPO,
+  PaginatedWarehouse,
+  Warehouse,
 } from "../../interface";
 
 const CRForm = ({
@@ -34,6 +36,10 @@ const CRForm = ({
   );
   const [formattedDRs, setFormattedDRs] = useState<DRItemsFE[]>([]);
 
+  const [warehouses, setWarehouses] = useState<PaginatedWarehouse>({
+    total: 0,
+    items: [],
+  });
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -58,111 +64,110 @@ const CRForm = ({
       .get<PaginatedCustomers>("/api/customers/")
       .then((response) => setCustomers(response.data))
       .catch((error) => console.error("Error:", error));
+
+    // Fetch warehouses
+    axiosInstance
+      .get<PaginatedWarehouse>("/api/warehouses/")
+      .then((response) => setWarehouses(response.data))
+      .catch((error) => console.error("Error:", error));
   }, []);
 
-  // useEffect(() => {
-  //   // Set fields for Edit
-  //   const customerID = selectedRow?.customer.customer_id;
+  useEffect(() => {
+    // Set fields for Edit
+    const customerID = selectedRow?.customer.customer_id;
 
-  //   if (selectedRow !== null && selectedRow !== undefined) {
-  //     setStatus(selectedRow?.status ?? "unposted");
-  //     setTransactionDate(selectedRow?.transaction_date ?? currentDate);
-  //     setReferenceNumber(selectedRow?.reference_number ?? "");
-  //     setRemarks(selectedRow?.remarks ?? "");
-  //     setAmountDiscount(Number(selectedRow?.discount_amount));
+    if (selectedRow !== null && selectedRow !== undefined) {
+      setStatus(selectedRow?.status ?? "unposted");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
+      setReferenceNumber(selectedRow?.reference_number ?? "");
+      setRemarks(selectedRow?.remarks ?? "");
 
-  //     // Get Customer for Edit
-  //     axiosInstance
-  //       .get<Customer>(`/api/customers/${customerID}`)
-  //       .then((response) => {
-  //         setSelectedCustomer(response.data);
-  //       })
-  //       .catch((error) => console.error("Error:", error));
+      // Get Customer for Edit
+      axiosInstance
+        .get<Customer>(`/api/customers/${customerID}`)
+        .then((response) => {
+          setSelectedCustomer(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
 
-  //     // Fill in formatted DRs for table
-  //     const formattedAllocs = selectedRow.delivery_plan_items.map((DPItem) => {
-  //       const itemObj =
-  //         DPItem.allocation_item.customer_purchase_order.items.find(
-  //           (item) => item.item_id === DPItem.allocation_item.item_id,
-  //         );
+      // Fill in formatted DRs for table
+      const formattedDRs = selectedRow.items.map((CRItem) => {
+        const allocatedItem =
+          CRItem.delivery_receipt_item.delivery_plan_item.allocation_item;
+        const itemObj = allocatedItem.customer_purchase_order.items.find(
+          (item) => item.item_id === allocatedItem.item_id,
+        );
 
-  //       return {
-  //         id: DPItem.allocation_item.allocation_id,
-  //         alloc_item_id: DPItem.allocation_item_id,
-  //         stock_code: itemObj?.item.stock_code ?? "",
-  //         name: itemObj?.item.name ?? "",
-  //         cpo_id: DPItem.allocation_item.customer_purchase_order_id,
+        return {
+          id: CRItem.delivery_receipt_item.delivery_receipt_id,
+          delivery_receipt_item_id: CRItem.delivery_receipt_item_id,
+          item_id: allocatedItem.item_id,
+          alloc_no: allocatedItem.allocation_id,
+          cpo_id: allocatedItem.customer_purchase_order_id,
+          stock_code: itemObj?.item.stock_code ?? "",
+          name: itemObj?.item.name ?? "",
+          return_warehouse: CRItem.warehouse,
+          return_qty: String(CRItem.return_qty),
+          price: String(CRItem.price),
+          gross_amount: calculateNetForRow(
+            Number(CRItem.return_qty),
+            Number(CRItem.price),
+            allocatedItem.customer_purchase_order,
+          ),
+          customer_discount_1:
+            allocatedItem.customer_purchase_order.customer_discount_1,
+          customer_discount_2:
+            allocatedItem.customer_purchase_order.customer_discount_2,
+          customer_discount_3:
+            allocatedItem.customer_purchase_order.customer_discount_3,
 
-  //         alloc_qty: DPItem.existing_allocated_qty ?? 0,
-  //         dp_qty: String(DPItem.planned_qty),
+          transaction_discount_1:
+            allocatedItem.customer_purchase_order.transaction_discount_1,
+          transaction_discount_2:
+            allocatedItem.customer_purchase_order.transaction_discount_2,
+          transaction_discount_3:
+            allocatedItem.customer_purchase_order.transaction_discount_3,
+        };
+      });
 
-  //         gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
-  //         net_amount: calculateNetForRow(
-  //           Number(DPItem.planned_qty),
-  //           DPItem.allocation_item.customer_purchase_order,
-  //           itemObj?.price ?? 0,
-  //         ),
-
-  //         cpo_item_volume: itemObj?.volume ?? 0,
-  //         cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
-  //         price: itemObj?.price ?? 0,
-  //         customer_discount_1:
-  //           DPItem.allocation_item.customer_purchase_order.customer_discount_1,
-  //         customer_discount_2:
-  //           DPItem.allocation_item.customer_purchase_order.customer_discount_2,
-  //         customer_discount_3:
-  //           DPItem.allocation_item.customer_purchase_order.customer_discount_3,
-
-  //         transaction_discount_1:
-  //           DPItem.allocation_item.customer_purchase_order
-  //             .transaction_discount_1,
-  //         transaction_discount_2:
-  //           DPItem.allocation_item.customer_purchase_order
-  //             .transaction_discount_2,
-  //         transaction_discount_3:
-  //           DPItem.allocation_item.customer_purchase_order
-  //             .transaction_discount_3,
-  //       };
-  //     });
-
-  //     setFormattedAllocs(formattedAllocs);
-  //   }
-  // }, [selectedRow]);
+      setFormattedDRs(formattedDRs);
+    }
+  }, [selectedRow]);
 
   const calculateNetForRow = (
     newValue: number,
-    allocItem: AllocItemsFE | CPO,
     price: number,
+    DRItem: any,
   ): number => {
     let result = newValue * price;
 
-    if (allocItem.customer_discount_1.includes("%")) {
-      const cd1 = allocItem.customer_discount_1.slice(0, -1);
+    if (DRItem.customer_discount_1.includes("%")) {
+      const cd1 = DRItem.customer_discount_1.slice(0, -1);
       result = result - result * (parseFloat(cd1) / 100);
     }
 
-    if (allocItem.customer_discount_2.includes("%")) {
-      const cd2 = allocItem.customer_discount_2.slice(0, -1);
+    if (DRItem.customer_discount_2.includes("%")) {
+      const cd2 = DRItem.customer_discount_2.slice(0, -1);
       result = result - result * (parseFloat(cd2) / 100);
     }
 
-    if (allocItem.customer_discount_3.includes("%")) {
-      const cd3 = allocItem.customer_discount_3.slice(0, -1);
+    if (DRItem.customer_discount_3.includes("%")) {
+      const cd3 = DRItem.customer_discount_3.slice(0, -1);
       result = result - result * (parseFloat(cd3) / 100);
     }
 
-    if (allocItem.transaction_discount_1.includes("%")) {
-      const td1 = allocItem.transaction_discount_1.slice(0, -1);
+    if (DRItem.transaction_discount_1.includes("%")) {
+      const td1 = DRItem.transaction_discount_1.slice(0, -1);
       result = result - result * (parseFloat(td1) / 100);
     }
 
-    if (allocItem.transaction_discount_2.includes("%")) {
-      const td2 = allocItem.transaction_discount_2.slice(0, -1);
+    if (DRItem.transaction_discount_2.includes("%")) {
+      const td2 = DRItem.transaction_discount_2.slice(0, -1);
       result = result - result * (parseFloat(td2) / 100);
     }
 
-    if (allocItem.transaction_discount_3.includes("%")) {
-      const td3 = allocItem.transaction_discount_3.slice(0, -1);
+    if (DRItem.transaction_discount_3.includes("%")) {
+      const td3 = DRItem.transaction_discount_3.slice(0, -1);
       result = result - result * (parseFloat(td3) / 100);
     }
 
@@ -173,31 +178,29 @@ const CRForm = ({
 
   const resetForm = (): void => {
     setSelectedCustomer(null);
-    setFormattedAllocs([]);
+    setFormattedDRs([]);
     setStatus("unposted");
     setTransactionDate(currentDate);
     setReferenceNumber("");
     setRemarks("");
-    setAmountDiscount(0);
   };
 
   const createPayload = () => {
     const payload = {
       status,
       transaction_date: transactionDate,
-      discount_amount: amountDiscount,
       reference_number: referenceNumber,
       remarks,
       customer_id: selectedCustomer?.customer_id,
-      total_net: totalNet,
-      total_gross: totalGross,
-      total_items: totalItems,
-      delivery_plan_items: formattedAllocs
-        .filter((allocItem) => allocItem.dp_qty && Number(allocItem.dp_qty) > 0)
-        .map((allocItem) => {
+      items: formattedDRs
+        .filter((DRItem) => DRItem.return_qty && Number(DRItem.return_qty) > 0)
+        .map((DRItem) => {
           return {
-            allocation_item_id: allocItem.alloc_item_id,
-            planned_qty: allocItem.dp_qty,
+            delivery_receipt_item_id: DRItem.delivery_receipt_item_id,
+            warehouse_id: DRItem?.return_warehouse?.id ?? null,
+            item_id: DRItem.item_id,
+            return_qty: DRItem.return_qty,
+            price: DRItem.price,
           };
         }),
     };
@@ -207,7 +210,7 @@ const CRForm = ({
   const handleCreateDeliveryPlanning = async (): Promise<void> => {
     const payload = createPayload();
     try {
-      await axiosInstance.post("/api/delivery-plans/", payload);
+      await axiosInstance.post("/api/customer-returns/", payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);
@@ -224,7 +227,7 @@ const CRForm = ({
 
     try {
       await axiosInstance.put(
-        `/api/delivery-plans/${selectedRow?.id}`,
+        `/api/customer-returns/${selectedRow?.id}`,
         payload,
       );
       toast.success("Save successful!");
@@ -279,6 +282,7 @@ const CRForm = ({
       />
       <CRFormTable
         selectedRow={selectedRow}
+        warehouses={warehouses}
         formattedDRs={formattedDRs}
         setFormattedDRs={setFormattedDRs}
         totalGross={totalGross}

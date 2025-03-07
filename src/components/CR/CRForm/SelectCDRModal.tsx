@@ -53,11 +53,13 @@ const SelectCDRModal = ({
 
           return {
             id: cdr.id,
+            delivery_receipt_item_id: receiptItem.id,
+            item_id: allocatedItem.item_id,
             alloc_no: allocatedItem.allocation_id,
             cpo_id: allocatedItem.customer_purchase_order_id,
             stock_code: itemObj?.item.stock_code ?? "",
             name: itemObj?.item.name ?? "",
-            return_warehouse: "",
+            return_warehouse: null,
             return_qty: "0",
             price: String(itemObj?.price),
             gross_amount: 0,
