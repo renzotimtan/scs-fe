@@ -5,32 +5,30 @@ import {
   Textarea,
   Card,
   Stack,
-  Button,
   Select,
   Option,
   Box,
   Divider,
   Autocomplete,
+  Button,
 } from "@mui/joy";
-import type {
-  AllocItemsFE,
-  CDPFormDetailsProps,
-  UnplannedAlloc,
-} from "../interface";
+import type { CRFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
 import {
   formatToDateTime,
   addCommaToNumberWithFourPlaces,
+  convertToQueryParams,
 } from "../../../helper";
-import SelectAllocModal from "./SelectAllocModal";
+import SelectCDRModal from "./SelectCDRModal";
+import { type PaginatedCDR, type CDR } from "../../../interface";
 
-const CDPFormDetails = ({
+const CRFormDetails = ({
   openEdit,
   selectedRow,
   customers,
-  formattedAllocs,
-  setFormattedAllocs,
+  formattedDRs,
+  setFormattedDRs,
   selectedCustomer,
   setSelectedCustomer,
   status,
@@ -42,91 +40,42 @@ const CDPFormDetails = ({
   referenceNumber,
   setReferenceNumber,
   isEditDisabled,
-  totalNet,
   totalGross,
   totalItems,
-  amountDiscount,
-  setAmountDiscount,
-}: CDPFormDetailsProps): JSX.Element => {
-  const [unservedAllocs, setUnservedAllocs] = useState<UnplannedAlloc[]>([]);
+}: CRFormDetailsProps): JSX.Element => {
+  const [CDRs, setCDRs] = useState<CDR[]>([]);
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
 
   useEffect(() => {
     if (selectedCustomer !== null && selectedCustomer !== undefined) {
+      const params = {
+        customer_id: selectedCustomer.customer_id,
+        status: "posted",
+      };
+
       axiosInstance
-        .get<UnplannedAlloc[]>(
-          `/api/allocations/unplanned/${selectedCustomer.customer_id}`,
+        .get<PaginatedCDR>(
+          `/api/delivery-receipts/?${convertToQueryParams(params)}`,
         )
-        .then((response) =>
-          setUnservedAllocs(
-            response.data
-              .filter((alloc) => alloc.status === "posted")
-              .sort((a, b) => b.id - a.id),
-          ),
-        )
+        .then((response) => setCDRs(response.data.items))
         .catch((error) => console.error("Error:", error));
     }
   }, [selectedCustomer]);
 
-  useEffect(() => {
-    if (!openEdit) getFixedAmtDiscounts();
-  }, [formattedAllocs]);
-
-  const isAmtDiscountAlreadyApplied = (allocItem: AllocItemsFE): boolean => {
-    // If the total of allocated + unserved is less than the volume, that means some allocated items are planned already
-    // Meaning, the discount has already been applied
-    if (
-      allocItem.alloc_qty + allocItem.cpo_item_unserved <
-      allocItem.cpo_item_volume
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  const getFixedAmtDiscounts = (): void => {
-    let total = 0;
-    for (const allocItem of formattedAllocs) {
-      console.log(allocItem);
-      if (isAmtDiscountAlreadyApplied(allocItem)) {
-        continue;
-      }
-      if (!allocItem.customer_discount_1.includes("%"))
-        total += Number(allocItem.customer_discount_1);
-
-      if (!allocItem.customer_discount_2.includes("%"))
-        total += Number(allocItem.customer_discount_2);
-
-      if (!allocItem.customer_discount_3.includes("%"))
-        total += Number(allocItem.customer_discount_3);
-
-      if (!allocItem.transaction_discount_1.includes("%"))
-        total += Number(allocItem.transaction_discount_1);
-
-      if (!allocItem.transaction_discount_2.includes("%"))
-        total += Number(allocItem.transaction_discount_2);
-
-      if (!allocItem.transaction_discount_3.includes("%"))
-        total += Number(allocItem.transaction_discount_3);
-    }
-
-    setAmountDiscount(total);
-  };
-
   return (
     <Box sx={{ display: "flex" }}>
-      <SelectAllocModal
+      <SelectCDRModal
         open={isSelectModalOpen}
         setOpen={setIsSelectModalOpen}
-        unservedAllocs={unservedAllocs}
-        setFormattedAllocs={setFormattedAllocs}
+        CDRs={CDRs}
+        setFormattedDRs={setFormattedDRs}
       />
       <Card className="w-[60%] mr-7">
         <div>
           <div className="flex justify-between items-center mb-2">
             {openEdit && (
               <div>
-                <h4>CDP No. {selectedRow?.id}</h4>
+                <h4>Return No. {selectedRow?.id}</h4>
               </div>
             )}
           </div>
@@ -142,7 +91,7 @@ const CDPFormDetails = ({
                   value={selectedCustomer}
                   onChange={(event, newValue) => {
                     setSelectedCustomer(newValue);
-                    setFormattedAllocs([]);
+                    setFormattedDRs([]);
                   }}
                   size="sm"
                   className="w-[100%]"
@@ -204,15 +153,6 @@ const CDPFormDetails = ({
                 required
               />
             </FormControl>
-            <FormControl size="sm" sx={{ mb: 1, width: "22.5%" }}>
-              <FormLabel>Amount Discount</FormLabel>
-              <Textarea
-                minRows={1}
-                placeholder="0"
-                value={amountDiscount}
-                disabled
-              />
-            </FormControl>
             {(!openEdit || status === "unposted") && (
               <Button
                 sx={{ mb: 1, width: "22.5%" }}
@@ -231,16 +171,12 @@ const CDPFormDetails = ({
         <div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>Total Items</FormLabel>
+              <FormLabel>Total Qty</FormLabel>
               <h5>{totalItems}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
               <FormLabel>Total Gross</FormLabel>
               <h5>{`${addCommaToNumberWithFourPlaces(totalGross)}`}</h5>
-            </FormControl>
-            <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>Total NET</FormLabel>
-              <h5>{`${addCommaToNumberWithFourPlaces(totalNet)}`}</h5>
             </FormControl>
           </div>
           <Divider />
@@ -276,4 +212,4 @@ const CDPFormDetails = ({
   );
 };
 
-export default CDPFormDetails;
+export default CRFormDetails;

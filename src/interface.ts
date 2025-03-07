@@ -241,6 +241,11 @@ export interface PaginatedCDR {
   items: CDR[];
 }
 
+export interface PaginatedCR {
+  total: number;
+  items: CR[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -476,6 +481,14 @@ export interface CDRFormProps {
   title: string;
 }
 
+export interface CRFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: CR;
+  title: string;
+}
+
 export interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
@@ -536,6 +549,13 @@ export interface ViewCDRProps {
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: CDR | undefined;
   setSelectedRow: (cdr: CDR) => void;
+}
+
+export interface ViewCRProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: CR | undefined;
+  setSelectedRow: (cr: CR) => void;
 }
 
 export interface CPOItems {
@@ -895,6 +915,41 @@ export interface CDR {
   date_created: string;
   date_modified: string;
   receipt_items: DeliveryReceiptItem[];
+  customer: Customer;
+  creator: User;
+  modifier: User | null;
+}
+
+export interface CRItemDetail {
+  delivery_receipt_item_id: number;
+  warehouse_id: number;
+  item_id: number;
+  return_qty: number;
+  price: string;
+  id: number;
+  created_by: number;
+  modified_by: number | null;
+  date_created: string;
+  date_modified: string | null;
+  delivery_receipt_item: DeliveryReceiptItem;
+  warehouse: Warehouse;
+  item: Item;
+}
+
+export interface CR {
+  status: string;
+  transaction_date: string;
+  reference_number: string;
+  remarks: string;
+  customer_id: number;
+  id: number;
+  total_qty: number;
+  total_gross: string;
+  created_by: number;
+  modified_by: number | null;
+  date_created: string;
+  date_modified: string;
+  items: CRItemDetail[];
   customer: Customer;
   creator: User;
   modifier: User | null;

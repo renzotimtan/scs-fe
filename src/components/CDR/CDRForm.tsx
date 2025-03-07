@@ -46,7 +46,7 @@ const CDRForm = ({
   const [remarks, setRemarks] = useState("");
 
   const totalItems = formattedAllocs.reduce(
-    (sum, item) => sum + (Number(item.dp_qty) > 0 ? 1 : 0),
+    (sum, item) => sum + (Number(item.dp_qty)),
     0,
   );
 

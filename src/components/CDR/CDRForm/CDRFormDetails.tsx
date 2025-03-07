@@ -54,7 +54,11 @@ const CDRFormDetails = ({
           `/api/delivery-plans/available/${selectedCustomer.customer_id}`,
         )
         .then((response) =>
-          setUnservedDPs(response.data.filter((dp) => dp.status === "posted")),
+          setUnservedDPs(
+            response.data
+              .filter((dp) => dp.status === "posted")
+              .sort((a, b) => b.id - a.id),
+          ),
         )
         .catch((error) => console.error("Error:", error));
     }
@@ -273,7 +277,7 @@ const CDRFormDetails = ({
         <div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>Total Items</FormLabel>
+              <FormLabel>Total Qty</FormLabel>
               <h5>{totalItems}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>

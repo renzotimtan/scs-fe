@@ -1,30 +1,27 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeleteCDPModal from "./DeleteCDPModal";
+import DeleteCRModal from "./DeleteCRModal";
 import { toast } from "react-toastify";
 import type {
-  ViewCDPProps,
-  PaginatedCDP,
+  ViewCRProps,
+  PaginatedCR,
   PaginationQueryParams,
 } from "../../interface";
 
 import { Pagination } from "@mui/material";
 
-import {
-  convertToQueryParams,
-  addCommaToNumberWithFourPlaces,
-} from "../../helper";
+import { convertToQueryParams } from "../../helper";
 
 const PAGE_LIMIT = 10;
 
-const ViewCDP = ({
+const ViewCR = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewCDPProps): JSX.Element => {
-  const [CDPs, setCDPs] = useState<PaginatedCDP>({
+}: ViewCRProps): JSX.Element => {
+  const [CRs, setCRs] = useState<PaginatedCR>({
     total: 0,
     items: [],
   });
@@ -33,7 +30,7 @@ const ViewCDP = ({
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
 
-  const getAllCDP = (): void => {
+  const getAllCR = (): void => {
     const payload: PaginationQueryParams = {
       page: 1,
       limit: PAGE_LIMIT,
@@ -47,11 +44,11 @@ const ViewCDP = ({
     }
 
     axiosInstance
-      .get<PaginatedCDP>(
-        `/api/delivery-plans/?${convertToQueryParams(payload)}`,
+      .get<PaginatedCR>(
+        `/api/customer-returns/?${convertToQueryParams(payload)}`,
       )
       .then((response) => {
-        setCDPs(response.data);
+        setCRs(response.data);
         setPage(1);
       })
       .catch((error) => console.error("Error:", error));
@@ -63,8 +60,8 @@ const ViewCDP = ({
   ): void => {
     setPage(value);
     axiosInstance
-      .get<PaginatedCDP>(
-        `/api/delivery-plans/?${convertToQueryParams({
+      .get<PaginatedCR>(
+        `/api/customer-returns/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -72,27 +69,27 @@ const ViewCDP = ({
           search_term: searchTerm,
         })}`,
       )
-      .then((response) => setCDPs(response.data))
+      .then((response) => setCRs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
   useEffect(() => {
-    // Fetch CDPs
-    getAllCDP();
+    // Fetch CRs
+    getAllCR();
   }, []);
 
-  const handleDeleteCDP = async (): Promise<void> => {
+  const handleDeleteCR = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/delivery-plans/${selectedRow.id}`;
+      const url = `/api/customer-returns/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Archive successful!");
-        setCDPs((prevCDP) => ({
-          ...prevCDP,
-          items: prevCDP.items.map((CDP) =>
-            CDP.id === selectedRow.id ? { ...CDP, status: "archived" } : CDP,
+        setCRs((prevCR) => ({
+          ...prevCR,
+          items: prevCR.items.map((CR) =>
+            CR.id === selectedRow.id ? { ...CR, status: "archived" } : CR,
           ),
-          total: prevCDP.total,
+          total: prevCR.total,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -104,7 +101,7 @@ const ViewCDP = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Customer Delivery Planning</h2>
+          <h2>Customer Return</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -112,7 +109,7 @@ const ViewCDP = ({
               setOpenCreate(true);
             }}
           >
-            Add Delivery Planning
+            Add Customer Return
           </Button>
         </Box>
         <Box className="flex items-center mb-6">
@@ -136,7 +133,7 @@ const ViewCDP = ({
             <Option value="archived">Archived</Option>
           </Select>
           <Button
-            onClick={getAllCDP}
+            onClick={getAllCR}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >
@@ -205,15 +202,12 @@ const ViewCDP = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  CDP No.
+                  Return No.
                 </th>
                 <th style={{ width: 200 }}>Ref No.</th>
                 <th style={{ width: 300 }}>Status</th>
                 <th style={{ width: 300 }}>Customer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>Total Items</th>
-                <th style={{ width: 150 }}>Total Gross</th>
-                <th style={{ width: 150 }}>Total NET</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -226,31 +220,24 @@ const ViewCDP = ({
               </tr>
             </thead>
             <tbody>
-              {CDPs.items.map((CDP) => (
+              {CRs.items.map((CR) => (
                 <tr
-                  key={CDP.id}
+                  key={CR.id}
                   onDoubleClick={() => {
                     setOpenEdit(true);
-                    setSelectedRow(CDP);
+                    setSelectedRow(CR);
                   }}
                 >
-                  <td>{CDP.id}</td>
-                  <td>{CDP.reference_number}</td>
-                  <td className="capitalize">{CDP.status}</td>
-                  <td>{CDP.customer.name}</td>
-                  <td>{CDP.transaction_date}</td>
-                  <td>{CDP.total_items}</td>
-                  <td>
-                    {addCommaToNumberWithFourPlaces(Number(CDP.total_gross))}
-                  </td>
-                  <td>
-                    {addCommaToNumberWithFourPlaces(Number(CDP.total_net))}
-                  </td>
-                  <td>{CDP.remarks}</td>
-                  <td>{CDP?.creator?.username}</td>
-                  <td>{CDP?.modifier?.username}</td>
-                  <td>{CDP.date_created}</td>
-                  <td>{CDP.date_modified}</td>
+                  <td>{CR.id}</td>
+                  <td>{CR.reference_number}</td>
+                  <td className="capitalize">{CR.status}</td>
+                  <td>{CR.customer.name}</td>
+                  <td>{CR.transaction_date}</td>
+                  <td>{CR.remarks}</td>
+                  <td>{CR?.creator?.username}</td>
+                  <td>{CR?.modifier?.username}</td>
+                  <td>{CR.date_created}</td>
+                  <td>{CR.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
@@ -260,10 +247,10 @@ const ViewCDP = ({
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(CDP);
+                          setSelectedRow(CR);
                         }}
                       >
-                        {CDP.status !== "unposted" ? "View" : "Edit"}
+                        {CR.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -272,9 +259,9 @@ const ViewCDP = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(CDP);
+                          setSelectedRow(CR);
                         }}
-                        disabled={CDP.status !== "unposted"}
+                        disabled={CR.status !== "unposted"}
                       >
                         Archive
                       </Button>
@@ -288,21 +275,21 @@ const ViewCDP = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.ceil(CDPs.total / PAGE_LIMIT)}
+          count={Math.ceil(CRs.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteCDPModal
+      <DeleteCRModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Archive Delivery Planning"
-        onDelete={handleDeleteCDP}
+        title="Archive Customer Return"
+        onDelete={handleDeleteCR}
       />
     </>
   );
 };
 
-export default ViewCDP;
+export default ViewCR;

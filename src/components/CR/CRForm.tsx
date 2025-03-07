@@ -1,5 +1,5 @@
-import CDPFormDetails from "./CDPForm/CDPFormDetails";
-import CDPFormTable from "./CDPForm/CDPFormTable";
+import CRFormDetails from "./CRForm/CRFormDetails";
+import CRFormTable from "./CRForm/CRFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
-import { UnplannedAlloc, type AllocItemsFE } from "./interface";
+import { type DRItemsFE } from "./interface";
 import type {
-  CDPFormProps,
+  CRFormProps,
   PaginatedCustomers,
   Customer,
   Alloc,
@@ -17,13 +17,13 @@ import type {
   CPO,
 } from "../../interface";
 
-const CDPForm = ({
+const CRForm = ({
   setOpen,
   openCreate,
   openEdit,
   selectedRow,
   title,
-}: CDPFormProps): JSX.Element => {
+}: CRFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
   const [customers, setCustomers] = useState<PaginatedCustomers>({
     total: 0,
@@ -32,27 +32,22 @@ const CDPForm = ({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
-  const [formattedAllocs, setFormattedAllocs] = useState<AllocItemsFE[]>([]);
+  const [formattedDRs, setFormattedDRs] = useState<DRItemsFE[]>([]);
 
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [referenceNumber, setReferenceNumber] = useState("");
-  const [amountDiscount, setAmountDiscount] = useState(0);
   const [remarks, setRemarks] = useState("");
 
-  const totalItems = formattedAllocs.reduce(
-    (sum, item) => sum + (Number(item.dp_qty) > 0 ? 1 : 0),
+  const totalItems = formattedDRs.reduce(
+    (sum, item) => sum + Number(item.return_qty),
     0,
   );
 
-  const totalGross = formattedAllocs.reduce(
+  const totalGross = formattedDRs.reduce(
     (sum, item) => sum + (item.gross_amount ?? 0),
     0,
   );
-
-  const totalNet =
-    formattedAllocs.reduce((sum, item) => sum + (item.net_amount ?? 0), 0) -
-    amountDiscount;
 
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -65,74 +60,74 @@ const CDPForm = ({
       .catch((error) => console.error("Error:", error));
   }, []);
 
-  useEffect(() => {
-    // Set fields for Edit
-    const customerID = selectedRow?.customer.customer_id;
+  // useEffect(() => {
+  //   // Set fields for Edit
+  //   const customerID = selectedRow?.customer.customer_id;
 
-    if (selectedRow !== null && selectedRow !== undefined) {
-      setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
-      setReferenceNumber(selectedRow?.reference_number ?? "");
-      setRemarks(selectedRow?.remarks ?? "");
-      setAmountDiscount(Number(selectedRow?.discount_amount));
+  //   if (selectedRow !== null && selectedRow !== undefined) {
+  //     setStatus(selectedRow?.status ?? "unposted");
+  //     setTransactionDate(selectedRow?.transaction_date ?? currentDate);
+  //     setReferenceNumber(selectedRow?.reference_number ?? "");
+  //     setRemarks(selectedRow?.remarks ?? "");
+  //     setAmountDiscount(Number(selectedRow?.discount_amount));
 
-      // Get Customer for Edit
-      axiosInstance
-        .get<Customer>(`/api/customers/${customerID}`)
-        .then((response) => {
-          setSelectedCustomer(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
+  //     // Get Customer for Edit
+  //     axiosInstance
+  //       .get<Customer>(`/api/customers/${customerID}`)
+  //       .then((response) => {
+  //         setSelectedCustomer(response.data);
+  //       })
+  //       .catch((error) => console.error("Error:", error));
 
-      // Fill in formatted allocs for table
-      const formattedAllocs = selectedRow.delivery_plan_items.map((DPItem) => {
-        const itemObj =
-          DPItem.allocation_item.customer_purchase_order.items.find(
-            (item) => item.item_id === DPItem.allocation_item.item_id,
-          );
+  //     // Fill in formatted DRs for table
+  //     const formattedAllocs = selectedRow.delivery_plan_items.map((DPItem) => {
+  //       const itemObj =
+  //         DPItem.allocation_item.customer_purchase_order.items.find(
+  //           (item) => item.item_id === DPItem.allocation_item.item_id,
+  //         );
 
-        return {
-          id: DPItem.allocation_item.allocation_id,
-          alloc_item_id: DPItem.allocation_item_id,
-          stock_code: itemObj?.item.stock_code ?? "",
-          name: itemObj?.item.name ?? "",
-          cpo_id: DPItem.allocation_item.customer_purchase_order_id,
+  //       return {
+  //         id: DPItem.allocation_item.allocation_id,
+  //         alloc_item_id: DPItem.allocation_item_id,
+  //         stock_code: itemObj?.item.stock_code ?? "",
+  //         name: itemObj?.item.name ?? "",
+  //         cpo_id: DPItem.allocation_item.customer_purchase_order_id,
 
-          alloc_qty: DPItem.existing_allocated_qty ?? 0,
-          dp_qty: String(DPItem.planned_qty),
+  //         alloc_qty: DPItem.existing_allocated_qty ?? 0,
+  //         dp_qty: String(DPItem.planned_qty),
 
-          gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
-          net_amount: calculateNetForRow(
-            Number(DPItem.planned_qty),
-            DPItem.allocation_item.customer_purchase_order,
-            itemObj?.price ?? 0,
-          ),
+  //         gross_amount: (itemObj?.price ?? 0) * DPItem.planned_qty,
+  //         net_amount: calculateNetForRow(
+  //           Number(DPItem.planned_qty),
+  //           DPItem.allocation_item.customer_purchase_order,
+  //           itemObj?.price ?? 0,
+  //         ),
 
-          cpo_item_volume: itemObj?.volume ?? 0,
-          cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
-          price: itemObj?.price ?? 0,
-          customer_discount_1:
-            DPItem.allocation_item.customer_purchase_order.customer_discount_1,
-          customer_discount_2:
-            DPItem.allocation_item.customer_purchase_order.customer_discount_2,
-          customer_discount_3:
-            DPItem.allocation_item.customer_purchase_order.customer_discount_3,
+  //         cpo_item_volume: itemObj?.volume ?? 0,
+  //         cpo_item_unserved: itemObj?.unserved_cpo ?? 0,
+  //         price: itemObj?.price ?? 0,
+  //         customer_discount_1:
+  //           DPItem.allocation_item.customer_purchase_order.customer_discount_1,
+  //         customer_discount_2:
+  //           DPItem.allocation_item.customer_purchase_order.customer_discount_2,
+  //         customer_discount_3:
+  //           DPItem.allocation_item.customer_purchase_order.customer_discount_3,
 
-          transaction_discount_1:
-            DPItem.allocation_item.customer_purchase_order
-              .transaction_discount_1,
-          transaction_discount_2:
-            DPItem.allocation_item.customer_purchase_order
-              .transaction_discount_2,
-          transaction_discount_3:
-            DPItem.allocation_item.customer_purchase_order
-              .transaction_discount_3,
-        };
-      });
+  //         transaction_discount_1:
+  //           DPItem.allocation_item.customer_purchase_order
+  //             .transaction_discount_1,
+  //         transaction_discount_2:
+  //           DPItem.allocation_item.customer_purchase_order
+  //             .transaction_discount_2,
+  //         transaction_discount_3:
+  //           DPItem.allocation_item.customer_purchase_order
+  //             .transaction_discount_3,
+  //       };
+  //     });
 
-      setFormattedAllocs(formattedAllocs);
-    }
-  }, [selectedRow]);
+  //     setFormattedAllocs(formattedAllocs);
+  //   }
+  // }, [selectedRow]);
 
   const calculateNetForRow = (
     newValue: number,
@@ -224,7 +219,7 @@ const CDPForm = ({
     }
   };
 
-  const handleEditDeliveryPlanning = async (): Promise<void> => {
+  const handleEditDeliveryReceipt = async (): Promise<void> => {
     const payload = createPayload();
 
     try {
@@ -248,7 +243,7 @@ const CDPForm = ({
       onSubmit={async (e) => {
         e.preventDefault();
         if (openCreate) await handleCreateDeliveryPlanning();
-        if (openEdit) await handleEditDeliveryPlanning();
+        if (openEdit) await handleEditDeliveryReceipt();
       }}
     >
       <div className="flex justify-between">
@@ -262,14 +257,14 @@ const CDPForm = ({
           Print
         </Button>
       </div>
-      <CDPFormDetails
+      <CRFormDetails
         openEdit={openEdit}
         selectedRow={selectedRow}
         customers={customers}
         selectedCustomer={selectedCustomer}
         setSelectedCustomer={setSelectedCustomer}
-        formattedAllocs={formattedAllocs}
-        setFormattedAllocs={setFormattedAllocs}
+        formattedDRs={formattedDRs}
+        setFormattedDRs={setFormattedDRs}
         status={status}
         setStatus={setStatus}
         transactionDate={transactionDate}
@@ -279,18 +274,14 @@ const CDPForm = ({
         referenceNumber={referenceNumber}
         setReferenceNumber={setReferenceNumber}
         isEditDisabled={isEditDisabled}
-        totalNet={totalNet}
         totalGross={totalGross}
         totalItems={totalItems}
-        amountDiscount={amountDiscount}
-        setAmountDiscount={setAmountDiscount}
       />
-      <CDPFormTable
+      <CRFormTable
         selectedRow={selectedRow}
-        formattedAllocs={formattedAllocs}
-        setFormattedAllocs={setFormattedAllocs}
+        formattedDRs={formattedDRs}
+        setFormattedDRs={setFormattedDRs}
         totalGross={totalGross}
-        totalNet={totalNet}
         totalItems={totalItems}
         openEdit={openEdit}
         isEditDisabled={isEditDisabled}
@@ -323,4 +314,4 @@ const CDPForm = ({
   );
 };
 
-export default CDPForm;
+export default CRForm;
