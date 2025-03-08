@@ -146,7 +146,8 @@ const CRFormTable = ({
                         prevDRItems.map((DRItem) =>
                           DRItem.id === item.id &&
                           DRItem.stock_code === item.stock_code &&
-                          DRItem.cpo_id === item.cpo_id
+                          DRItem.cpo_id === item.cpo_id &&
+                          DRItem.alloc_no === item.alloc_no
                             ? {
                                 ...DRItem,
                                 return_warehouse: newValue,
@@ -170,7 +171,8 @@ const CRFormTable = ({
                         prevDRItems.map((DRItem) =>
                           DRItem.id === item.id &&
                           DRItem.stock_code === item.stock_code &&
-                          DRItem.cpo_id === item.cpo_id
+                          DRItem.cpo_id === item.cpo_id &&
+                          DRItem.alloc_no === item.alloc_no
                             ? {
                                 ...DRItem,
                                 return_qty: e.target.value,
@@ -202,7 +204,8 @@ const CRFormTable = ({
                         prevDRItems.map((DRItem) =>
                           DRItem.id === item.id &&
                           DRItem.stock_code === item.stock_code &&
-                          DRItem.cpo_id === item.cpo_id
+                          DRItem.cpo_id === item.cpo_id &&
+                          DRItem.alloc_no === item.alloc_no
                             ? {
                                 ...DRItem,
                                 price: String(e.target.value),
