@@ -246,6 +246,11 @@ export interface PaginatedCR {
   items: CR[];
 }
 
+export interface PaginatedAR {
+  total: number;
+  items: AR[];
+}
+
 export interface PaginationQueryParams {
   page?: number;
   limit?: number;
@@ -489,6 +494,14 @@ export interface CRFormProps {
   title: string;
 }
 
+export interface ARFormProps {
+  setOpen: (isOpen: boolean) => void;
+  openCreate: boolean;
+  openEdit: boolean;
+  selectedRow?: AR;
+  title: string;
+}
+
 export interface ViewPurchaseOrderProps {
   setOpenCreate: (isOpen: boolean) => void;
   setOpenEdit: (isOpen: boolean) => void;
@@ -556,6 +569,13 @@ export interface ViewCRProps {
   setOpenEdit: (isOpen: boolean) => void;
   selectedRow: CR | undefined;
   setSelectedRow: (cr: CR) => void;
+}
+
+export interface ViewARProps {
+  setOpenCreate: (isOpen: boolean) => void;
+  setOpenEdit: (isOpen: boolean) => void;
+  selectedRow: AR | undefined;
+  setSelectedRow: (ar: AR) => void;
 }
 
 export interface CPOItems {
@@ -951,6 +971,32 @@ export interface CR {
   date_created: string;
   date_modified: string;
   items: CRItemDetail[];
+  customer: Customer;
+  creator: User;
+  modifier: User | null;
+}
+
+export interface AR {
+  transaction_date: string;
+  customer_id: number;
+  payment_method: string;
+  check_number: string | null;
+  check_date: string | null;
+  bank_name: string | null;
+  discount_amount: string; // Keeping it as string since the JSON uses string representation for numbers
+  remarks: string;
+  id: number;
+  total_amount: string;
+  net_amount: string;
+  status: string;
+  clearing_date: string;
+  reversal_date: string | null;
+  reversal_reason: string | null;
+  created_by: number;
+  modified_by: number;
+  date_created: string;
+  date_modified: string;
+
   customer: Customer;
   creator: User;
   modifier: User | null;

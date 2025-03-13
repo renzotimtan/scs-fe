@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
+import DeleteCRModal from "./DeleteARModal";
 import { toast } from "react-toastify";
 import type {
-  PaginatedAlloc,
+  ViewARProps,
+  PaginatedAR,
   PaginationQueryParams,
-  ViewAllocProps,
 } from "../../interface";
 
 import { Pagination } from "@mui/material";
 
 import { convertToQueryParams } from "../../helper";
-import DeleteAllocModal from "./DeleteAllocModal";
 
 const PAGE_LIMIT = 10;
 
-const ViewAlloc = ({
+const ViewAR = ({
   setOpenCreate,
   setOpenEdit,
   selectedRow,
   setSelectedRow,
-}: ViewAllocProps): JSX.Element => {
-  const [allocs, setAllocs] = useState<PaginatedAlloc>({
+}: ViewARProps): JSX.Element => {
+  const [ARs, setARs] = useState<PaginatedAR>({
     total: 0,
     items: [],
   });
@@ -30,7 +30,7 @@ const ViewAlloc = ({
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
 
-  const getAllAlloc = (): void => {
+  const getAllAR = (): void => {
     const payload: PaginationQueryParams = {
       page: 1,
       limit: PAGE_LIMIT,
@@ -44,9 +44,9 @@ const ViewAlloc = ({
     }
 
     axiosInstance
-      .get<PaginatedAlloc>(`/api/allocations/?${convertToQueryParams(payload)}`)
+      .get<PaginatedAR>(`/api/ar_receipts/?${convertToQueryParams(payload)}`)
       .then((response) => {
-        setAllocs(response.data);
+        setARs(response.data);
         setPage(1);
       })
       .catch((error) => console.error("Error:", error));
@@ -58,8 +58,8 @@ const ViewAlloc = ({
   ): void => {
     setPage(value);
     axiosInstance
-      .get<PaginatedAlloc>(
-        `/api/allocations/?${convertToQueryParams({
+      .get<PaginatedAR>(
+        `/api/ar_receipts/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -67,25 +67,27 @@ const ViewAlloc = ({
           search_term: searchTerm,
         })}`,
       )
-      .then((response) => setAllocs(response.data))
+      .then((response) => setARs(response.data))
       .catch((error) => console.error("Error:", error));
   };
 
   useEffect(() => {
-    // Fetch Allocs
-    getAllAlloc();
+    // Fetch CRs
+    getAllAR();
   }, []);
 
-  const handleDeleteAlloc = async (): Promise<void> => {
+  const handleDeleteAR = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/allocations/${selectedRow.id}`;
+      const url = `/api/ar_receipts/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
-        toast.success("Delete successful!");
-        setAllocs((prevAlloc) => ({
-          ...prevAlloc,
-          items: prevAlloc.items.filter((Alloc) => Alloc.id !== selectedRow.id),
-          total: prevAlloc.total - 1,
+        toast.success("Archive successful!");
+        setARs((prevAR) => ({
+          ...prevAR,
+          items: prevAR.items.map((AR) =>
+            AR.id === selectedRow.id ? { ...AR, status: "archived" } : AR,
+          ),
+          total: prevAR.total,
         }));
       } catch (error) {
         console.error("Error:", error);
@@ -97,7 +99,7 @@ const ViewAlloc = ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
-          <h2>Allocation</h2>
+          <h2>AR Receipts</h2>
           <Button
             className="mt-2 mb-4 bg-button-primary"
             color="primary"
@@ -105,13 +107,13 @@ const ViewAlloc = ({
               setOpenCreate(true);
             }}
           >
-            Add Allocation
+            Add AR Receipt
           </Button>
         </Box>
         <Box className="flex items-center mb-6">
           <Input
             size="sm"
-            placeholder="Alloc No."
+            placeholder="Ref No."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -123,13 +125,15 @@ const ViewAlloc = ({
             size="sm"
             value={status}
           >
+            {/* 'pending', 'cleared', 'cancelled', 'reversed' */}
             <Option value="all">All</Option>
-            <Option value="unposted">Unposted</Option>
-            <Option value="posted">Posted</Option>
-            <Option value="archived">Archived</Option>
+            <Option value="pending">Pending</Option>
+            <Option value="cleared">Cleared</Option>
+            <Option value="cancelled">Cancelled</Option>
+            <Option value="reversed">Reversed</Option>
           </Select>
           <Button
-            onClick={getAllAlloc}
+            onClick={getAllAR}
             className="ml-4 w-[80px] bg-button-primary"
             size="sm"
           >
@@ -198,11 +202,12 @@ const ViewAlloc = ({
             <thead>
               <tr>
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
-                  Alloc No.
+                  Receipt No.
                 </th>
-                <th style={{ width: 150 }}>Status</th>
+                <th style={{ width: 300 }}>Status</th>
+                <th style={{ width: 300 }}>Customer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
-                <th style={{ width: 150 }}>Customer</th>
+                <th style={{ width: 250 }}>Payment Method</th>
                 <th style={{ width: 300 }}>Remarks</th>
                 <th style={{ width: 200 }}>Created By</th>
                 <th style={{ width: 200 }}>Modified By</th>
@@ -215,36 +220,37 @@ const ViewAlloc = ({
               </tr>
             </thead>
             <tbody>
-              {allocs.items.map((alloc) => (
+              {ARs.items.map((AR) => (
                 <tr
-                  key={alloc.id}
+                  key={AR.id}
                   onDoubleClick={() => {
                     setOpenEdit(true);
-                    setSelectedRow(alloc);
+                    setSelectedRow(AR);
                   }}
                 >
-                  <td>{alloc?.id}</td>
-                  <td className="capitalize">{alloc.status}</td>
-                  <td>{alloc?.transaction_date}</td>
-                  <td>{alloc?.customer.name}</td>
-                  <td>{alloc?.remarks}</td>
-                  <td>{alloc?.creator?.username}</td>
-                  <td>{alloc?.modifier?.username}</td>
-                  <td>{alloc.date_created}</td>
-                  <td>{alloc.date_modified}</td>
+                  <td>{AR.id}</td>
+                  <td className="capitalize">{AR.status}</td>
+                  <td>{AR.customer.name}</td>
+                  <td>{AR.transaction_date}</td>
+                  <td>{AR.payment_method}</td>
+                  <td>{AR.remarks}</td>
+                  <td>{AR?.creator?.username}</td>
+                  <td>{AR?.modifier?.username}</td>
+                  <td>{AR.date_created}</td>
+                  <td>{AR.date_modified}</td>
                   <td>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
-                        sx={{ width: "100px" }}
+                        className="w-[80px]"
                         size="sm"
                         variant="plain"
                         color="neutral"
                         onClick={() => {
                           setOpenEdit(true);
-                          setSelectedRow(alloc);
+                          setSelectedRow(AR);
                         }}
                       >
-                        {alloc.status !== "unposted" ? "View" : "Edit"}
+                        {AR.status !== "unposted" ? "View" : "Edit"}
                       </Button>
                       <Button
                         size="sm"
@@ -253,8 +259,9 @@ const ViewAlloc = ({
                         className="bg-delete-red"
                         onClick={() => {
                           setOpenDelete(true);
-                          setSelectedRow(alloc);
+                          setSelectedRow(AR);
                         }}
+                        disabled={AR.status !== "unposted"}
                       >
                         Archive
                       </Button>
@@ -268,21 +275,21 @@ const ViewAlloc = ({
       </Box>
       <Box className="flex align-center justify-end">
         <Pagination
-          count={Math.ceil(allocs.total / PAGE_LIMIT)}
+          count={Math.ceil(ARs.total / PAGE_LIMIT)}
           page={page}
           onChange={changePage}
           shape="rounded"
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteAllocModal
+      <DeleteCRModal
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Archive Allocation"
-        onDelete={handleDeleteAlloc}
+        title="Archive Customer Return"
+        onDelete={handleDeleteAR}
       />
     </>
   );
 };
 
-export default ViewAlloc;
+export default ViewAR;

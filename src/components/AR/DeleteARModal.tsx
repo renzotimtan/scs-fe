@@ -36,7 +36,7 @@ const DeleteCDPModal = ({
             <h4 className="mb-6">{title}</h4>
             <div className="mb-7">
               <p className="text-sm">
-                Are you sure you want to archive this Customer Return?
+                Are you sure you want to archive this AR Receipts?
               </p>
             </div>
             <div className="flex justify-end mt-5">

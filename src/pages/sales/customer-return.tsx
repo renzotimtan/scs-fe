@@ -3,7 +3,7 @@ import CRForm from "../../components/CR/CRForm";
 import ViewCR from "../../components/CR/ViewCR";
 import type { CR } from "../../interface";
 
-const DeliveryPlanningMenu = (): JSX.Element => {
+const CustomerReturnMenu = (): JSX.Element => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedRow, setSelectedRow] = useState<CR | undefined>();
@@ -41,4 +41,4 @@ const DeliveryPlanningMenu = (): JSX.Element => {
   );
 };
 
-export default DeliveryPlanningMenu;
+export default CustomerReturnMenu;

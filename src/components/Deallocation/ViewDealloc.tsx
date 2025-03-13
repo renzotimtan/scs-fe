@@ -44,7 +44,9 @@ const ViewDealloc = ({
     }
 
     axiosInstance
-      .get<PaginatedDealloc>(`/api/deallocations/?${convertToQueryParams(payload)}`)
+      .get<PaginatedDealloc>(
+        `/api/deallocations/?${convertToQueryParams(payload)}`,
+      )
       .then((response) => {
         setDeallocs(response.data);
         setPage(1);
@@ -78,13 +80,15 @@ const ViewDealloc = ({
 
   const handleDeleteDealloc = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/allocations/${selectedRow.id}`;
+      const url = `/api/deallocations/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Delete successful!");
         setDeallocs((prevDealloc) => ({
           ...prevDealloc,
-          items: prevDealloc.items.filter((Dealloc) => Dealloc.id !== selectedRow.id),
+          items: prevDealloc.items.filter(
+            (Dealloc) => Dealloc.id !== selectedRow.id,
+          ),
           total: prevDealloc.total - 1,
         }));
       } catch (error) {
@@ -111,7 +115,7 @@ const ViewDealloc = ({
         <Box className="flex items-center mb-6">
           <Input
             size="sm"
-            placeholder="Ref No."
+            placeholder="Dealloc No."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
