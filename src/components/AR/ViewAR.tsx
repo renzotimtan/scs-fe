@@ -232,7 +232,7 @@ const ViewAR = ({
                   <td className="capitalize">{AR.status}</td>
                   <td>{AR.customer.name}</td>
                   <td>{AR.transaction_date}</td>
-                  <td>{AR.payment_method}</td>
+                  <td className="capitalize">{AR.payment_method}</td>
                   <td>{AR.remarks}</td>
                   <td>{AR?.creator?.username}</td>
                   <td>{AR?.modifier?.username}</td>

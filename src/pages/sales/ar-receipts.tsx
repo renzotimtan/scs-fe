@@ -15,11 +15,11 @@ const AccountsReceivableMenu = (): JSX.Element => {
           setOpen={setOpenCreate}
           openCreate={openCreate}
           openEdit={openEdit}
-          title="Create Customer Return"
+          title="Create AR Receipt"
         />
       )}
 
-      {openEdit && (
+      {/* {openEdit && (
         <ARForm
           setOpen={setOpenEdit}
           openCreate={openCreate}
@@ -27,7 +27,7 @@ const AccountsReceivableMenu = (): JSX.Element => {
           selectedRow={selectedRow}
           title="Edit Customer Return"
         />
-      )}
+      )} */}
 
       {!openEdit && !openCreate && (
         <ViewAR

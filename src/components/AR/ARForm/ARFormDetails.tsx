@@ -10,9 +10,8 @@ import {
   Box,
   Divider,
   Autocomplete,
-  Button,
 } from "@mui/joy";
-import type { CRFormDetailsProps } from "../interface";
+import type { ARFormDetailsProps } from "../interface";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../utils/axiosConfig";
 import {
@@ -23,7 +22,7 @@ import {
 import SelectCDRModal from "./SelectCDRModal";
 import { type PaginatedCDR, type CDR } from "../../../interface";
 
-const CRFormDetails = ({
+const ARFormDetails = ({
   openEdit,
   selectedRow,
   customers,
@@ -37,12 +36,16 @@ const CRFormDetails = ({
   setTransactionDate,
   remarks,
   setRemarks,
-  referenceNumber,
-  setReferenceNumber,
   isEditDisabled,
-  totalGross,
-  totalItems,
-}: CRFormDetailsProps): JSX.Element => {
+  paymentMode,
+  setPaymentMode,
+  checkDate,
+  setCheckDate,
+  checkNumber,
+  setCheckNumber,
+  bankName,
+  setBankName,
+}: ARFormDetailsProps): JSX.Element => {
   const [CDRs, setCDRs] = useState<CDR[]>([]);
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
 
@@ -126,33 +129,60 @@ const CRFormDetails = ({
               />
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
-              <FormLabel>Ref No.</FormLabel>
-              <Input
+              <FormLabel>Payment Mode</FormLabel>
+              <Select
+                onChange={(event, value) => {
+                  if (value !== null) setPaymentMode(value);
+                }}
                 size="sm"
-                placeholder="Search"
-                onChange={(e) => setReferenceNumber(e.target.value)}
-                value={referenceNumber}
+                value={paymentMode}
                 disabled={isEditDisabled}
-                required
+              >
+                <Option value="cash">Cash</Option>
+                <Option value="check">Check</Option>
+              </Select>
+            </FormControl>
+          </Stack>
+          <Stack direction="row" spacing={2} sx={{ mb: 1, mt: 1 }}>
+            <FormControl size="sm" sx={{ mb: 1, mt: 1, width: "22%" }}>
+              <FormLabel>Check Number</FormLabel>
+              <div className="flex">
+                <Input
+                  name="checkNumber"
+                  size="sm"
+                  placeholder="Check Number"
+                  value={checkNumber}
+                  onChange={(e) => setCheckNumber(e.target.value)}
+                  disabled={isEditDisabled || paymentMode !== "check"}
+                />
+              </div>
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Check Date</FormLabel>
+              <Input
+                type="date"
+                value={checkDate}
+                onChange={(e) => setCheckDate(e.target.value)}
+                disabled={isEditDisabled || paymentMode !== "check"}
+              />
+            </FormControl>
+            <FormControl size="sm" sx={{ mb: 1, width: "22%" }}>
+              <FormLabel>Bank Name</FormLabel>
+              <Input
+                name="bankName"
+                size="sm"
+                placeholder="Bank Name"
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+                disabled={isEditDisabled || paymentMode !== "check"}
               />
             </FormControl>
           </Stack>
-          <Stack
+          {/* <Stack
             direction="row"
             spacing={2}
             sx={{ mb: 1, alignItems: "flex-end" }}
           >
-            <FormControl size="sm" sx={{ mb: 1, width: "46%" }}>
-              <FormLabel>Remarks</FormLabel>
-              <Textarea
-                minRows={1}
-                placeholder="Remarks"
-                onChange={(e) => setRemarks(e.target.value)}
-                value={remarks}
-                disabled={isEditDisabled}
-                required
-              />
-            </FormControl>
             {(!openEdit || status === "unposted") && (
               <Button
                 sx={{ mb: 1, width: "22.5%" }}
@@ -164,19 +194,19 @@ const CRFormDetails = ({
                 Fill Table
               </Button>
             )}
-          </Stack>
+          </Stack> */}
         </div>
       </Card>
       <Card className="w-[40%]">
         <div>
           <div className="flex justify-around">
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>Total Qty</FormLabel>
-              <h5>{totalItems}</h5>{" "}
+              <FormLabel>Payment Amount</FormLabel>
+              <h5>{addCommaToNumberWithFourPlaces(123)}</h5>{" "}
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1 }}>
-              <FormLabel>Total Gross</FormLabel>
-              <h5>{`${addCommaToNumberWithFourPlaces(totalGross)}`}</h5>
+              <FormLabel>Total Applied</FormLabel>
+              <h5>{addCommaToNumberWithFourPlaces(123)}</h5>
             </FormControl>
           </div>
           <Divider />
@@ -206,10 +236,23 @@ const CRFormDetails = ({
               </p>
             </FormControl>
           </Stack>
+          <Stack>
+            <FormControl size="sm" sx={{ mb: 1, width: "100%" }}>
+              <FormLabel>Remarks</FormLabel>
+              <Textarea
+                minRows={1}
+                placeholder="Remarks"
+                onChange={(e) => setRemarks(e.target.value)}
+                value={remarks}
+                disabled={isEditDisabled}
+                required
+              />
+            </FormControl>
+          </Stack>
         </div>
       </Card>
     </Box>
   );
 };
 
-export default CRFormDetails;
+export default ARFormDetails;

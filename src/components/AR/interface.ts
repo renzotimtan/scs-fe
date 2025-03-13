@@ -7,7 +7,7 @@ import type {
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
-export interface CRFormDetailsProps {
+export interface ARFormDetailsProps {
   openEdit: boolean;
   selectedRow: CR | undefined;
   customers: PaginatedCustomers;
@@ -23,11 +23,15 @@ export interface CRFormDetailsProps {
   setTransactionDate: Dispatch<SetStateAction<string>>;
   remarks: string;
   setRemarks: Dispatch<SetStateAction<string>>;
-  referenceNumber: string;
-  setReferenceNumber: Dispatch<SetStateAction<string>>;
   isEditDisabled: boolean;
-  totalGross: number;
-  totalItems: number;
+  paymentMode: string;
+  setPaymentMode: Dispatch<SetStateAction<string>>;
+  checkDate: string;
+  setCheckDate: Dispatch<SetStateAction<string>>;
+  checkNumber: string;
+  setCheckNumber: Dispatch<SetStateAction<string>>;
+  bankName: string;
+  setBankName: Dispatch<SetStateAction<string>>;
 }
 
 export interface CRFormTableProps {

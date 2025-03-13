@@ -1,4 +1,4 @@
-import CRFormDetails from "./ARForm/ARFormDetails";
+import ARFormDetails from "./ARForm/ARFormDetails";
 import CRFormTable from "./ARForm/ARFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
@@ -12,11 +12,7 @@ import type {
   CRFormProps,
   PaginatedCustomers,
   Customer,
-  Alloc,
-  DeliveryPlanItem,
-  CPO,
   PaginatedWarehouse,
-  Warehouse,
 } from "../../interface";
 
 const ARForm = ({
@@ -35,25 +31,14 @@ const ARForm = ({
     null,
   );
   const [formattedDRs, setFormattedDRs] = useState<DRItemsFE[]>([]);
-
-  const [warehouses, setWarehouses] = useState<PaginatedWarehouse>({
-    total: 0,
-    items: [],
-  });
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
-  const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
 
-  const totalItems = formattedDRs.reduce(
-    (sum, item) => sum + Number(item.return_qty),
-    0,
-  );
-
-  const totalGross = formattedDRs.reduce(
-    (sum, item) => sum + (item.gross_amount ?? 0),
-    0,
-  );
+  const [paymentMode, setPaymentMode] = useState("cash");
+  const [checkDate, setCheckDate] = useState("");
+  const [checkNumber, setCheckNumber] = useState("");
+  const [bankName, setBankName] = useState("");
 
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -64,12 +49,6 @@ const ARForm = ({
       .get<PaginatedCustomers>("/api/customers/")
       .then((response) => setCustomers(response.data))
       .catch((error) => console.error("Error:", error));
-
-    // Fetch warehouses
-    axiosInstance
-      .get<PaginatedWarehouse>("/api/warehouses/")
-      .then((response) => setWarehouses(response.data))
-      .catch((error) => console.error("Error:", error));
   }, []);
 
   useEffect(() => {
@@ -79,7 +58,6 @@ const ARForm = ({
     if (selectedRow !== null && selectedRow !== undefined) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
-      setReferenceNumber(selectedRow?.reference_number ?? "");
       setRemarks(selectedRow?.remarks ?? "");
 
       // Get Customer for Edit
@@ -89,48 +67,6 @@ const ARForm = ({
           setSelectedCustomer(response.data);
         })
         .catch((error) => console.error("Error:", error));
-
-      // Fill in formatted DRs for table
-      const formattedDRs = selectedRow.items.map((CRItem) => {
-        const allocatedItem =
-          CRItem.delivery_receipt_item.delivery_plan_item.allocation_item;
-        const itemObj = allocatedItem.customer_purchase_order.items.find(
-          (item) => item.item_id === allocatedItem.item_id,
-        );
-
-        return {
-          id: CRItem.delivery_receipt_item.delivery_receipt_id,
-          delivery_receipt_item_id: CRItem.delivery_receipt_item_id,
-          item_id: allocatedItem.item_id,
-          alloc_no: allocatedItem.allocation_id,
-          cpo_id: allocatedItem.customer_purchase_order_id,
-          stock_code: itemObj?.item.stock_code ?? "",
-          name: itemObj?.item.name ?? "",
-          return_warehouse: CRItem.warehouse,
-          return_qty: String(CRItem.return_qty),
-          price: String(CRItem.price),
-          gross_amount: calculateNetForRow(
-            Number(CRItem.return_qty),
-            Number(CRItem.price),
-            allocatedItem.customer_purchase_order,
-          ),
-          customer_discount_1:
-            allocatedItem.customer_purchase_order.customer_discount_1,
-          customer_discount_2:
-            allocatedItem.customer_purchase_order.customer_discount_2,
-          customer_discount_3:
-            allocatedItem.customer_purchase_order.customer_discount_3,
-
-          transaction_discount_1:
-            allocatedItem.customer_purchase_order.transaction_discount_1,
-          transaction_discount_2:
-            allocatedItem.customer_purchase_order.transaction_discount_2,
-          transaction_discount_3:
-            allocatedItem.customer_purchase_order.transaction_discount_3,
-        };
-      });
-
-      setFormattedDRs(formattedDRs);
     }
   }, [selectedRow]);
 
@@ -181,7 +117,6 @@ const ARForm = ({
     setFormattedDRs([]);
     setStatus("unposted");
     setTransactionDate(currentDate);
-    setReferenceNumber("");
     setRemarks("");
   };
 
@@ -260,7 +195,7 @@ const ARForm = ({
           Print
         </Button>
       </div>
-      <CRFormDetails
+      <ARFormDetails
         openEdit={openEdit}
         selectedRow={selectedRow}
         customers={customers}
@@ -274,13 +209,17 @@ const ARForm = ({
         setTransactionDate={setTransactionDate}
         remarks={remarks}
         setRemarks={setRemarks}
-        referenceNumber={referenceNumber}
-        setReferenceNumber={setReferenceNumber}
         isEditDisabled={isEditDisabled}
-        totalGross={totalGross}
-        totalItems={totalItems}
+        paymentMode={paymentMode}
+        setPaymentMode={setPaymentMode}
+        checkDate={checkDate}
+        setCheckDate={setCheckDate}
+        checkNumber={checkNumber}
+        setCheckNumber={setCheckNumber}
+        bankName={bankName}
+        setBankName={setBankName}
       />
-      <CRFormTable
+      {/* <CRFormTable
         selectedRow={selectedRow}
         warehouses={warehouses}
         formattedDRs={formattedDRs}
@@ -289,7 +228,7 @@ const ARForm = ({
         totalItems={totalItems}
         openEdit={openEdit}
         isEditDisabled={isEditDisabled}
-      />
+      /> */}
       <Divider />
       <div className="flex justify-end mt-4">
         <Button
