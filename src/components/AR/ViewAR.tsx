@@ -44,7 +44,7 @@ const ViewAR = ({
     }
 
     axiosInstance
-      .get<PaginatedAR>(`/api/ar_receipts/?${convertToQueryParams(payload)}`)
+      .get<PaginatedAR>(`/api/ar-receipts/?${convertToQueryParams(payload)}`)
       .then((response) => {
         setARs(response.data);
         setPage(1);
@@ -59,7 +59,7 @@ const ViewAR = ({
     setPage(value);
     axiosInstance
       .get<PaginatedAR>(
-        `/api/ar_receipts/?${convertToQueryParams({
+        `/api/ar-receipts/?${convertToQueryParams({
           page: value,
           limit: PAGE_LIMIT,
           sort_by: "id",
@@ -78,7 +78,7 @@ const ViewAR = ({
 
   const handleDeleteAR = async (): Promise<void> => {
     if (selectedRow !== undefined) {
-      const url = `/api/ar_receipts/${selectedRow.id}`;
+      const url = `/api/ar-receipts/${selectedRow.id}`;
       try {
         await axiosInstance.delete(url);
         toast.success("Archive successful!");
