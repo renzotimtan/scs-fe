@@ -148,7 +148,7 @@ const CPOFormTable = ({
             <th style={{ width: 150 }}>Order Qty</th>
             <th style={{ width: 150 }}>Price</th>
             <th style={{ width: 150 }}>Gross</th>
-            <th style={{ width: 150 }}>On Stock</th>
+            {/* <th style={{ width: 150 }}>On Stock</th> */}
             <th
               aria-label="last"
               style={{ width: "var(--Table-lastColumnWidth)" }}
@@ -223,7 +223,7 @@ const CPOFormTable = ({
                     </Select>
                   )}
                 </td>
-                <td style={{ zIndex: 2 }}>
+                {/* <td style={{ zIndex: 2 }}>
                   {selectedItem?.id !== null && (
                     <Input
                       type="number"
@@ -239,7 +239,7 @@ const CPOFormTable = ({
                       required
                     />
                   )}
-                </td>
+                </td> */}
                 <td>{!isNaN(Number(price)) ? Number(price) : ""}</td>
                 <td>
                   {selectedItem?.id !== null &&

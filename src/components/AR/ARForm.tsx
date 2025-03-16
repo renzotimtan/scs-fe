@@ -1,5 +1,5 @@
 import ARFormDetails from "./ARForm/ARFormDetails";
-import CRFormTable from "./ARForm/ARFormTable";
+import ARFormTable from "./ARForm/ARFormTable";
 import { Button, Divider } from "@mui/joy";
 import SaveIcon from "@mui/icons-material/Save";
 import DoDisturbIcon from "@mui/icons-material/DoDisturb";
@@ -7,12 +7,11 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
-import { type DRItemsFE } from "./interface";
+import { type OutstandingTrans } from "./interface";
 import type {
   CRFormProps,
   PaginatedCustomers,
   Customer,
-  PaginatedWarehouse,
 } from "../../interface";
 
 const ARForm = ({
@@ -30,7 +29,9 @@ const ARForm = ({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
-  const [formattedDRs, setFormattedDRs] = useState<DRItemsFE[]>([]);
+  const [outstandingTrans, setOutstandingTrans] = useState<OutstandingTrans[]>(
+    [],
+  );
   const [status, setStatus] = useState("unposted");
   const [transactionDate, setTransactionDate] = useState(currentDate);
   const [remarks, setRemarks] = useState("");
@@ -38,7 +39,19 @@ const ARForm = ({
   const [paymentMode, setPaymentMode] = useState("cash");
   const [checkDate, setCheckDate] = useState("");
   const [checkNumber, setCheckNumber] = useState("");
-  const [bankName, setBankName] = useState("");
+  const [amountPaid, setAmountPaid] = useState("");
+
+  const [addAmount1, setAddAmount1] = useState("");
+  const [addAmount2, setAddAmount2] = useState("");
+  const [addAmount3, setAddAmount3] = useState("");
+  const [lessAmount, setLessAmount] = useState("");
+
+  const totalApplied = outstandingTrans.reduce(
+    (total, trans) => total + Number(trans.payment),
+    0,
+  );
+  const addAmount = addAmount1 + addAmount2 + addAmount3;
+  const paymentAmount = totalApplied - Number(lessAmount) + Number(addAmount);
 
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
@@ -70,54 +83,36 @@ const ARForm = ({
     }
   }, [selectedRow]);
 
-  const calculateNetForRow = (
-    newValue: number,
-    price: number,
-    DRItem: any,
-  ): number => {
-    let result = newValue * price;
-
-    if (DRItem.customer_discount_1.includes("%")) {
-      const cd1 = DRItem.customer_discount_1.slice(0, -1);
-      result = result - result * (parseFloat(cd1) / 100);
-    }
-
-    if (DRItem.customer_discount_2.includes("%")) {
-      const cd2 = DRItem.customer_discount_2.slice(0, -1);
-      result = result - result * (parseFloat(cd2) / 100);
-    }
-
-    if (DRItem.customer_discount_3.includes("%")) {
-      const cd3 = DRItem.customer_discount_3.slice(0, -1);
-      result = result - result * (parseFloat(cd3) / 100);
-    }
-
-    if (DRItem.transaction_discount_1.includes("%")) {
-      const td1 = DRItem.transaction_discount_1.slice(0, -1);
-      result = result - result * (parseFloat(td1) / 100);
-    }
-
-    if (DRItem.transaction_discount_2.includes("%")) {
-      const td2 = DRItem.transaction_discount_2.slice(0, -1);
-      result = result - result * (parseFloat(td2) / 100);
-    }
-
-    if (DRItem.transaction_discount_3.includes("%")) {
-      const td3 = DRItem.transaction_discount_3.slice(0, -1);
-      result = result - result * (parseFloat(td3) / 100);
-    }
-
-    if (isNaN(result)) return 0;
-
-    return result;
+  const fetchARByCustomer = (customerId: number | null) => {
+    // Fetch ARs
+    axiosInstance
+      .get<OutstandingTrans[]>(
+        `/api/ar-receipts/customer/${customerId}/outstanding-transactions`,
+      )
+      .then((response) =>
+        setOutstandingTrans(
+          response.data.map((trans) => {
+            return { ...trans, payment: "" };
+          }),
+        ),
+      )
+      .catch((error) => console.error("Error:", error));
   };
 
   const resetForm = (): void => {
     setSelectedCustomer(null);
-    setFormattedDRs([]);
+    setOutstandingTrans([]);
     setStatus("unposted");
     setTransactionDate(currentDate);
     setRemarks("");
+    setPaymentMode("cash");
+    setCheckDate("");
+    setCheckNumber("");
+    setAmountPaid("");
+    setAddAmount1("");
+    setAddAmount2("");
+    setAddAmount3("");
+    setLessAmount("");
   };
 
   const createPayload = () => {
@@ -142,7 +137,7 @@ const ARForm = ({
     return payload;
   };
 
-  const handleCreateDeliveryPlanning = async (): Promise<void> => {
+  const handleCreateAR = async (): Promise<void> => {
     const payload = createPayload();
     try {
       await axiosInstance.post("/api/customer-returns/", payload);
@@ -157,7 +152,7 @@ const ARForm = ({
     }
   };
 
-  const handleEditDeliveryReceipt = async (): Promise<void> => {
+  const handleEditAR = async (): Promise<void> => {
     const payload = createPayload();
 
     try {
@@ -180,8 +175,8 @@ const ARForm = ({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (openCreate) await handleCreateDeliveryPlanning();
-        if (openEdit) await handleEditDeliveryReceipt();
+        if (openCreate) await handleCreateAR();
+        if (openEdit) await handleEditAR();
       }}
     >
       <div className="flex justify-between">
@@ -201,8 +196,7 @@ const ARForm = ({
         customers={customers}
         selectedCustomer={selectedCustomer}
         setSelectedCustomer={setSelectedCustomer}
-        formattedDRs={formattedDRs}
-        setFormattedDRs={setFormattedDRs}
+        fetchARByCustomer={fetchARByCustomer}
         status={status}
         setStatus={setStatus}
         transactionDate={transactionDate}
@@ -216,19 +210,26 @@ const ARForm = ({
         setCheckDate={setCheckDate}
         checkNumber={checkNumber}
         setCheckNumber={setCheckNumber}
-        bankName={bankName}
-        setBankName={setBankName}
+        amountPaid={amountPaid}
+        setAmountPaid={setAmountPaid}
+        addAmount1={addAmount1}
+        addAmount2={addAmount2}
+        addAmount3={addAmount3}
+        setAddAmount1={setAddAmount1}
+        setAddAmount2={setAddAmount2}
+        setAddAmount3={setAddAmount3}
+        lessAmount={lessAmount}
+        setLessAmount={setLessAmount}
+        totalApplied={totalApplied}
+        paymentAmount={paymentAmount}
       />
-      {/* <CRFormTable
+      <ARFormTable
+        outstandingTrans={outstandingTrans}
+        setOutstandingTrans={setOutstandingTrans}
         selectedRow={selectedRow}
-        warehouses={warehouses}
-        formattedDRs={formattedDRs}
-        setFormattedDRs={setFormattedDRs}
-        totalGross={totalGross}
-        totalItems={totalItems}
         openEdit={openEdit}
         isEditDisabled={isEditDisabled}
-      /> */}
+      />
       <Divider />
       <div className="flex justify-end mt-4">
         <Button

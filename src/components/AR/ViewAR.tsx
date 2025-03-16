@@ -113,7 +113,7 @@ const ViewAR = ({
         <Box className="flex items-center mb-6">
           <Input
             size="sm"
-            placeholder="Ref No."
+            placeholder="Receipt No."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -204,8 +204,9 @@ const ViewAR = ({
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   Receipt No.
                 </th>
-                <th style={{ width: 300 }}>Status</th>
-                <th style={{ width: 300 }}>Customer</th>
+                <th style={{ width: 150 }}>Status</th>
+                <th style={{ width: 150 }}>Payment Status</th>
+                <th style={{ width: 250 }}>Customer</th>
                 <th style={{ width: 250 }}>Transaction Date</th>
                 <th style={{ width: 250 }}>Payment Method</th>
                 <th style={{ width: 300 }}>Remarks</th>
@@ -230,6 +231,7 @@ const ViewAR = ({
                 >
                   <td>{AR.id}</td>
                   <td className="capitalize">{AR.status}</td>
+                  <td className="capitalize">{AR.payment_status}</td>
                   <td>{AR.customer.name}</td>
                   <td>{AR.transaction_date}</td>
                   <td className="capitalize">{AR.payment_method}</td>

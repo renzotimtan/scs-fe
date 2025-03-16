@@ -3,7 +3,6 @@ import type {
   Customer,
   CR,
   Warehouse,
-  PaginatedWarehouse,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -11,11 +10,10 @@ export interface ARFormDetailsProps {
   openEdit: boolean;
   selectedRow: CR | undefined;
   customers: PaginatedCustomers;
-  formattedDRs: DRItemsFE[];
-  setFormattedDRs: Dispatch<SetStateAction<DRItemsFE[]>>;
 
   // Fields
   selectedCustomer: Customer | null;
+  fetchARByCustomer: (customerId: number | null) => void;
   setSelectedCustomer: Dispatch<SetStateAction<Customer | null>>;
   status: string;
   setStatus: Dispatch<SetStateAction<string>>;
@@ -30,17 +28,24 @@ export interface ARFormDetailsProps {
   setCheckDate: Dispatch<SetStateAction<string>>;
   checkNumber: string;
   setCheckNumber: Dispatch<SetStateAction<string>>;
-  bankName: string;
-  setBankName: Dispatch<SetStateAction<string>>;
+  amountPaid: string;
+  setAmountPaid: Dispatch<SetStateAction<string>>;
+  addAmount1: string;
+  setAddAmount1: Dispatch<SetStateAction<string>>;
+  addAmount2: string;
+  setAddAmount2: Dispatch<SetStateAction<string>>;
+  addAmount3: string;
+  setAddAmount3: Dispatch<SetStateAction<string>>;
+  lessAmount: string;
+  setLessAmount: Dispatch<SetStateAction<string>>;
+  totalApplied: number;
+  paymentAmount: number;
 }
 
-export interface CRFormTableProps {
+export interface ARFormTableProps {
+  outstandingTrans: OutstandingTrans[];
+  setOutstandingTrans: Dispatch<SetStateAction<OutstandingTrans[]>>;
   selectedRow: CR | undefined;
-  warehouses: PaginatedWarehouse;
-  formattedDRs: DRItemsFE[];
-  setFormattedDRs: Dispatch<SetStateAction<DRItemsFE[]>>;
-  totalGross: number;
-  totalItems: number;
   openEdit: boolean;
   isEditDisabled: boolean;
 }
@@ -63,4 +68,18 @@ export interface DRItemsFE {
   transaction_discount_1: string;
   transaction_discount_2: string;
   transaction_discount_3: string;
+}
+
+export interface OutstandingTrans {
+  id: number;
+  source_type: string;
+  transaction_number: string;
+  transaction_date: string; // ISO date format (YYYY-MM-DD)
+  original_amount: string; // Consider changing to number if calculations are needed
+  transaction_amount: string; // Consider changing to number
+  reference: string;
+  days_outstanding: number;
+  balance: string; // Consider changing to number
+  aging_bucket: string;
+  payment?: string;
 }

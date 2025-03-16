@@ -976,28 +976,31 @@ export interface CR {
   modifier: User | null;
 }
 
-export interface AR {
+interface AR {
+  reference_number: string;
+  status: string;
   transaction_date: string;
   customer_id: number;
   payment_method: string;
-  check_number: string | null;
-  check_date: string | null;
-  bank_name: string | null;
-  discount_amount: string; // Keeping it as string since the JSON uses string representation for numbers
-  remarks: string;
+  check_number?: string;
+  check_amount?: string;
+  check_date?: string;
+  less_amount: string;
+  add_amount: string;
+  remarks?: string;
+  days_to_clear: number;
   id: number;
-  total_amount: string;
-  net_amount: string;
-  status: string;
-  clearing_date: string;
-  reversal_date: string | null;
-  reversal_reason: string | null;
+  payment_amount: string;
+  total_applied: string;
+  payment_status: string;
+  clearing_date?: string;
+  reversal_date?: string | null;
+  reversal_reason?: string | null;
   created_by: number;
   modified_by: number;
   date_created: string;
   date_modified: string;
-
   customer: Customer;
   creator: User;
-  modifier: User | null;
+  modifier: User;
 }

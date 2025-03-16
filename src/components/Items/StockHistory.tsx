@@ -5,7 +5,8 @@ import { Card, Box, Table } from "@mui/joy";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 
-import type { ViewStockHistory, StockHistory } from "../../interface";
+import { StockHistory } from "../../interface";
+import type { ViewStockHistory } from "../../interface";
 
 const StockHistory = ({
   open,
@@ -50,7 +51,7 @@ const StockHistory = ({
                 "--TableCell-height": "40px",
                 // the number is the amount of the header rows.
                 "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-                "--Table-firstColumnWidth": "250px",
+                "--Table-firstColumnWidth": "100px",
                 "--Table-lastColumnWidth": "144px",
                 // background needs to have transparency to show the scrolling shadows
                 "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -93,8 +94,8 @@ const StockHistory = ({
                     <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                       Tx Type
                     </th>
-                    <th style={{ width: 100 }}>Code</th>
-                    <th style={{ width: 100 }}>Name</th>
+                    <th style={{ width: 120 }}>Code</th>
+                    <th style={{ width: 170 }}>Name</th>
                     <th style={{ width: 100 }}>Tx Date</th>
                     <th style={{ width: 100 }}>Tx No.</th>
                     <th style={{ width: 100 }}>In</th>
@@ -104,22 +105,21 @@ const StockHistory = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {stockHistory &&
-                    stockHistory.map((history: StockHistory) => (
-                      <tr
-                        key={`${history.transaction_number}-${history.stock_code}`}
-                      >
-                        <td>{history.transaction_type}</td>
-                        <td>{history.stock_code}</td>
-                        <td>{history.stock_description}</td>
-                        <td>{history.transaction_date}</td>
-                        <td>{history.transaction_number}</td>
-                        <td>{history.quantity_in}</td>
-                        <td>{history.quantity_out}</td>
-                        <td>{history.price}</td>
-                        <td>{history.amount}</td>
-                      </tr>
-                    ))}
+                  {stockHistory.map((history: StockHistory) => (
+                    <tr
+                      key={`${history.transaction_number}-${history.stock_code}`}
+                    >
+                      <td>{history.transaction_type}</td>
+                      <td>{history.stock_code}</td>
+                      <td>{history.stock_description}</td>
+                      <td>{history.transaction_date}</td>
+                      <td>{history.transaction_number}</td>
+                      <td>{history.quantity_in}</td>
+                      <td>{history.quantity_out}</td>
+                      <td>{history.price}</td>
+                      <td>{history.amount}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </Table>
             </Sheet>
