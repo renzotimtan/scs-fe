@@ -223,7 +223,7 @@ const CPOFormTable = ({
                     </Select>
                   )}
                 </td>
-                {/* <td style={{ zIndex: 2 }}>
+                <td style={{ zIndex: 2 }}>
                   {selectedItem?.id !== null && (
                     <Input
                       type="number"
@@ -239,7 +239,7 @@ const CPOFormTable = ({
                       required
                     />
                   )}
-                </td> */}
+                </td>
                 <td>{!isNaN(Number(price)) ? Number(price) : ""}</td>
                 <td>
                   {selectedItem?.id !== null &&
@@ -247,7 +247,7 @@ const CPOFormTable = ({
                       Number(price) * Number(selectedItem?.volume),
                     )}
                 </td>
-                <td>{selectedItem.total_on_stock}</td>
+                {/* <td>{selectedItem.total_on_stock}</td> */}
                 <td>
                   {selectedItem?.id !== null && (
                     <Button
