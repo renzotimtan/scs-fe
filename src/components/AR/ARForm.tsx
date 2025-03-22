@@ -9,9 +9,10 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
 import { type OutstandingTrans } from "./interface";
 import type {
-  CRFormProps,
   PaginatedCustomers,
   Customer,
+  ARFormProps,
+  AR,
 } from "../../interface";
 
 const ARForm = ({
@@ -20,7 +21,7 @@ const ARForm = ({
   openEdit,
   selectedRow,
   title,
-}: CRFormProps): JSX.Element => {
+}: ARFormProps): JSX.Element => {
   const currentDate = new Date().toISOString().split("T")[0];
   const [customers, setCustomers] = useState<PaginatedCustomers>({
     total: 0,
@@ -46,6 +47,8 @@ const ARForm = ({
   const [addAmount3, setAddAmount3] = useState("");
   const [lessAmount, setLessAmount] = useState("");
 
+  const [refNo, setRefNo] = useState("");
+
   const totalApplied = outstandingTrans.reduce(
     (total, trans) => total + Number(trans.payment),
     0,
@@ -69,15 +72,50 @@ const ARForm = ({
     const customerID = selectedRow?.customer.customer_id;
 
     if (selectedRow !== null && selectedRow !== undefined) {
-      setStatus(selectedRow?.status ?? "unposted");
-      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
-      setRemarks(selectedRow?.remarks ?? "");
-
       // Get Customer for Edit
       axiosInstance
         .get<Customer>(`/api/customers/${customerID}`)
         .then((response) => {
           setSelectedCustomer(response.data);
+        })
+        .catch((error) => console.error("Error:", error));
+      setStatus(selectedRow?.status ?? "unposted");
+      setTransactionDate(selectedRow?.transaction_date ?? currentDate);
+      setPaymentMode(selectedRow.payment_method);
+
+      setAmountPaid(String(parseFloat(selectedRow?.check_amount ?? "")));
+      setCheckNumber(selectedRow?.check_number ?? "");
+      setCheckDate(selectedRow?.check_date ?? "");
+      setRefNo(selectedRow.reference_number);
+
+      setLessAmount(String(parseFloat(selectedRow.less_amount)));
+      setAddAmount1(String(parseFloat(selectedRow.add_amount)));
+      setRemarks(selectedRow?.remarks ?? "");
+
+      axiosInstance
+        .get<AR>(`/api/ar-receipts/${selectedRow.id}`)
+        .then((response) => {
+          const ARItems = response.data.receipt_items;
+
+          const formattedARItems = ARItems.map((item) => {
+            return {
+              id: item.source_id,
+              source_type: item.source_type,
+              transaction_number:
+                item.source_type === "customer_dr"
+                  ? `DR-${item.source_id}`
+                  : `CR-${item.source_id}`,
+              transaction_date: item.source_transaction_date,
+              original_amount: item.original_amount,
+              transaction_amount: item.transaction_amount,
+              payment: String(parseFloat(item.payment_amount)),
+              balance: String(
+                Number(item.transaction_amount) - Number(item.payment_amount),
+              ),
+              reference: item.reference,
+            };
+          });
+          setOutstandingTrans(formattedARItems);
         })
         .catch((error) => console.error("Error:", error));
     }
@@ -113,34 +151,46 @@ const ARForm = ({
     setAddAmount2("");
     setAddAmount3("");
     setLessAmount("");
+    setRefNo("");
   };
 
-  const createPayload = () => {
-    const payload = {
-      status,
-      transaction_date: transactionDate,
-      reference_number: referenceNumber,
-      remarks,
-      customer_id: selectedCustomer?.customer_id,
-      items: formattedDRs
-        .filter((DRItem) => DRItem.return_qty && Number(DRItem.return_qty) > 0)
-        .map((DRItem) => {
-          return {
-            delivery_receipt_item_id: DRItem.delivery_receipt_item_id,
-            warehouse_id: DRItem?.return_warehouse?.id ?? null,
-            item_id: DRItem.item_id,
-            return_qty: DRItem.return_qty,
-            price: DRItem.price,
-          };
-        }),
-    };
-    return payload;
-  };
-
+  // Create Receipt
   const handleCreateAR = async (): Promise<void> => {
-    const payload = createPayload();
+    const receiptItems = outstandingTrans
+      .filter((row) => !!row.payment)
+      .map((row) => {
+        return {
+          source_type: row.source_type,
+          source_id: row.id,
+          original_amount: row.original_amount,
+          transaction_amount: row.transaction_amount,
+          payment_amount: Number(row.payment),
+          reference: row.reference,
+        };
+      });
+
+    const payload = {
+      reference_number: refNo,
+      status,
+      transaction_date: transactionDate == "" ? null : transactionDate,
+      customer_id: selectedCustomer?.customer_id,
+      payment_method: paymentMode,
+      check_number: checkNumber,
+      check_amount: amountPaid == "" ? null : Number(amountPaid),
+      check_date: checkDate == "" ? null : checkDate,
+      less_amount: lessAmount == "" ? 0 : Number(lessAmount),
+      add_amount: addAmount == "" ? 0 : Number(addAmount),
+      remarks,
+      days_to_clear: 1,
+      receipt_items: receiptItems,
+      payment_status:
+        status === "posted" && paymentMode === "cash" ? "cleared" : "pending",
+      payment_amount: paymentAmount,
+      total_applied: totalApplied,
+    };
+
     try {
-      await axiosInstance.post("/api/customer-returns/", payload);
+      await axiosInstance.post("/api/ar-receipts/", payload);
       toast.success("Save successful!");
       resetForm();
       setOpen(false);
@@ -153,20 +203,60 @@ const ARForm = ({
   };
 
   const handleEditAR = async (): Promise<void> => {
-    const payload = createPayload();
+    const receiptItems = outstandingTrans
+      .filter((row) => !!row.payment)
+      .map((row) => {
+        return {
+          source_type: row.source_type,
+          source_id: row.id,
+          original_amount: row.original_amount,
+          transaction_amount: row.transaction_amount,
+          payment_amount: row.payment,
+          reference: row.reference,
+        };
+      });
+
+    const payload = {
+      reference_number: refNo,
+      status: "unposted",
+      transaction_date: transactionDate == "" ? null : transactionDate,
+      customer_id: selectedCustomer?.customer_id,
+      payment_method: paymentMode,
+      check_number: checkNumber,
+      check_amount: amountPaid == "" ? null : Number(amountPaid),
+      check_date: checkDate == "" ? null : checkDate,
+      less_amount: lessAmount == "" ? 0 : Number(lessAmount),
+      add_amount: addAmount == "" ? 0 : Number(addAmount),
+      remarks,
+      days_to_clear: 1,
+      receipt_items: receiptItems,
+      payment_amount: paymentAmount,
+      total_applied: totalApplied,
+    };
 
     try {
-      await axiosInstance.put(
-        `/api/customer-returns/${selectedRow?.id}`,
-        payload,
-      );
-      toast.success("Save successful!");
+      // First unposted PUT request to edit fields
+      await axiosInstance.put(`/api/ar-receipts/${selectedRow?.id}`, payload);
+
+      // If status is "posted", send second PUT request to post
+      if (status === "posted") {
+        try {
+          await axiosInstance.put(`/api/ar-receipts/${selectedRow?.id}/post`);
+          toast.success("Post successful!");
+        } catch (error: any) {
+          toast.error(
+            `Error message: ${error?.response?.data?.detail?.[0]?.msg || error?.response?.data?.detail}`,
+          );
+          return; // Prevent form reset and closing if post fails
+        }
+      }
+
+      // Reset form and close modal only if everything succeeded
       resetForm();
       setOpen(false);
-      // Handle the response, update state, etc.
     } catch (error: any) {
       toast.error(
-        `Error message: ${error?.response?.data?.detail[0]?.msg || error?.response?.data?.detail}`,
+        `Error message: ${error?.response?.data?.detail?.[0]?.msg || error?.response?.data?.detail}`,
       );
     }
   };
@@ -222,6 +312,8 @@ const ARForm = ({
         setLessAmount={setLessAmount}
         totalApplied={totalApplied}
         paymentAmount={paymentAmount}
+        refNo={refNo}
+        setRefNo={setRefNo}
       />
       <ARFormTable
         outstandingTrans={outstandingTrans}

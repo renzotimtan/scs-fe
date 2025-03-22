@@ -201,7 +201,6 @@ const CDPFormDetails = ({
                 onChange={(e) => setRemarks(e.target.value)}
                 value={remarks}
                 disabled={isEditDisabled}
-                required
               />
             </FormControl>
             <FormControl size="sm" sx={{ mb: 1, width: "22.5%" }}>

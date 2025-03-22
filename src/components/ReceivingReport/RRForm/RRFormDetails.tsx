@@ -211,7 +211,6 @@ const RRFormDetails = ({
                 onChange={(e) => setRemarks(e.target.value)}
                 value={remarks}
                 disabled={isEditDisabled}
-                required
               />
             </FormControl>
           </Stack>

@@ -89,8 +89,11 @@ const ViewAR = ({
           ),
           total: prevAR.total,
         }));
-      } catch (error) {
-        console.error("Error:", error);
+      } catch (error: any) {
+        toast.error(
+          `Error message: ${error?.response?.data?.detail?.[0]?.msg || error?.response?.data?.detail}`,
+        );
+        return;
       }
     }
   };

@@ -976,7 +976,7 @@ export interface CR {
   modifier: User | null;
 }
 
-interface AR {
+export interface AR {
   reference_number: string;
   status: string;
   transaction_date: string;
@@ -1003,4 +1003,19 @@ interface AR {
   customer: Customer;
   creator: User;
   modifier: User;
+  receipt_items: Array<{
+    source_type: string;
+    source_id: number;
+    source_transaction_date: string;
+    original_amount: string;
+    transaction_amount: string;
+    payment_amount: string;
+    reference: string;
+    id: number;
+    ar_receipt_id: number;
+    created_by: number;
+    modified_by: number;
+    date_created: string;
+    date_modified: string;
+  }>;
 }

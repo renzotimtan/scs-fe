@@ -206,7 +206,6 @@ const SDRFormDetails = ({
                 onChange={(e) => setRemarks(e.target.value)}
                 value={remarks}
                 disabled={isEditDisabled}
-                required
               />
             </FormControl>
             {(!openEdit || status === "unposted") && (

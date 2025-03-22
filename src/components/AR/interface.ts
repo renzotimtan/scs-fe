@@ -1,14 +1,14 @@
 import type {
   PaginatedCustomers,
   Customer,
-  CR,
+  AR,
   Warehouse,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 
 export interface ARFormDetailsProps {
   openEdit: boolean;
-  selectedRow: CR | undefined;
+  selectedRow: AR | undefined;
   customers: PaginatedCustomers;
 
   // Fields
@@ -40,12 +40,14 @@ export interface ARFormDetailsProps {
   setLessAmount: Dispatch<SetStateAction<string>>;
   totalApplied: number;
   paymentAmount: number;
+  refNo: string;
+  setRefNo: Dispatch<SetStateAction<string>>;
 }
 
 export interface ARFormTableProps {
   outstandingTrans: OutstandingTrans[];
   setOutstandingTrans: Dispatch<SetStateAction<OutstandingTrans[]>>;
-  selectedRow: CR | undefined;
+  selectedRow: AR | undefined;
   openEdit: boolean;
   isEditDisabled: boolean;
 }
@@ -78,8 +80,8 @@ export interface OutstandingTrans {
   original_amount: string; // Consider changing to number if calculations are needed
   transaction_amount: string; // Consider changing to number
   reference: string;
-  days_outstanding: number;
+  days_outstanding?: number;
   balance: string; // Consider changing to number
-  aging_bucket: string;
+  aging_bucket?: string;
   payment?: string;
 }
