@@ -42,6 +42,7 @@ export interface ARFormDetailsProps {
   paymentAmount: number;
   refNo: string;
   setRefNo: Dispatch<SetStateAction<string>>;
+  paymentStatus: string;
 }
 
 export interface ARFormTableProps {

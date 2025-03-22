@@ -1,15 +1,23 @@
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Sheet from "@mui/joy/Sheet";
-import { Button, Box } from "@mui/joy";
-import type { DeleteModalProps } from "../../interface";
+import { Button, Box, Input } from "@mui/joy";
 
-const DeleteCDPModal = ({
+const ReverseARModal = ({
   open,
   title,
   setOpen,
   onDelete,
-}: DeleteModalProps): JSX.Element => {
+  reverseReason,
+  setReverseReason,
+}: {
+  open: boolean;
+  title: string;
+  setOpen: (isOpen: boolean) => void;
+  onDelete: () => Promise<void>;
+  reverseReason: string;
+  setReverseReason: (reason: string) => void;
+}): JSX.Element => {
   return (
     <Modal
       aria-labelledby="modal-title"
@@ -34,10 +42,20 @@ const DeleteCDPModal = ({
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <Box>
             <h4 className="mb-6">{title}</h4>
-            <div className="mb-7">
+            <div className="mb-3">
               <p className="text-sm">
-                Are you sure you want to archive this AR Receipt?
+                Are you sure you want to reverse this AR Receipt?
               </p>
+            </div>
+            <div className="mb-7">
+              <h5 className="mb-2">Reason (Optional)</h5>
+              <Input
+                type="text"
+                size="sm"
+                value={reverseReason}
+                placeholder="Reason for Bounce Check"
+                onChange={(e) => setReverseReason(e.target.value)}
+              />
             </div>
             <div className="flex justify-end mt-5">
               <Button
@@ -57,7 +75,7 @@ const DeleteCDPModal = ({
                   setOpen(false);
                 }}
               >
-                Archive
+                Confirm
               </Button>
             </div>
           </Box>
@@ -67,4 +85,4 @@ const DeleteCDPModal = ({
   );
 };
 
-export default DeleteCDPModal;
+export default ReverseARModal;

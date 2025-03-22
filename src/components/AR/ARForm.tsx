@@ -14,6 +14,7 @@ import type {
   ARFormProps,
   AR,
 } from "../../interface";
+import ReverseARModal from "./ReverseARModal";
 
 const ARForm = ({
   setOpen,
@@ -48,6 +49,9 @@ const ARForm = ({
   const [lessAmount, setLessAmount] = useState("");
 
   const [refNo, setRefNo] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("pending");
+  const [reversalReason, setReversalReason] = useState("");
+  const [openReverse, setOpenReverse] = useState(false);
 
   const totalApplied = outstandingTrans.reduce(
     (total, trans) => total + Number(trans.payment),
@@ -91,6 +95,7 @@ const ARForm = ({
       setLessAmount(String(parseFloat(selectedRow.less_amount)));
       setAddAmount1(String(parseFloat(selectedRow.add_amount)));
       setRemarks(selectedRow?.remarks ?? "");
+      setPaymentStatus(selectedRow.payment_status);
 
       axiosInstance
         .get<AR>(`/api/ar-receipts/${selectedRow.id}`)
@@ -261,6 +266,26 @@ const ARForm = ({
     }
   };
 
+  const onReverse = async () => {
+    try {
+      await axiosInstance.put(
+        `/api/ar-receipts/${selectedRow?.id}/payment-status`,
+        {
+          payment_status: "reversed",
+          reversal_reason: reversalReason,
+        },
+      );
+      toast.success("Reverse successful!");
+      setOpenReverse(false);
+      setOpen(false);
+      resetForm();
+    } catch (error: any) {
+      toast.error(
+        `Error message: ${error?.response?.data?.detail?.[0]?.msg || error?.response?.data?.detail}`,
+      );
+    }
+  };
+
   return (
     <form
       onSubmit={async (e) => {
@@ -271,14 +296,25 @@ const ARForm = ({
     >
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
-        <Button
-          className="w-[130px] h-[35px] bg-button-neutral"
-          size="sm"
-          color="neutral"
-        >
-          <LocalPrintshopIcon className="mr-2" />
-          Print
-        </Button>
+        <div className="flex">
+          {isEditDisabled && paymentStatus === "cleared" && (
+            <Button
+              className="w-[130px] h-[35px] bg-button-primary"
+              size="sm"
+              onClick={() => setOpenReverse(true)}
+            >
+              Bounce Check
+            </Button>
+          )}
+          <Button
+            className="w-[130px] h-[35px] bg-button-neutral ml-3"
+            size="sm"
+            color="neutral"
+          >
+            <LocalPrintshopIcon className="mr-2" />
+            Print
+          </Button>
+        </div>
       </div>
       <ARFormDetails
         openEdit={openEdit}
@@ -314,6 +350,7 @@ const ARForm = ({
         paymentAmount={paymentAmount}
         refNo={refNo}
         setRefNo={setRefNo}
+        paymentStatus={paymentStatus}
       />
       <ARFormTable
         outstandingTrans={outstandingTrans}
@@ -346,6 +383,14 @@ const ARForm = ({
           </Button>
         )}
       </div>
+      <ReverseARModal
+        open={openReverse}
+        setOpen={setOpenReverse}
+        title="Bounce Check"
+        onDelete={onReverse}
+        reverseReason={reversalReason}
+        setReverseReason={setReversalReason}
+      />
     </form>
   );
 };

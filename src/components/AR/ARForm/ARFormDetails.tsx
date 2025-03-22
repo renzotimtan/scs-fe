@@ -10,6 +10,7 @@ import {
   Box,
   Divider,
   Autocomplete,
+  Button,
 } from "@mui/joy";
 import type { ARFormDetailsProps } from "../interface";
 import {
@@ -51,15 +52,20 @@ const ARFormDetails = ({
   paymentAmount,
   refNo,
   setRefNo,
+  paymentStatus,
 }: ARFormDetailsProps): JSX.Element => {
   return (
     <Box sx={{ display: "flex" }}>
       <Card className="w-[60%] mr-7">
         <div>
-          <div className="flex justify-between items-center mb-2">
+          <div className="mb-2">
             {openEdit && (
-              <div>
-                <h4>Receipt No. {selectedRow?.id}</h4>
+              <div className="flex justify-between items-center w-full">
+                <h4>
+                  Receipt No. {selectedRow?.id} -{" "}
+                  {paymentStatus.charAt(0).toUpperCase() +
+                    paymentStatus.slice(1)}
+                </h4>
               </div>
             )}
           </div>
