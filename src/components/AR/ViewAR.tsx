@@ -28,6 +28,7 @@ const ViewAR = ({
   const [openDelete, setOpenDelete] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("all");
+  const [paymentStatus, setPaymentStatus] = useState("all");
   const [page, setPage] = useState(1);
 
   const getAllAR = (): void => {
@@ -41,6 +42,10 @@ const ViewAR = ({
 
     if (status !== "all") {
       payload.status = status;
+    }
+
+    if (paymentStatus !== "all") {
+      payload.payment_status = paymentStatus;
     }
 
     axiosInstance
@@ -135,6 +140,20 @@ const ViewAR = ({
             <Option value="all">All</Option>
             <Option value="posted">Posted</Option>
             <Option value="unposted">Unposted</Option>
+          </Select>
+          <Select
+            className="ml-4 w-[130px]"
+            onChange={(event, value) => {
+              if (value !== null) setPaymentStatus(value);
+            }}
+            size="sm"
+            value={paymentStatus}
+          >
+            <Option value="all">All</Option>
+            <Option value="pending">Pending</Option>
+            <Option value="cleared">Cleared</Option>
+            <Option value="reversed">Reversed</Option>
+            <Option value="cancelled">Cancelled</Option>
           </Select>
           <Button
             onClick={getAllAR}

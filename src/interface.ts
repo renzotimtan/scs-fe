@@ -259,6 +259,7 @@ export interface PaginationQueryParams {
   search_term?: string;
   status?: string;
   unassigned_to_rr?: boolean;
+  payment_status?: string;
 }
 
 export interface Warehouse {
