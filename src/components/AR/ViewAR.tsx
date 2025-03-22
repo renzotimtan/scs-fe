@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Table, Sheet, Input, Select, Option } from "@mui/joy";
 import axiosInstance from "../../utils/axiosConfig";
-import DeleteCRModal from "./DeleteARModal";
+import DeleteARModal from "./DeleteARModal";
 import { toast } from "react-toastify";
 import type {
   ViewARProps,
@@ -72,8 +72,12 @@ const ViewAR = ({
   };
 
   useEffect(() => {
-    // Fetch CRs
-    getAllAR();
+    // Process uncleared receipts that are beyond clear date
+    // Fetch ARs after
+    axiosInstance
+      .post("/api/ar-receipts/process-check-clearing/")
+      .then((response) => getAllAR())
+      .catch((error) => console.error("Error:", error));
   }, []);
 
   const handleDeleteAR = async (): Promise<void> => {
@@ -82,12 +86,12 @@ const ViewAR = ({
       try {
         await axiosInstance.delete(url);
         toast.success("Archive successful!");
+
+        // Only allow delete for unposted, it should hard delete
         setARs((prevAR) => ({
           ...prevAR,
-          items: prevAR.items.map((AR) =>
-            AR.id === selectedRow.id ? { ...AR, status: "archived" } : AR,
-          ),
-          total: prevAR.total,
+          items: prevAR.items.filter((AR) => AR.id !== selectedRow.id),
+          total: prevAR.total - 1,
         }));
       } catch (error: any) {
         toast.error(
@@ -116,7 +120,7 @@ const ViewAR = ({
         <Box className="flex items-center mb-6">
           <Input
             size="sm"
-            placeholder="Receipt No."
+            placeholder="Receipt No. / Ref No."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -128,12 +132,9 @@ const ViewAR = ({
             size="sm"
             value={status}
           >
-            {/* 'pending', 'cleared', 'cancelled', 'reversed' */}
             <Option value="all">All</Option>
-            <Option value="pending">Pending</Option>
-            <Option value="cleared">Cleared</Option>
-            <Option value="cancelled">Cancelled</Option>
-            <Option value="reversed">Reversed</Option>
+            <Option value="posted">Posted</Option>
+            <Option value="unposted">Unposted</Option>
           </Select>
           <Button
             onClick={getAllAR}
@@ -207,6 +208,7 @@ const ViewAR = ({
                 <th style={{ width: "var(--Table-firstColumnWidth)" }}>
                   Receipt No.
                 </th>
+                <th style={{ width: 150 }}>Ref No.</th>
                 <th style={{ width: 150 }}>Status</th>
                 <th style={{ width: 150 }}>Payment Status</th>
                 <th style={{ width: 250 }}>Customer</th>
@@ -233,6 +235,7 @@ const ViewAR = ({
                   }}
                 >
                   <td>{AR.id}</td>
+                  <td>{AR.reference_number}</td>
                   <td className="capitalize">{AR.status}</td>
                   <td className="capitalize">{AR.payment_status}</td>
                   <td>{AR.customer.name}</td>
@@ -287,7 +290,7 @@ const ViewAR = ({
           className="mt-7 ml-auto"
         />
       </Box>
-      <DeleteCRModal
+      <DeleteARModal
         open={openDelete}
         setOpen={setOpenDelete}
         title="Archive Customer Return"
