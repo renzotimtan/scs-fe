@@ -55,6 +55,17 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    // Handle 403 Forbidden - Insufficient permissions
+    if (error.response?.status === 403) {
+      // Get the error message from the response
+      const errorMessage =
+        error.response.data.detail ||
+        "You don't have permission to access this resource";
+
+      // Redirect to forbidden page with error message
+      window.location.href = `/forbidden?message=${encodeURIComponent(errorMessage)}`;
+    }
+
     return Promise.reject(error);
   },
 );
