@@ -101,18 +101,24 @@ const StockTransferForm = ({
 
   useEffect(() => {
     // Fill in fields for Edit
-    if (selectedRow && warehouses?.items?.length) {
+    if (
+      selectedRow !== null &&
+      selectedRow !== undefined &&
+      warehouses?.items?.length
+    ) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
       setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
 
-      axiosInstance
-        .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
-        .then((response) => {
-          setSelectedSupplier(response.data);
-        })
-        .catch((error) => console.error("Error:", error));
+      if (selectedRow?.supplier_id) {
+        axiosInstance
+          .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
+          .then((response) => {
+            setSelectedSupplier(response.data);
+          })
+          .catch((error) => console.error("Error:", error));
+      }
 
       axiosInstance
         .get<Warehouse>(`/api/warehouses/${selectedRow.from_warehouse_id}`)
@@ -129,9 +135,9 @@ const StockTransferForm = ({
           })
           .catch((error) => console.error("Error:", error));
       }
-    }
 
-    getWarehouseItemsOnView();
+      getWarehouseItemsOnView();
+    }
   }, [selectedRow, warehouses]);
 
   const filteredReceivingReports = useMemo(() => {
@@ -174,7 +180,7 @@ const StockTransferForm = ({
         `/api/warehouse_items?${convertToQueryParams(params)}`,
       )
       .then((response): void => {
-        const item = response.data.items[0]
+        const item = response.data.items[0];
         warehouseItemFE.total_quantity = item?.on_stock ?? 0;
       })
       .catch((error) => console.error("Error:", error));
@@ -273,7 +279,6 @@ const StockTransferForm = ({
           result.warehouse_3_qty = String(destinations[2].quantity);
         }
 
-        console.log(result.total_quantity);
         return result;
       });
 
