@@ -332,12 +332,13 @@ const StockTransferForm = ({
   };
 
   const handleCreateStockTransfer = async () => {
-    const stock_transfer_details = createStockTransferDetails();
-    if (stock_transfer_details.length === 0) {
-      toast.error("Error: At least one warehouse and quantity input is required.")
-    }
-
     if (selectedWarehouse !== null) {
+
+      const stock_transfer_details = createStockTransferDetails();
+      if (stock_transfer_details.length === 0) {
+        toast.error("Error: At least one warehouse and quantity input is required.")
+      }
+
       const payload = {
         status,
         transaction_date: transactionDate,
@@ -366,6 +367,12 @@ const StockTransferForm = ({
 
   const handleEditStockTransfer = async () => {
     if (selectedWarehouse !== null) {
+
+      const stock_transfer_details = createStockTransferDetails();
+      if (stock_transfer_details.length === 0) {
+        toast.error("Error: At least one warehouse and quantity input is required.")
+      }
+
       const payload = {
         status,
         transaction_date: transactionDate,
@@ -374,7 +381,7 @@ const StockTransferForm = ({
         remarks,
         supplier_id: selectedRR?.supplier_id ?? null,
         from_warehouse_id: selectedWarehouse.id,
-        stock_transfer_details: createStockTransferDetails(),
+        stock_transfer_details,
       };
 
       try {
