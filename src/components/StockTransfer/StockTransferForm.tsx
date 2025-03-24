@@ -67,7 +67,7 @@ const StockTransferForm = ({
         setWarehouses(response.data);
 
         const receivingArea = response.data.items.find(
-          (warehouse) => warehouse.name === "Receiving Area",
+          (warehouse) => warehouse.id === 1,
         );
         if (receivingArea) {
           setSelectedWarehouse(receivingArea);
@@ -101,63 +101,11 @@ const StockTransferForm = ({
 
   useEffect(() => {
     // Fill in fields for Edit
-    if (selectedRow) {
+    if (selectedRow && warehouses?.items?.length) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
       setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
-
-      const formattedItems = selectedRow.stock_transfer_details.map((item) => {
-        const result: WarehouseItemsFE = {
-          id: `${item.warehouse_id}-${item.item_id}`,
-          warehouse_id: item.warehouse_id,
-          item_id: item.item_id,
-          name: item.product_name,
-          stock_code: item.stock_code,
-          total_quantity: 0,
-          warehouse_1: null,
-          warehouse_1_qty: undefined,
-          warehouse_2: null,
-          warehouse_2_qty: undefined,
-          warehouse_3: null,
-          warehouse_3_qty: undefined,
-        };
-
-        if (!isEditDisabled) adjustOnStock(result);
-
-        const destinations = item.destinations;
-
-        if (destinations.length >= 1) {
-          result.warehouse_1 =
-            warehouses.items.find(
-              (warehouse) => warehouse.id === destinations[0].to_warehouse_id,
-            ) ?? null;
-          if (isEditDisabled) result.total_quantity += destinations[0].quantity;
-          result.warehouse_1_qty = String(destinations[0].quantity);
-        }
-
-        if (destinations.length >= 2) {
-          result.warehouse_2 =
-            warehouses.items.find(
-              (warehouse) => warehouse.id === destinations[1].to_warehouse_id,
-            ) ?? null;
-          if (isEditDisabled) result.total_quantity += destinations[1].quantity;
-          result.warehouse_2_qty = String(destinations[1].quantity);
-        }
-
-        if (destinations.length >= 3) {
-          result.warehouse_3 =
-            warehouses.items.find(
-              (warehouse) => warehouse.id === destinations[2].to_warehouse_id,
-            ) ?? null;
-          if (isEditDisabled) result.total_quantity += destinations[2].quantity;
-          result.warehouse_3_qty = String(destinations[2].quantity);
-        }
-
-        return result;
-      });
-
-      setWarehouseItems(formattedItems);
 
       axiosInstance
         .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
@@ -182,7 +130,9 @@ const StockTransferForm = ({
           .catch((error) => console.error("Error:", error));
       }
     }
-  }, [selectedRow]);
+
+    getWarehouseItemsOnView();
+  }, [selectedRow, warehouses]);
 
   const filteredReceivingReports = useMemo(() => {
     if (selectedSupplier != null) {
@@ -224,10 +174,7 @@ const StockTransferForm = ({
         `/api/warehouse_items?${convertToQueryParams(params)}`,
       )
       .then((response): void => {
-        const item = response.data.items.find(
-          (warehouseItem) => warehouseItemFE.item_id === warehouseItem.item_id,
-        );
-
+        const item = response.data.items[0]
         warehouseItemFE.total_quantity = item?.on_stock ?? 0;
       })
       .catch((error) => console.error("Error:", error));
@@ -275,6 +222,63 @@ const StockTransferForm = ({
         setWarehouseItems(formattedItems);
       })
       .catch((error) => console.error("Error:", error));
+  };
+
+  const getWarehouseItemsOnView = () => {
+    if (selectedRow !== null && selectedRow !== undefined) {
+      const formattedItems = selectedRow.stock_transfer_details.map((item) => {
+        const result: WarehouseItemsFE = {
+          id: `${item.warehouse_id}-${item.item_id}`,
+          warehouse_id: item.warehouse_id,
+          item_id: item.item_id,
+          name: item.product_name,
+          stock_code: item.stock_code,
+          total_quantity: 0,
+          warehouse_1: null,
+          warehouse_1_qty: undefined,
+          warehouse_2: null,
+          warehouse_2_qty: undefined,
+          warehouse_3: null,
+          warehouse_3_qty: undefined,
+        };
+
+        if (!isEditDisabled) adjustOnStock(result);
+
+        const destinations = item.destinations;
+
+        if (destinations.length >= 1) {
+          result.warehouse_1 =
+            warehouses.items.find(
+              (warehouse) => warehouse.id === destinations[0].to_warehouse_id,
+            ) ?? null;
+          if (isEditDisabled) result.total_quantity += destinations[0].quantity;
+          result.warehouse_1_qty = String(destinations[0].quantity);
+        }
+
+        if (destinations.length >= 2) {
+          result.warehouse_2 =
+            warehouses.items.find(
+              (warehouse) => warehouse.id === destinations[1].to_warehouse_id,
+            ) ?? null;
+          if (isEditDisabled) result.total_quantity += destinations[1].quantity;
+          result.warehouse_2_qty = String(destinations[1].quantity);
+        }
+
+        if (destinations.length >= 3) {
+          result.warehouse_3 =
+            warehouses.items.find(
+              (warehouse) => warehouse.id === destinations[2].to_warehouse_id,
+            ) ?? null;
+          if (isEditDisabled) result.total_quantity += destinations[2].quantity;
+          result.warehouse_3_qty = String(destinations[2].quantity);
+        }
+
+        console.log(result.total_quantity);
+        return result;
+      });
+
+      setWarehouseItems(formattedItems);
+    }
   };
 
   const createStockTransferDetails = () => {
