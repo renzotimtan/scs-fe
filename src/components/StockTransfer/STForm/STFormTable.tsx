@@ -67,9 +67,8 @@ const STFormTable = ({
               Product Name
             </th>
             <th style={{ width: 200 }}>Stock Code</th>
-            <th style={{ width: 150 }}>
-              {isEditDisabled ? "Total Quantity" : "On Stock"}
-            </th>
+            {!isEditDisabled && <th style={{ width: 150 }}>On Stock</th>}
+            <th style={{ width: 150 }}>Total Quantity</th>
             <th style={{ width: 200 }}>To Whse 1</th>
             <th style={{ width: 150 }}>Whse 1 Qty.</th>
             <th style={{ width: 200 }}>To Whse 2</th>
@@ -84,7 +83,12 @@ const STFormTable = ({
               <tr key={item.id}>
                 <td style={{ zIndex: 10 }}>{item.name}</td>
                 <td>{item.stock_code}</td>
-                <td>{item.total_quantity}</td>
+                {!isEditDisabled && <td>{item.on_stock}</td>}
+                <td>
+                  {Number(item.warehouse_1_qty ?? 0) +
+                    Number(item.warehouse_2_qty ?? 0) +
+                    Number(item.warehouse_3_qty ?? 0)}
+                </td>
                 <td>
                   <Autocomplete
                     options={warehouses.items.filter(

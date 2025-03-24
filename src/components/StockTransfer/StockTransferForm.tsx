@@ -181,7 +181,7 @@ const StockTransferForm = ({
       )
       .then((response): void => {
         const item = response.data.items[0];
-        warehouseItemFE.total_quantity = item?.on_stock ?? 0;
+        warehouseItemFE.on_stock = item?.on_stock ?? 0;
       })
       .catch((error) => console.error("Error:", error));
   };
@@ -208,7 +208,8 @@ const StockTransferForm = ({
             item_id: warehouseItem.item_id,
             name: warehouseItem.item.name,
             stock_code: warehouseItem.item.stock_code,
-            total_quantity: warehouseItem.on_stock,
+            total_quantity: 0,
+            on_stock: warehouseItem.on_stock,
             warehouse_1: null,
             warehouse_1_qty: undefined,
             warehouse_2: null,
@@ -240,6 +241,7 @@ const StockTransferForm = ({
           name: item.product_name,
           stock_code: item.stock_code,
           total_quantity: 0,
+          on_stock: 0,
           warehouse_1: null,
           warehouse_1_qty: undefined,
           warehouse_2: null,
@@ -257,7 +259,7 @@ const StockTransferForm = ({
             warehouses.items.find(
               (warehouse) => warehouse.id === destinations[0].to_warehouse_id,
             ) ?? null;
-          if (isEditDisabled) result.total_quantity += destinations[0].quantity;
+          result.total_quantity += destinations[0].quantity;
           result.warehouse_1_qty = String(destinations[0].quantity);
         }
 
@@ -266,7 +268,7 @@ const StockTransferForm = ({
             warehouses.items.find(
               (warehouse) => warehouse.id === destinations[1].to_warehouse_id,
             ) ?? null;
-          if (isEditDisabled) result.total_quantity += destinations[1].quantity;
+          result.total_quantity += destinations[1].quantity;
           result.warehouse_2_qty = String(destinations[1].quantity);
         }
 
@@ -275,7 +277,7 @@ const StockTransferForm = ({
             warehouses.items.find(
               (warehouse) => warehouse.id === destinations[2].to_warehouse_id,
             ) ?? null;
-          if (isEditDisabled) result.total_quantity += destinations[2].quantity;
+          result.total_quantity += destinations[2].quantity;
           result.warehouse_3_qty = String(destinations[2].quantity);
         }
 
