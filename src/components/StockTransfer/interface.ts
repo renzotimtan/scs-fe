@@ -3,7 +3,6 @@ import type {
   PaginatedWarehouse,
   ReceivingReport,
   Warehouse,
-  WarehouseItem,
   StockTransfer,
   Supplier,
   PaginatedSuppliers,
@@ -12,7 +11,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 export interface STFormDetailsProps {
   openEdit: boolean;
-  selectedRow: any;
+  selectedRow: StockTransfer | undefined;
   status: string;
   setStatus: (status: string) => void;
   transactionDate: string;
@@ -30,20 +29,33 @@ export interface STFormDetailsProps {
   suppliers: PaginatedSuppliers;
   selectedSupplier: Supplier | null;
   setSelectedSupplier: Dispatch<SetStateAction<Supplier | null>>;
-  setSelectedWarehouseItems: Dispatch<SetStateAction<WarehouseItem[]>>;
-  handleRRNumChange: (RR: ReceivingReport) => void;
+  fetchWarehouseItems: (
+    warehouse_id: number,
+    rr: ReceivingReport | null,
+  ) => void;
+  setWarehouseItems: (warehouseItems: WarehouseItemsFE[]) => void;
+}
+
+export interface WarehouseItemsFE {
+  id: string;
+  warehouse_id: number;
+  item_id: number;
+  name: string;
+  stock_code: string;
+  total_quantity: number;
+  warehouse_1: Warehouse | null; // Name or identifier for Warehouse 1
+  warehouse_1_qty: string | undefined; // Quantity allocated to Warehouse 1
+  warehouse_2: Warehouse | null; // Name or identifier for Warehouse 2
+  warehouse_2_qty: string | undefined; // Quantity allocated to Warehouse 2
+  warehouse_3: Warehouse | null; // Name or identifier for Warehouse 3
+  warehouse_3_qty: string | undefined; // Quantity allocated to Warehouse 3
 }
 
 export interface STFormTableProps {
-  selectedWarehouse: Warehouse | null;
   selectedRow: StockTransfer | undefined;
   warehouses: PaginatedWarehouse;
-  selectedWarehouseItems: any;
-  setSelectedWarehouseItems: (warehouseItems: any) => void;
-  warehouseItems: WarehouseItem[];
-  setWarehouseItems: (warehouseItems: WarehouseItem[]) => void;
-  fetchSelectedItem: (value: number, index: number) => void;
-  selectedSupplier: Supplier | null;
+  warehouseItems: WarehouseItemsFE[];
+  setWarehouseItems: (warehouseItems: WarehouseItemsFE[]) => void;
 }
 
 interface Destinations {

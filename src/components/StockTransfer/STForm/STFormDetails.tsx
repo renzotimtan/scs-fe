@@ -12,7 +12,7 @@ import {
 } from "@mui/joy";
 import type { STFormDetailsProps } from "../interface";
 import { formatToDateTime } from "../../../helper";
-import { ReceivingReport } from "../../../interface";
+import { type Warehouse } from "../../../interface";
 
 const STFormDetails = ({
   openEdit,
@@ -36,25 +36,24 @@ const STFormDetails = ({
   suppliers,
   selectedSupplier,
   setSelectedSupplier,
-  setSelectedWarehouseItems,
-  handleRRNumChange,
+  fetchWarehouseItems,
+  setWarehouseItems,
 }: STFormDetailsProps): JSX.Element => {
   const isEditDisabled =
     selectedRow !== undefined && selectedRow?.status !== "unposted";
 
-  const handleRRTransferChange = (value: string | null) => {
+  const handleRRTransferChange = (value: string | null): void => {
     if (value !== null) {
       if (value === "no") {
         setSelectedRR(null);
         setSelectedSupplier(null);
+        fetchWarehouseItems(selectedWarehouse?.id ?? 1, null);
       } else {
-        // @ts-expect-error (Item object, unless its using the empty object)
-        setSelectedWarehouseItems([{ id: null }]);
-
-        const receivingArea = warehouses.items.find(
-          (warehouse) => warehouse.name === "Receiving Area",
+        setWarehouseItems([]);
+        const receivingArea: Warehouse | undefined = warehouses.items.find(
+          (warehouse) => warehouse.id === 1,
         );
-        if (receivingArea) {
+        if (receivingArea !== undefined) {
           setSelectedWarehouse(receivingArea);
         }
       }
@@ -96,8 +95,7 @@ const STFormDetails = ({
                   value={selectedSupplier}
                   onChange={(event, newValue) => {
                     setSelectedSupplier(newValue);
-                    // @ts-expect-error (Item object, unless its using the empty object)
-                    setSelectedWarehouseItems([{ id: null }]);
+                    setWarehouseItems([]);
                     setSelectedRR(null);
                   }}
                   size="sm"
@@ -116,13 +114,18 @@ const STFormDetails = ({
                 value={selectedRR}
                 onChange={(_, newValue) => {
                   if (newValue !== null) {
-                    handleRRNumChange(newValue);
+                    setSelectedRR(newValue);
+                    fetchWarehouseItems(1, newValue);
                   }
                 }}
                 size="sm"
                 className="w-[100%]"
                 placeholder="Select Receiving Report"
-                disabled={rrTransfer === "no" || !selectedSupplier}
+                disabled={
+                  rrTransfer === "no" ||
+                  selectedSupplier === null ||
+                  selectedSupplier === undefined
+                }
               />
             </FormControl>
           </Stack>
@@ -160,6 +163,9 @@ const STFormDetails = ({
                 value={selectedWarehouse}
                 onChange={(event, newValue) => {
                   setSelectedWarehouse(newValue);
+                  if (newValue !== null && newValue !== undefined) {
+                    fetchWarehouseItems(newValue.id, null);
+                  }
                 }}
                 size="sm"
                 className="w-[100%]"

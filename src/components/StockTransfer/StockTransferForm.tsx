@@ -17,9 +17,10 @@ import type {
   Item,
   Supplier,
   PaginatedSuppliers,
+  FetchedWarehouseItems,
 } from "../../interface";
 import { convertToQueryParams } from "../../helper";
-import { STFormPayload } from "./interface";
+import { STFormPayload, WarehouseItemsFE } from "./interface";
 
 const StockTransferForm = ({
   setOpen,
@@ -46,14 +47,7 @@ const StockTransferForm = ({
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(
     null,
   );
-
-  //  Initialize state of selectedWarehouseItem outside of component to avoid creating new object on each render
-  const INITIAL_SELECTED_ITEMS = [{ id: null }];
-
-  const [selectedWarehouseItems, setSelectedWarehouseItems] = useState<any>(
-    INITIAL_SELECTED_ITEMS,
-  );
-  const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
+  const [warehouseItems, setWarehouseItems] = useState<WarehouseItemsFE[]>([]);
   const [suppliers, setSuppliers] = useState<PaginatedSuppliers>({
     total: 0,
     items: [],
@@ -100,32 +94,70 @@ const StockTransferForm = ({
       .get<User>("/users/me/")
       .then((response) => setUserId(response.data.id))
       .catch((error) => console.error("Error fetching user ID:", error));
-  }, []);
 
-  const filteredReceivingReports = useMemo(() => {
-    if (selectedSupplier != null) {
-      const filteredItems = receivingReports.items.filter(
-        (rr) => rr.supplier_id === selectedSupplier.supplier_id,
-      );
-      return {
-        total: filteredItems.length,
-        items: filteredItems,
-      };
-    }
-    return receivingReports;
-  }, [selectedSupplier, receivingReports]);
+    // Fetch warehouse items
+    if (openCreate) fetchWarehouseItems(1);
+  }, []);
 
   useEffect(() => {
     // Fill in fields for Edit
-    if (
-      selectedRow &&
-      selectedRow?.supplier_id &&
-      selectedRow?.from_warehouse_id
-    ) {
+    if (selectedRow) {
       setStatus(selectedRow?.status ?? "unposted");
       setTransactionDate(selectedRow?.transaction_date ?? currentDate);
       setRemarks(selectedRow?.remarks ?? "");
       setRRTransfer(selectedRow.rr_transfer ? "yes" : "no");
+
+      const formattedItems = selectedRow.stock_transfer_details.map((item) => {
+        const result: WarehouseItemsFE = {
+          id: `${item.warehouse_id}-${item.item_id}`,
+          warehouse_id: item.warehouse_id,
+          item_id: item.item_id,
+          name: item.product_name,
+          stock_code: item.stock_code,
+          total_quantity: 0,
+          warehouse_1: null,
+          warehouse_1_qty: undefined,
+          warehouse_2: null,
+          warehouse_2_qty: undefined,
+          warehouse_3: null,
+          warehouse_3_qty: undefined,
+        };
+
+        if (!isEditDisabled) adjustOnStock(result);
+
+        const destinations = item.destinations;
+
+        if (destinations.length >= 1) {
+          result.warehouse_1 =
+            warehouses.items.find(
+              (warehouse) => warehouse.id === destinations[0].to_warehouse_id,
+            ) ?? null;
+          if (isEditDisabled) result.total_quantity += destinations[0].quantity;
+          result.warehouse_1_qty = String(destinations[0].quantity);
+        }
+
+        if (destinations.length >= 2) {
+          result.warehouse_2 =
+            warehouses.items.find(
+              (warehouse) => warehouse.id === destinations[1].to_warehouse_id,
+            ) ?? null;
+          if (isEditDisabled) result.total_quantity += destinations[1].quantity;
+          result.warehouse_2_qty = String(destinations[1].quantity);
+        }
+
+        if (destinations.length >= 3) {
+          result.warehouse_3 =
+            warehouses.items.find(
+              (warehouse) => warehouse.id === destinations[2].to_warehouse_id,
+            ) ?? null;
+          if (isEditDisabled) result.total_quantity += destinations[2].quantity;
+          result.warehouse_3_qty = String(destinations[2].quantity);
+        }
+
+        return result;
+      });
+
+      setWarehouseItems(formattedItems);
 
       axiosInstance
         .get<Supplier>(`/api/suppliers/${selectedRow.supplier_id}`)
@@ -140,228 +172,147 @@ const StockTransferForm = ({
           setSelectedWarehouse(response.data);
         })
         .catch((error) => console.error("Error:", error));
+
+      if (selectedRow.rr_transfer) {
+        axiosInstance
+          .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
+          .then((response) => {
+            setSelectedRR(response.data);
+          })
+          .catch((error) => console.error("Error:", error));
+      }
     }
   }, [selectedRow]);
 
-  useEffect(() => {
-    if (selectedRow && selectedRow.rr_transfer && warehouseItems.length > 0) {
-      axiosInstance
-        .get<ReceivingReport>(`/api/receiving-reports/${selectedRow.rr_id}`)
-        .then((response) => {
-          const selectedReceivingReport = response.data;
-          handleRRNumChange(selectedReceivingReport);
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }, [selectedRow, warehouseItems]);
-
-  useEffect(() => {
-    if (selectedWarehouse) {
-      // Fetch items for the selected warehouse and supplier
-      const params: {
-        warehouse_id: number;
-      } = {
-        warehouse_id: selectedWarehouse.id,
+  const filteredReceivingReports = useMemo(() => {
+    if (selectedSupplier != null) {
+      const filteredItems = receivingReports.items.filter(
+        (rr) => rr.supplier_id === selectedSupplier.supplier_id,
+      );
+      return {
+        total: filteredItems.length,
+        items: filteredItems,
       };
-      axiosInstance
-        .get(`/api/warehouse_items?${convertToQueryParams(params)}`)
-        .then((response) => {
-          const tempWarehouseItems = response.data.items;
-          setWarehouseItems(tempWarehouseItems);
-
-          if (rrTransfer === "no") {
-            // Fetch everything in the warehouse
-            fetchMultipleItems(
-              tempWarehouseItems.map(
-                (warehouseItem: WarehouseItem) => warehouseItem.item_id,
-              ),
-              tempWarehouseItems,
-            );
-          }
-        })
-        .catch((error) => console.error("Error:", error));
     }
-  }, [selectedWarehouse, rrTransfer]);
+    return receivingReports;
+  }, [selectedSupplier, receivingReports]);
 
-  const handleRRNumChange = (newValue: ReceivingReport) => {
-    setSelectedRR(newValue);
+  const getItemsByRR = (rr: ReceivingReport) => {
+    const itemIds: any = [];
 
-    const addedPOItems: any = [];
-
-    newValue?.sdrs.forEach((SDR) => {
+    // get all item ids
+    rr?.sdrs.forEach((SDR) => {
       SDR.purchase_orders.forEach((PO) => {
         PO.items.forEach((POItem) => {
-          if (!addedPOItems.includes(POItem.item_id)) {
-            addedPOItems.push(POItem.item_id);
+          if (!itemIds.includes(POItem.item_id)) {
+            itemIds.push(POItem.item_id);
           }
         });
       });
     });
 
-    // Fetch items only part of the RR
-    fetchMultipleItems(addedPOItems);
+    return itemIds;
   };
 
-  const fetchSelectedItem = (value: number, index: number): void => {
-    if (value !== undefined) {
-      const foundWarehouseItem = warehouseItems.find(
-        (warehouseItem) => warehouseItem.item_id === value,
-      );
+  const adjustOnStock = (warehouseItemFE: WarehouseItemsFE) => {
+    const params = {
+      warehouse_id: warehouseItemFE.warehouse_id,
+      item_id: warehouseItemFE.item_id,
+    };
+    axiosInstance
+      .get<FetchedWarehouseItems>(
+        `/api/warehouse_items?${convertToQueryParams(params)}`,
+      )
+      .then((response): void => {
+        const item = response.data.items.find(
+          (warehouseItem) => warehouseItemFE.item_id === warehouseItem.item_id,
+        );
 
-      if (foundWarehouseItem === undefined) return;
-
-      for (const warehouseItem of selectedWarehouseItems) {
-        if (warehouseItem?.item_id === foundWarehouseItem.item_id) {
-          toast.error("Item has already been added");
-          return;
-        }
-      }
-
-      const warehouseItem: WarehouseItem = {
-        ...foundWarehouseItem,
-        firstWarehouse: null,
-        firstWarehouseAmt: null,
-        secondWarehouse: null,
-        secondWarehouseAmt: null,
-        thirdWarehouse: null,
-        thirdWarehouseAmt: null,
-      };
-
-      // We need to add the new item before the null item
-      const newSelectedWarehouseItem = selectedWarehouseItems.filter(
-        (selectedItem: Item) => selectedItem.id !== null,
-      );
-      newSelectedWarehouseItem[index] = warehouseItem;
-      newSelectedWarehouseItem.push({ id: null });
-
-      setSelectedWarehouseItems(newSelectedWarehouseItem);
-    }
+        warehouseItemFE.total_quantity = item?.on_stock ?? 0;
+      })
+      .catch((error) => console.error("Error:", error));
   };
 
-  const fetchMultipleItems = async (
-    POItems: any,
-    items: WarehouseItem[] = warehouseItems,
+  const fetchWarehouseItems = (
+    warehouse_id: number,
+    rr: ReceivingReport | null = null,
   ) => {
-    if (POItems.length > 0) {
-      const foundWarehouseItems = await Promise.all(
-        items
-          .filter((warehouseItem) => {
-            return (
-              POItems.includes(warehouseItem.item_id) &&
-              warehouseItem.on_stock !== 0
-            );
-          })
-          .map(async (warehouseItem) => {
-            if (selectedRow !== null && selectedRow !== undefined) {
-              const foundDetails = selectedRow.stock_transfer_details.find(
-                (std) => std.stock_code === warehouseItem.item.stock_code,
-              );
-              const result: WarehouseItem = {
-                ...warehouseItem,
-                firstWarehouse: null,
-                firstWarehouseAmt: null,
-                secondWarehouse: null,
-                secondWarehouseAmt: null,
-                thirdWarehouse: null,
-                thirdWarehouseAmt: null,
-              };
+    const params: {
+      warehouse_id: number;
+    } = {
+      warehouse_id,
+    };
+    axiosInstance
+      .get<FetchedWarehouseItems>(
+        `/api/warehouse_items?${convertToQueryParams(params)}`,
+      )
+      .then((response): void => {
+        const tempWarehouseItems = response.data.items;
+        let formattedItems = tempWarehouseItems.map((warehouseItem) => {
+          return {
+            id: `${warehouseItem.warehouse_id}-${warehouseItem.item_id}`,
+            warehouse_id: warehouseItem.warehouse_id,
+            item_id: warehouseItem.item_id,
+            name: warehouseItem.item.name,
+            stock_code: warehouseItem.item.stock_code,
+            total_quantity: warehouseItem.on_stock,
+            warehouse_1: null,
+            warehouse_1_qty: undefined,
+            warehouse_2: null,
+            warehouse_2_qty: undefined,
+            warehouse_3: null,
+            warehouse_3_qty: undefined,
+          };
+        });
 
-              if (foundDetails) {
-                if (foundDetails.destinations.length >= 1) {
-                  result.firstWarehouse = warehouses.items.find(
-                    (warehouse) =>
-                      warehouse.id ===
-                      foundDetails.destinations[0].to_warehouse_id,
-                  );
-                  result.firstWarehouseAmt =
-                    foundDetails.destinations[0].quantity;
-                }
+        if (rr !== null && rr !== undefined) {
+          const item_ids = getItemsByRR(rr);
+          formattedItems = formattedItems.filter((formattedItem) =>
+            item_ids.includes(formattedItem.item_id),
+          );
+        }
 
-                if (foundDetails.destinations.length >= 2) {
-                  result.secondWarehouse = warehouses.items.find(
-                    (warehouse) =>
-                      warehouse.id ===
-                      foundDetails.destinations[1].to_warehouse_id,
-                  );
-
-                  result.secondWarehouseAmt =
-                    foundDetails.destinations[1].quantity;
-                }
-
-                if (foundDetails.destinations.length >= 3) {
-                  result.thirdWarehouse = warehouses.items.find(
-                    (warehouse) =>
-                      warehouse.id ===
-                      foundDetails.destinations[2].to_warehouse_id,
-                  );
-
-                  result.thirdWarehouseAmt =
-                    foundDetails.destinations[2].quantity;
-                }
-              }
-
-              return result;
-            } else {
-              return {
-                ...warehouseItem,
-                firstWarehouse: null,
-                firstWarehouseAmt: null,
-                secondWarehouse: null,
-                secondWarehouseAmt: null,
-                thirdWarehouse: null,
-                thirdWarehouseAmt: null,
-              };
-            }
-          }),
-      );
-
-      if (foundWarehouseItems.length === 0) return;
-
-      // We need to add the new item before the null item
-      const newSelectedWarehouseItem = [];
-
-      foundWarehouseItems.forEach((warehouseItem, index) => {
-        newSelectedWarehouseItem[index] = warehouseItem;
-      });
-
-      newSelectedWarehouseItem.push({ id: null });
-      setSelectedWarehouseItems(newSelectedWarehouseItem);
-    }
+        setWarehouseItems(formattedItems);
+      })
+      .catch((error) => console.error("Error:", error));
   };
 
   const createStockTransferDetails = () => {
     const results = [];
 
-    for (const warehouseItem of selectedWarehouseItems) {
-      if (warehouseItem?.id !== null && selectedWarehouse !== null) {
+    for (const item of warehouseItems) {
+      if (selectedWarehouse !== null) {
         const result: STFormPayload = {
           warehouse_id: selectedWarehouse.id,
-          item_id: warehouseItem.item_id,
-          product_name: warehouseItem.item.name,
-          stock_code: warehouseItem.item.stock_code,
+          item_id: item.item_id,
+          product_name: item.name,
+          stock_code: item.stock_code,
           destinations: [],
         };
 
-        if (warehouseItem.firstWarehouse !== null) {
+        if (item.warehouse_1 !== null) {
           result.destinations.push({
-            to_warehouse_id: warehouseItem.firstWarehouse.id,
-            quantity: warehouseItem.firstWarehouseAmt || 0,
+            to_warehouse_id: item.warehouse_1.id,
+            quantity: Number(item.warehouse_1_qty) || 0,
           });
         }
 
-        if (warehouseItem.secondWarehouse !== null) {
+        if (item.warehouse_2 !== null) {
           result.destinations.push({
-            to_warehouse_id: warehouseItem.secondWarehouse.id,
-            quantity: warehouseItem.secondWarehouseAmt || 0,
+            to_warehouse_id: item.warehouse_2.id,
+            quantity: Number(item.warehouse_2_qty) || 0,
           });
         }
 
-        if (warehouseItem.thirdWarehouse !== null) {
+        if (item.warehouse_3 !== null) {
           result.destinations.push({
-            to_warehouse_id: warehouseItem.thirdWarehouse.id,
-            quantity: warehouseItem.thirdWarehouseAmt || 0,
+            to_warehouse_id: item.warehouse_3.id,
+            quantity: Number(item.warehouse_3_qty) || 0,
           });
         }
+
+        // If there is no warehouse inputted
+        if (result.destinations.length === 0) continue;
 
         results.push(result);
       }
@@ -465,19 +416,14 @@ const StockTransferForm = ({
         suppliers={suppliers}
         selectedSupplier={selectedSupplier}
         setSelectedSupplier={setSelectedSupplier}
-        setSelectedWarehouseItems={setSelectedWarehouseItems}
-        handleRRNumChange={handleRRNumChange}
+        fetchWarehouseItems={fetchWarehouseItems}
+        setWarehouseItems={setWarehouseItems}
       />
       <STFormTable
-        selectedWarehouse={selectedWarehouse}
         selectedRow={selectedRow}
         warehouses={warehouses}
-        selectedWarehouseItems={selectedWarehouseItems}
-        setSelectedWarehouseItems={setSelectedWarehouseItems}
-        fetchSelectedItem={fetchSelectedItem}
         warehouseItems={warehouseItems}
         setWarehouseItems={setWarehouseItems}
-        selectedSupplier={selectedSupplier}
       />
       <Divider />
       <div className="flex justify-end mt-4">

@@ -300,6 +300,11 @@ export interface ViewWHModalProps {
   type: string;
 }
 
+export interface FetchedWarehouseItems {
+  total: number;
+  items: WarehouseItem[];
+}
+
 export interface WarehouseItem {
   warehouse_id: number;
   item_id: number;
