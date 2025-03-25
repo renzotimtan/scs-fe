@@ -40,21 +40,10 @@ const ItemsModal = ({
   const [openStockHistory, setOpenStockHistory] = useState(false);
   const [openWH, setOpenWH] = useState(false);
   const generateItem = (): Item => {
-    const suppliersList: Supplier[] = new Array(6).fill(null);
-    const supplierIds =
-      row?.suppliers?.map((supplier) => supplier?.supplier_id ?? null) ?? [];
-    const foundSuppliers = suppliers.items.filter((supplier) =>
-      supplierIds.includes(supplier.supplier_id),
-    );
-    foundSuppliers.forEach((supplier, index) => {
-      suppliersList[index] = supplier;
-    });
-
     return {
       id: row?.id ?? 0,
       stock_code: row?.stock_code ?? "",
       name: row?.name ?? "",
-      suppliers: suppliersList,
       status: row?.status ?? "",
       category: row?.category ?? "",
       brand: row?.brand ?? "",
@@ -65,7 +54,7 @@ const ItemsModal = ({
       srp: row?.srp,
       last_sale_price: row?.last_sale_price,
       total_on_stock: row?.total_on_stock ?? 0,
-      total_available: row?.total_available ?? 0,
+      total_in_transit: row?.total_in_transit ?? 0,
       total_allocated: row?.total_allocated ?? 0,
       total_purchased: row?.total_purchased ?? 0,
       created_by: row?.created_by ?? 0,
@@ -349,13 +338,13 @@ const ItemsModal = ({
                       />
                     </FormControl>
                     <FormControl size="sm" sx={{ mb: 1, width: "48%" }}>
-                      <FormLabel>Available</FormLabel>
+                      <FormLabel>In Transit</FormLabel>
                       <Input
-                        name="total_available"
+                        name="total_in_transit"
                         type="number"
                         size="sm"
                         placeholder="0"
-                        value={item?.total_available}
+                        value={item?.total_in_transit}
                         disabled
                       />
                     </FormControl>

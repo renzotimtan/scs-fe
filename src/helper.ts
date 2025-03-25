@@ -36,14 +36,20 @@ export function formatToDateTime(dateStr: string | undefined) {
   // Determine AM or PM and convert hours to 12-hour format
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12;
-  hours = hours ? hours : 12; // Convert hour '0' to '12'
+  hours = hours || 12; // Convert hour '0' to '12'
 
   // Return the formatted date and time as MM/DD/YYYY HH:MM AM/PM
   return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
 }
 
 export function addCommaToNumberWithFourPlaces(num: number | undefined) {
-  if (!num) return num;
+  if (num === undefined || num === null) return num;
 
   return num.toFixed(4).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+}
+
+export function addCommaToNumberWithTwoPlaces(num: number | undefined) {
+  if (num === undefined || num === null) return num;
+
+  return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
 }

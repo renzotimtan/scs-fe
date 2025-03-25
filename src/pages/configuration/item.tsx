@@ -12,9 +12,13 @@ import { toast } from "react-toastify";
 import type { User } from "../Login";
 import type { AxiosError } from "axios";
 import type { Item, PaginatedItems } from "../../interface";
-import { convertToQueryParams } from "../../helper";
+import {
+  convertToQueryParams,
+  addCommaToNumberWithFourPlaces,
+  addCommaToNumberWithTwoPlaces,
+} from "../../helper";
 import { Pagination } from "@mui/material";
-import { addCommaToNumberWithFourPlaces } from "../../helper";
+import { generatePDF } from "../../components/Items/generatePDF";
 
 const PAGE_LIMIT = 10;
 
@@ -146,20 +150,56 @@ const ItemForm = (): JSX.Element => {
     return error.isAxiosError !== undefined;
   }
 
+  const handlePDFCreate = (): void => {
+    // Fetch data
+    axiosInstance
+      .get<PaginatedItems>(
+        `/api/items/?${convertToQueryParams({
+          sort_by: "stock_code",
+          sort_order: "asc",
+        })}`,
+      )
+      .then((response) => {
+        const items = response.data.items;
+        const data = items.map((item) => {
+          return {
+            availableQty: item.total_on_stock,
+            stockCode: item.stock_code,
+            stock: item.name,
+            netCostTotal: addCommaToNumberWithTwoPlaces(
+              Number(item?.total_on_stock ?? 0) * Number(item.acquisition_cost),
+            ),
+          };
+        });
+        generatePDF(data, "Peterson Parts Trading Inc.");
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+
   return (
     <>
       <Box sx={{ width: "100%" }}>
         <Box className="flex justify-between mb-6">
           <h2>Stocks</h2>
-          <Button
-            className="mt-2 mb-4 bg-button-primary"
-            color="primary"
-            onClick={() => {
-              setOpenAdd(true);
-            }}
-          >
-            Add Stock
-          </Button>
+
+          <div>
+            <Button
+              variant="soft"
+              className="mt-2 mb-4 w-[140px] bg-button-soft-primary"
+              onClick={handlePDFCreate}
+            >
+              Print Pricelist
+            </Button>
+            <Button
+              className="ml-4 mt-2 mb-4 bg-button-primary"
+              color="primary"
+              onClick={() => {
+                setOpenAdd(true);
+              }}
+            >
+              Add Stock
+            </Button>
+          </div>
         </Box>
 
         <Box className="flex items-center mb-6">
@@ -252,7 +292,7 @@ const ItemForm = (): JSX.Element => {
                 <th style={{ width: 100 }}>Currency</th>
                 <th style={{ width: 150 }}>Peso Rate (₱)</th>
                 <th style={{ width: 100 }}>On Stock</th>
-                <th style={{ width: 100 }}>Available</th>
+                <th style={{ width: 100 }}>In Transit</th>
                 <th style={{ width: 100 }}>Allocated</th>
                 <th style={{ width: 100 }}>Purchased</th>
                 <th style={{ width: 200 }}>Created By</th>
@@ -292,7 +332,7 @@ const ItemForm = (): JSX.Element => {
                   <td>{item.currency}</td>
                   <td>{item.rate}</td>
                   <td>{item.total_on_stock}</td>
-                  <td>{item.total_available}</td>
+                  <td>{item.total_in_transit}</td>
                   <td>{item.total_allocated}</td>
                   <td>{item.total_purchased}</td>
                   <td>{item?.creator?.username}</td>

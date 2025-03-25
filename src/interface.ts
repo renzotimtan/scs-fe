@@ -16,7 +16,7 @@ export interface Item {
   srp?: number;
   rate?: number;
   total_on_stock: number;
-  total_available: number;
+  total_in_transit: number;
   total_allocated: number;
   total_purchased: number;
   created_by: number;
@@ -337,7 +337,7 @@ export interface AggregatedWarehouseItem {
   stock_code: string;
   item_name: string;
   total_on_stock: number;
-  total_available: number;
+  total_in_transit: number;
   total_allocated: number;
   total_purchased: number;
   total_sold: number;
