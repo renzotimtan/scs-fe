@@ -127,13 +127,13 @@ export const generateDeliveryReceiptPDF = (
   doc.setFont("helvetica", "bold");
   doc.text("Fixed Discount:", pageWidth - 160, finalY + 30);
   doc.setFont("helvetica", "normal");
-  doc.text(fixedDiscount, pageWidth - 40, finalY + 30, { align: "right" });
+  doc.text(fixedDiscount, pageWidth - 45, finalY + 30, { align: "right" });
 
   // Draw NET Total label and value
   doc.setFont("helvetica", "bold");
   doc.text("NET Total:", pageWidth - 160, finalY + 60);
   doc.setFont("helvetica", "normal");
-  doc.text(String(netAmount), pageWidth - 40, finalY + 60, { align: "right" });
+  doc.text(String(netAmount), pageWidth - 45, finalY + 60, { align: "right" });
 
   // 8. "Nothing Follows" line
   doc.setFontSize(10);
