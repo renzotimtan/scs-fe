@@ -125,13 +125,13 @@ export const generateDeliveryReceiptPDF = (
   // Draw LESS label and value
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text("Fixed Discount:", pageWidth - 160, finalY + 30);
+  doc.text("Fixed Discount:", pageWidth - 180, finalY + 30);
   doc.setFont("helvetica", "normal");
   doc.text(fixedDiscount, pageWidth - 45, finalY + 30, { align: "right" });
 
   // Draw NET Total label and value
   doc.setFont("helvetica", "bold");
-  doc.text("NET Total:", pageWidth - 160, finalY + 60);
+  doc.text("NET Total:", pageWidth - 180, finalY + 60);
   doc.setFont("helvetica", "normal");
   doc.text(String(netAmount), pageWidth - 45, finalY + 60, { align: "right" });
 
@@ -143,6 +143,10 @@ export const generateDeliveryReceiptPDF = (
   const textWidth = doc.getTextWidth(text);
   const centerX = (pageWidth - textWidth) / 2;
   doc.text(text, centerX, finalY + 90);
+
+  // Horizontal line
+  doc.setLineWidth(0.5);
+  doc.line(40, finalY + 100, pageWidth - 40, finalY + 100);
 
   // 10. Fixed Footer Section (at bottom of page)
   const pageHeight = doc.internal.pageSize.getHeight();
