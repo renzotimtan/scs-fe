@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { toast } from "react-toastify";
-import { UnplannedAlloc, type AllocItemsFE } from "./interface";
+import { UnplannedAlloc, type AllocItemsFE, GetOneCDR } from "./interface";
 import type {
   CDRFormProps,
   PaginatedCustomers,
@@ -18,7 +18,10 @@ import type {
   CDP,
   CDR,
   PaginatedCDP,
+  AllocItem,
 } from "../../interface";
+import { generateDeliveryReceiptPDF } from "./generatePDF";
+import { addCommaToNumberWithTwoPlaces } from "../../helper";
 
 const CDRForm = ({
   setOpen,
@@ -46,7 +49,7 @@ const CDRForm = ({
   const [remarks, setRemarks] = useState("");
 
   const totalItems = formattedAllocs.reduce(
-    (sum, item) => sum + (Number(item.dp_qty)),
+    (sum, item) => sum + Number(item.dp_qty),
     0,
   );
 
@@ -249,6 +252,65 @@ const CDRForm = ({
     }
   };
 
+  const handlePDFCreate = (): void => {
+    if (selectedRow !== null && selectedRow !== undefined) {
+      // Fetch data
+      axiosInstance
+        .get<GetOneCDR>(`/api/delivery-receipts/${selectedRow.id}`)
+        .then((response) => {
+          const deliveryPlan = response.data.delivery_plan;
+          const allocItems = deliveryPlan.delivery_plan_items.map((DPItem) => {
+            const allocItem: AllocItem = DPItem.allocation_item;
+
+            const itemObj = allocItem.customer_purchase_order.items.find(
+              (item) => item.item_id === allocItem.item_id,
+            );
+
+            return {
+              qty: DPItem.planned_qty,
+              stock: itemObj?.item.stock_code ?? "",
+              description: itemObj?.item.name ?? "",
+              unitCost:
+                addCommaToNumberWithTwoPlaces(Number(itemObj?.price ?? 0)) ||
+                "0.00",
+              discount: [
+                allocItem.customer_purchase_order.customer_discount_1,
+                allocItem.customer_purchase_order.customer_discount_2,
+                allocItem.customer_purchase_order.customer_discount_3,
+                allocItem.customer_purchase_order.transaction_discount_1,
+                allocItem.customer_purchase_order.transaction_discount_2,
+                allocItem.customer_purchase_order.transaction_discount_3,
+              ]
+                .filter((val) => val.includes("%"))
+                .join(", "),
+              amount:
+                addCommaToNumberWithTwoPlaces(
+                  calculateNetForRow(
+                    Number(DPItem.planned_qty),
+                    DPItem.allocation_item.customer_purchase_order,
+                    itemObj?.price ?? 0,
+                  ),
+                ) || "0.00",
+            };
+          });
+
+          generateDeliveryReceiptPDF(
+            allocItems,
+            deliveryPlan.id,
+            deliveryPlan.customer.name,
+            "",
+            transactionDate,
+            addCommaToNumberWithTwoPlaces(
+              Number(response.data.discount_amount),
+            ) || "0.00",
+            addCommaToNumberWithTwoPlaces(Number(response.data.total_net)) ||
+              "0.00",
+          );
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  };
+
   return (
     <form
       onSubmit={async (e) => {
@@ -259,14 +321,17 @@ const CDRForm = ({
     >
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
-        <Button
-          className="w-[130px] h-[35px] bg-button-neutral"
-          size="sm"
-          color="neutral"
-        >
-          <LocalPrintshopIcon className="mr-2" />
-          Print
-        </Button>
+        {isEditDisabled && (
+          <Button
+            onClick={handlePDFCreate}
+            className="w-[130px] h-[35px] bg-button-neutral"
+            size="sm"
+            color="neutral"
+          >
+            <LocalPrintshopIcon className="mr-2" />
+            Print
+          </Button>
+        )}
       </div>
       <CDRFormDetails
         openEdit={openEdit}

@@ -4,6 +4,7 @@ import type {
   CDP,
   CPO,
   CDR,
+  AllocItem,
 } from "../../interface";
 import type { Dispatch, SetStateAction } from "react";
 import { type User } from "../../pages/Login";
@@ -92,4 +93,58 @@ export interface AllocItemsFE {
   transaction_discount_1: string;
   transaction_discount_2: string;
   transaction_discount_3: string;
+}
+
+export interface GetOneCDR {
+  status: string;
+  transaction_date: string; // e.g. "2025-03-15"
+  discount_amount: string; // e.g. "0.0"
+  reference_number: string; // e.g. "TEST-HOLIDAY-ORDER"
+  remarks: string;
+  delivery_plan_id: number;
+  id: number;
+  customer_id: number;
+  total_items: number;
+  total_gross: string; // e.g. "328.9000"
+  total_net: string; // e.g. "328.9000"
+  created_by: number;
+  modified_by: number | null;
+  date_created: string; // e.g. "2025-03-15T21:54:01.332435"
+  date_modified: string | null;
+  delivery_plan: {
+    id: number;
+    customer_id: number;
+    status: string;
+    transaction_date: string;
+    reference_number: string;
+    remarks: string;
+    date_created: string;
+    date_modified: string | null; // might be non-null if always provided
+    delivery_plan_items: Array<{
+      id: number;
+      allocation_item: AllocItem;
+      planned_qty: number;
+    }>;
+    customer: Customer;
+    creator: User;
+    modifier: User;
+  };
+  receipt_items: Array<{
+    delivery_plan_item_id: number;
+    delivered_qty: number;
+    id: number;
+    created_by: number;
+    modified_by: number | null;
+    date_created: string;
+    date_modified: string | null;
+    delivery_receipt_id: number;
+    delivery_plan_item: {
+      id: number;
+      allocation_item: AllocItem;
+      planned_qty: number;
+    }; // same shape as in "delivery_plan_items"
+  }>;
+  customer: Customer;
+  creator: User;
+  modifier: User | null;
 }
