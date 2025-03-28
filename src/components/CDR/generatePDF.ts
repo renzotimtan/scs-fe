@@ -1,24 +1,53 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { type CDR } from "../../interface";
+import { addCommaToNumberWithTwoPlaces } from "../../helper";
 
-interface ItemData {
-  qty: number;
-  stock: string;
-  description: string;
-  unitCost: string;
-  discount: string; // e.g., "5.00%"
-  amount: string;
-}
+const calculateNetForRow = (
+  newValue: number,
+  allocItem: any,
+  price: number,
+): number => {
+  let result = newValue * price;
 
-export const generateDeliveryReceiptPDF = (
-  data: ItemData[],
-  drNo: number,
-  customerName: string,
-  address: string,
-  dateStr: string,
-  fixedDiscount: string,
-  netAmount: string,
-): void => {
+  if (allocItem.customer_discount_1.includes("%")) {
+    const cd1 = allocItem.customer_discount_1.slice(0, -1);
+    result = result - result * (parseFloat(cd1) / 100);
+  }
+
+  if (allocItem.customer_discount_2.includes("%")) {
+    const cd2 = allocItem.customer_discount_2.slice(0, -1);
+    result = result - result * (parseFloat(cd2) / 100);
+  }
+
+  if (allocItem.customer_discount_3.includes("%")) {
+    const cd3 = allocItem.customer_discount_3.slice(0, -1);
+    result = result - result * (parseFloat(cd3) / 100);
+  }
+
+  if (allocItem.transaction_discount_1.includes("%")) {
+    const td1 = allocItem.transaction_discount_1.slice(0, -1);
+    result = result - result * (parseFloat(td1) / 100);
+  }
+
+  if (allocItem.transaction_discount_2.includes("%")) {
+    const td2 = allocItem.transaction_discount_2.slice(0, -1);
+    result = result - result * (parseFloat(td2) / 100);
+  }
+
+  if (allocItem.transaction_discount_3.includes("%")) {
+    const td3 = allocItem.transaction_discount_3.slice(0, -1);
+    result = result - result * (parseFloat(td3) / 100);
+  }
+
+  if (isNaN(result)) return 0;
+
+  return result;
+};
+
+export const generateDeliveryReceiptPDF = (selectedRow: CDR): void => {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "pt",
@@ -43,7 +72,7 @@ export const generateDeliveryReceiptPDF = (
   // "PRICELIST" aligned to the right
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
-  doc.text(`D.R. No.: ${drNo}`, pageWidth - 130, 80); // Adjust x-position as needed
+  doc.text(`D.R. No.: ${selectedRow.id}`, pageWidth - 130, 80); // Adjust x-position as needed
 
   // Bottom border line
   doc.setLineWidth(0.5);
@@ -52,14 +81,17 @@ export const generateDeliveryReceiptPDF = (
   // 3. Customer and Date
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text(`Customer: ${customerName}`, 40, 110);
-  doc.text(`Address: ${address}`, 40, 130);
+  doc.text(`Customer: ${selectedRow.customer.name}`, 40, 110);
+  doc.text(`Address: ${selectedRow.customer?.building_address ?? ""}`, 40, 130);
   doc.text(
-    `Date: ${new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })}`,
+    `Date: ${new Date(selectedRow.transaction_date).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      },
+    )}`,
     pageWidth - 140,
     110,
   ); // top-right area
@@ -77,14 +109,38 @@ export const generateDeliveryReceiptPDF = (
     "Discount (%)",
     "Amount",
   ];
-  const bodyData = data.map((item) => [
-    item.qty,
-    item.stock,
-    item.description,
-    item.unitCost.toLocaleString(), // e.g. "13,288.00"
-    item.discount, // e.g. "5.00%"
-    item.amount.toLocaleString(), // e.g. "37,870.80"
-  ]);
+  const bodyData = selectedRow.receipt_items.map((item) => {
+    const allocItem = item.delivery_plan_item.allocation_item;
+    const itemObj = allocItem.customer_purchase_order.items.find((item) => {
+      return item.item_id === allocItem.item_id;
+    });
+
+    const discString = [
+      allocItem.customer_purchase_order.customer_discount_1,
+      allocItem.customer_purchase_order.customer_discount_2,
+      allocItem.customer_purchase_order.customer_discount_3,
+      allocItem.customer_purchase_order.transaction_discount_1,
+      allocItem.customer_purchase_order.transaction_discount_2,
+      allocItem.customer_purchase_order.transaction_discount_3,
+    ]
+      .filter((val) => val.includes("%"))
+      .join(", ");
+
+    return [
+      item.delivery_plan_item.planned_qty,
+      allocItem.item.stock_code,
+      allocItem.item.name,
+      addCommaToNumberWithTwoPlaces(itemObj?.price) ?? 0.0,
+      discString,
+      addCommaToNumberWithTwoPlaces(
+        calculateNetForRow(
+          Number(item.delivery_plan_item.planned_qty),
+          allocItem.customer_purchase_order,
+          itemObj?.price ?? 0,
+        ) || 0,
+      ),
+    ];
+  });
 
   // 6. Render the table
   autoTable(doc, {
@@ -127,13 +183,22 @@ export const generateDeliveryReceiptPDF = (
   doc.setFont("helvetica", "bold");
   doc.text("Fixed Discount:", pageWidth - 180, finalY + 30);
   doc.setFont("helvetica", "normal");
-  doc.text(fixedDiscount, pageWidth - 45, finalY + 30, { align: "right" });
+  doc.text(selectedRow.discount_amount, pageWidth - 45, finalY + 30, {
+    align: "right",
+  });
 
   // Draw NET Total label and value
   doc.setFont("helvetica", "bold");
   doc.text("NET Total:", pageWidth - 180, finalY + 60);
   doc.setFont("helvetica", "normal");
-  doc.text(String(netAmount), pageWidth - 45, finalY + 60, { align: "right" });
+  doc.text(
+    addCommaToNumberWithTwoPlaces(Number(selectedRow.total_net)) ?? "",
+    pageWidth - 45,
+    finalY + 60,
+    {
+      align: "right",
+    },
+  );
 
   // 8. "Nothing Follows" line
   doc.setFontSize(10);

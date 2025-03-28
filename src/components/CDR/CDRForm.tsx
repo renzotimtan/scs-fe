@@ -254,60 +254,7 @@ const CDRForm = ({
 
   const handlePDFCreate = (): void => {
     if (selectedRow !== null && selectedRow !== undefined) {
-      // Fetch data
-      axiosInstance
-        .get<GetOneCDR>(`/api/delivery-receipts/${selectedRow.id}`)
-        .then((response) => {
-          const deliveryPlan = response.data.delivery_plan;
-          const allocItems = deliveryPlan.delivery_plan_items.map((DPItem) => {
-            const allocItem: AllocItem = DPItem.allocation_item;
-
-            const itemObj = allocItem.customer_purchase_order.items.find(
-              (item) => item.item_id === allocItem.item_id,
-            );
-
-            return {
-              qty: DPItem.planned_qty,
-              stock: itemObj?.item.stock_code ?? "",
-              description: itemObj?.item.name ?? "",
-              unitCost:
-                addCommaToNumberWithTwoPlaces(Number(itemObj?.price ?? 0)) ||
-                "0.00",
-              discount: [
-                allocItem.customer_purchase_order.customer_discount_1,
-                allocItem.customer_purchase_order.customer_discount_2,
-                allocItem.customer_purchase_order.customer_discount_3,
-                allocItem.customer_purchase_order.transaction_discount_1,
-                allocItem.customer_purchase_order.transaction_discount_2,
-                allocItem.customer_purchase_order.transaction_discount_3,
-              ]
-                .filter((val) => val.includes("%"))
-                .join(", "),
-              amount:
-                addCommaToNumberWithTwoPlaces(
-                  calculateNetForRow(
-                    Number(DPItem.planned_qty),
-                    DPItem.allocation_item.customer_purchase_order,
-                    itemObj?.price ?? 0,
-                  ),
-                ) || "0.00",
-            };
-          });
-
-          generateDeliveryReceiptPDF(
-            allocItems,
-            deliveryPlan.id,
-            deliveryPlan.customer.name,
-            "",
-            transactionDate,
-            addCommaToNumberWithTwoPlaces(
-              Number(response.data.discount_amount),
-            ) || "0.00",
-            addCommaToNumberWithTwoPlaces(Number(response.data.total_net)) ||
-              "0.00",
-          );
-        })
-        .catch((error) => console.error("Error:", error));
+      generateDeliveryReceiptPDF(selectedRow);
     }
   };
 

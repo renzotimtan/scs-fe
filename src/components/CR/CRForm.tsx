@@ -18,6 +18,7 @@ import type {
   PaginatedWarehouse,
   Warehouse,
 } from "../../interface";
+import { generateCRPDF } from "./generatePDF";
 
 const CRForm = ({
   setOpen,
@@ -241,6 +242,12 @@ const CRForm = ({
     }
   };
 
+  const handlePDFCreate = (): void => {
+    if (selectedRow !== null && selectedRow !== undefined) {
+      generateCRPDF(selectedRow);
+    }
+  };
+
   return (
     <form
       onSubmit={async (e) => {
@@ -252,6 +259,7 @@ const CRForm = ({
       <div className="flex justify-between">
         <h2 className="mb-6">{title}</h2>
         <Button
+          onClick={handlePDFCreate}
           className="w-[130px] h-[35px] bg-button-neutral"
           size="sm"
           color="neutral"
