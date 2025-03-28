@@ -36,7 +36,7 @@ const CPOFormTable = ({
       // Spread the found item and ensure all required properties are defined
       const item: Item = {
         ...foundItem,
-        price: foundItem.acquisition_cost ?? 0,
+        price: foundItem?.srp ?? 0,
         volume: 1,
         p_type: "regular",
       };
@@ -75,6 +75,18 @@ const CPOFormTable = ({
     const newSelectedItems = selectedItems.map((item: Item, i: number) => {
       if (i === index) {
         return { ...item, p_type: value };
+      }
+
+      return item;
+    });
+
+    setSelectedItems(newSelectedItems);
+  };
+
+  const changePrice = (value: string, index: number): void => {
+    const newSelectedItems = selectedItems.map((item: Item, i: number) => {
+      if (i === index) {
+        return { ...item, price: value };
       }
 
       return item;
@@ -240,7 +252,23 @@ const CPOFormTable = ({
                     />
                   )}
                 </td>
-                <td>{!isNaN(Number(price)) ? Number(price) : ""}</td>
+                <td>
+                  {selectedItem?.id !== null && (
+                    <Input
+                      type="number"
+                      onChange={(e) => changePrice(e.target.value, index)}
+                      slotProps={{
+                        input: {
+                          min: 0.0,
+                          step: ".0001",
+                        },
+                      }}
+                      value={selectedItem.price}
+                      disabled={isEditDisabled}
+                      required
+                    />
+                  )}
+                </td>
                 <td>
                   {selectedItem?.id !== null &&
                     addCommaToNumberWithFourPlaces(

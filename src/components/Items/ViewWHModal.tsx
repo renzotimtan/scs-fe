@@ -17,7 +17,9 @@ const ViewWHModal = ({
   row,
   type,
 }: ViewWHModalProps): JSX.Element => {
-  const [warehouseItems, setWarehouseItems] = useState<AggregatedWarehouseItem[]>([]);
+  const [warehouseItems, setWarehouseItems] = useState<
+    AggregatedWarehouseItem[]
+  >([]);
 
   useEffect(() => {
     if (type === "warehouse") {
@@ -116,21 +118,23 @@ const ViewWHModal = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {warehouseItems.map((warehouseItem: AggregatedWarehouseItem) => (
-                    <tr
-                      key={`${warehouseItem.warehouse_id}-${warehouseItem.stock_code}`}
-                    >
-                      <td>
-                        {type === "warehouse"
-                          ? warehouseItem.item_name
-                          : warehouseItem.warehouse_name}
-                      </td>
-                      <td>{warehouseItem.total_on_stock}</td>
-                      <td>{warehouseItem.total_allocated}</td>
-                      <td>{warehouseItem.total_purchased}</td>
-                      <td>{warehouseItem.total_sold}</td>
-                    </tr>
-                  ))}
+                  {warehouseItems.map(
+                    (warehouseItem: AggregatedWarehouseItem) => (
+                      <tr
+                        key={`${warehouseItem.warehouse_id}-${warehouseItem.stock_code}`}
+                      >
+                        <td>
+                          {type === "warehouse"
+                            ? warehouseItem.item_name
+                            : warehouseItem.warehouse_name}
+                        </td>
+                        <td>{warehouseItem.total_on_stock}</td>
+                        <td>{warehouseItem.total_allocated}</td>
+                        <td>{warehouseItem.total_purchased}</td>
+                        <td>{warehouseItem.total_sold}</td>
+                      </tr>
+                    ),
+                  )}
                 </tbody>
               </Table>
             </Sheet>
